@@ -138,7 +138,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 println!("var schema{:?}", s);
                 Meta::Attr(s.clone())
             },
-            Math::Constant(n) => {
+            Math::Num(n) => {
                 println!("num schema{:?}", n);
                 Meta::Size(n as usize)
             }
@@ -160,7 +160,7 @@ define_term! {
         Dim = "dim",
 
         Subst = "subst",
-        Constant(Number),
+        Num(Number),
         Var(String),
     }
 }
