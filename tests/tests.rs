@@ -68,3 +68,11 @@ fn lambda_avoid() {
         &["(sum (dim k 3) (sum (dim l 4) (subst (dim i 1) (dim j 2) (lit 0))))"],
     );
 }
+#[test]
+fn schema() {
+    prove_something(
+        5_000,
+        "(dim k 3)",
+        &["(dim k 3)"],
+    );
+}

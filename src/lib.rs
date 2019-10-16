@@ -9,28 +9,141 @@ use egg::{
 
 ///use log::*;
 use smallvec::smallvec;
+use std::collections::HashMap;
+use std::i32;
 
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
 type Number = i32;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Meta {
-    Schema(std::collections::HashMap<String, usize>),
-    Dimension(String),
+    Schema(HashMap<String, usize>),
+    Dims(String, usize),
+    Attr(String),
     Size(usize),
+}
+
+impl Meta {
+    fn union(&self, other: &Self) -> Self {
+        if let (Self::Schema(s1), Self::Schema(s2)) = (self, other) {
+            let mut res = s1.clone();
+            res.extend(s2.clone());
+            Self::Schema(res)
+        } else {
+            panic!("Unioning a non-schema")
+        }
+    }
 }
 
 impl egg::egraph::Metadata<Math> for Meta {
     type Error = std::convert::Infallible;
     fn modify(_eclass: &mut EClass<Math, Self>) {}
-    fn merge(&self, _other: &Self) -> Self {
-        //assert_eq!(self.schema, other.schema, "merging expressions with different schema");
-        // TODO
+    fn merge(&self, other: &Self) -> Self {
+        assert_eq!(self, other, "merging expressions with different schema");
         self.clone()
     }
-    fn make(_expr: Expr<Math, &Self>) -> Self {
-        Meta::Size(0)
+
+    fn make(expr: Expr<Math, &Self>) -> Self {
+        let schema = match expr.op {
+            Math::Add => {
+                assert_eq!(expr.children.len(), 2, "wrong length in add");
+                let x_schema = &expr.children[0];
+                let y_schema = &expr.children[1];
+                x_schema.union(y_schema)
+            },
+            Math::Mul => {
+                assert_eq!(expr.children.len(), 2, "wrong length in mul");
+                let x_schema = &expr.children[0];
+                let y_schema = &expr.children[1];
+                x_schema.union(y_schema)
+            },
+            Math::Agg => {
+                assert_eq!(expr.children.len(), 2, "wrong length in sum");
+                let dim = &expr.children[0];
+                let body = &expr.children[1];
+
+                let (k, mut body_schema) =
+                    if let (Meta::Dims(i, n), Meta::Schema(schema)) = (dim, body) {
+                        (i, schema.clone())
+                    } else {
+                        panic!("wrong schema in aggregate")
+                    };
+
+                body_schema.remove(k);
+                Meta::Schema(body_schema)
+            },
+            Math::Lit => {
+                Meta::Schema(HashMap::default())
+            },
+            Math::Matrix => {
+                assert_eq!(expr.children.len(), 3, "wrong length in matrix");
+                let i_schema = &expr.children[1];
+                let j_schema = &expr.children[2];
+                if let (Meta::Dims(i, n), Meta::Dims(j, m)) = (i_schema, j_schema) {
+                    let res: HashMap<_,_> = vec![(i.clone(), *n), (j.clone(), *m)]
+                        .into_iter().collect();
+                    Meta::Schema(res)
+                } else {
+                    panic!("wrong schema in matrix")
+                }
+            },
+            Math::Dim => {
+                assert_eq!(expr.children.len(), 2, "wrong length in dim");
+                let i_schema = &expr.children[0];
+                let n_schema = &expr.children[1];
+                if let (Meta::Attr(i), Meta::Size(n)) = (i_schema, n_schema) {
+                    Meta::Dims(i.clone(), *n)
+                } else {
+                    panic!("wrong schema in dim {:?}", (i_schema, n_schema))
+                }
+            },
+            Math::Subst => {
+                assert_eq!(expr.children.len(), 3, "wrong length in subst");
+                let e_schema = &expr.children[0];
+                let v_schema = &expr.children[1];
+                let body_schema = &expr.children[2];
+
+                let (e_i, e_n) = if let Meta::Dims(i, n) = e_schema {
+                    (i, n)
+                } else {
+                    panic!("wrong schema in subst e")
+                };
+
+                let (v_i, v_n) = if let Meta::Dims(i, n) = v_schema {
+                    (i, n)
+                } else {
+                    panic!("wrong schema in subst v")
+                };
+
+                match body_schema {
+                    Meta::Schema(schema) => {
+                        let mut res = schema.clone();
+                        if let Some(m) = res.remove(v_i) {
+                            res.insert(e_i.clone(), m);
+                        }
+                        Meta::Schema(res)
+                    },
+                    Meta::Dims(body_i, body_n) => {
+                        if body_i == v_i {
+                            Meta::Dims(e_i.clone(), *e_n)
+                        } else {
+                            Meta::Dims(body_i.clone(), *body_n)
+                        }
+                    },
+                    _ => panic!("cannot subst for attr. and size")
+                }
+            },
+            Math::Var(s) => {
+                println!("var schema{:?}", s);
+                Meta::Attr(s.clone())
+            },
+            Math::Constant(n) => {
+                println!("num schema{:?}", n);
+                Meta::Size(n as usize)
+            }
+        };
+        schema
     }
 
 }
@@ -47,8 +160,8 @@ define_term! {
         Dim = "dim",
 
         Subst = "subst",
+        Constant(Number),
         Var(String),
-        Num(Number),
     }
 }
 
