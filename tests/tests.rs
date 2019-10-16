@@ -52,6 +52,8 @@ fn prove_something(size_limit: usize, start: &str, goals: &[&str]) {
         egraph.rebuild();
     }
 
+    egraph.dump_dot("test.dot");
+
     for (i, (goal_expr, goal_str)) in goal_exprs.iter().zip(goals).enumerate() {
         info!("Trying to prove goal {}: {}", i, goal_str);
         let equivs = egraph.equivs(&start_expr, &goal_expr);
@@ -112,5 +114,15 @@ fn pull_mul() {
         5_000,
         "(sum (dim i 10) (* (mat y (dim j 9) (dim k 8)) (mat x (dim i 9) (dim k 8))))",
         &["(*(mat y (dim j 9) (dim k 8)) (sum (dim i 10)  (mat x (dim i 9) (dim k 8))))"],
+    );
+}
+
+
+#[test]
+fn push_mul() {
+    prove_something(
+        5_000,
+        "(* (mat a (dim i 10) (dim j 10)) (sum (dim i 10) (mat b (dim i 10) (dim k 10))))",
+        &[ "(sum (dim v671645 10) (* (mat a (dim i 10) (dim j 10)) (subst (dim v671645 10) (dim i 10) (mat b (dim i 10) (dim k 10))))) "],
     );
 }

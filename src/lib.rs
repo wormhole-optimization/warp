@@ -11,6 +11,8 @@ use egg::{
 use smallvec::smallvec;
 use std::collections::HashMap;
 use std::i32;
+use std::hash::{Hash, Hasher};
+use std::collections::hash_map::DefaultHasher;
 
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
@@ -207,6 +209,15 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
             }
         ),
         Rewrite::new(
+            "pushdown_mul",
+            Math::parse_pattern("(* ?a (sum ?i ?b))").unwrap(),
+            PushMul {
+                a: "?a".parse().unwrap(),
+                i: "?i".parse().unwrap(),
+                b: "?b".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
             "dim_subst",
             Math::parse_pattern("(subst ?e (dim ?v ?m) (dim ?i ?n))").unwrap(),
             DimSubst {
@@ -232,6 +243,13 @@ struct SubstAgg {
 struct SumIA {
     i: QuestionMarkName,
     a: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct PushMul {
+    i: QuestionMarkName,
+    a: QuestionMarkName,
+    b: QuestionMarkName,
 }
 
 #[derive(Debug)]
@@ -314,6 +332,41 @@ impl Applier<Math, Meta> for PullMul {
             panic!("wrong schema in aggregate i:{:?} body:{:?}", i_schema, a_schema);
         }
 
+        res
+    }
+}
+
+impl Applier<Math, Meta> for PushMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let a = map[&self.a][0];
+        let i = map[&self.i][0];
+        let b = map[&self.b][0];
+
+        let ((i_i, i_n), a_schema) = if let (Meta::Dims(i, n) , Meta::Schema(a_s))
+            = (egraph[i].metadata.clone(), egraph[a].metadata.clone()) {
+                ((i, n), a_s)
+            } else {
+                panic!("wrong schema in push multiply");
+            };
+
+        let mut res = Vec::new();
+
+        if !a_schema.contains_key(&i_i) {
+            let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
+            let agg = egraph.add(Expr::new(Math::Agg, smallvec![i, mul.id]));
+            res.push(agg);
+        } else {
+            let mut s = DefaultHasher::new();
+            [i, a, b].hash(&mut s);
+            let fresh_s = "v".to_owned() + &(s.finish() % 976521).to_string();
+            let fresh_v = egraph.add(Expr::new(Math::Var(fresh_s), smallvec![]));
+            let fresh_n = egraph.add(Expr::new(Math::Num(i_n as i32), smallvec![]));
+            let fresh_dim = egraph.add(Expr::new(Math::Dim, smallvec![fresh_v.id, fresh_n.id]));
+            let b_subst = egraph.add(Expr::new(Math::Subst, smallvec![fresh_dim.id, i, b]));
+            let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b_subst.id]));
+            let agg = egraph.add(Expr::new(Math::Agg, smallvec![fresh_dim.id, mul.id]));
+            res.push(agg);
+        }
         res
     }
 }
