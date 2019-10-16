@@ -87,6 +87,26 @@ fn sum_i_a() {
 }
 
 #[test]
+fn dim_subst() {
+    prove_something(
+        5_000,
+        "(subst (dim j 10) (dim i 10) (dim i 10))",
+        &["(dim j 10)"],
+    );
+}
+
+#[should_panic(expected = "Couldn't prove goal 0")]
+#[test]
+fn dim_subst_fail() {
+    prove_something(
+        5_000,
+        "(subst (dim j 10) (dim i 10) (dim k 10))",
+        &["(dim j 10)"],
+    );
+}
+
+
+#[test]
 fn pull_mul() {
     prove_something(
         5_000,

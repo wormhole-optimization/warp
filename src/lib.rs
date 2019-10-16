@@ -40,7 +40,11 @@ impl egg::egraph::Metadata<Math> for Meta {
     type Error = std::convert::Infallible;
     fn modify(_eclass: &mut EClass<Math, Self>) {}
     fn merge(&self, other: &Self) -> Self {
-        assert_eq!(self, other, "merging expressions with different schema");
+        if let (Meta::Schema(l), Meta::Schema(r)) = (self, other) {
+            assert_eq!(l, r, "merging expressions with different schema");
+        }
+        // TODO check which way schema is merged
+        println!("new schema {:?}", self);
         self.clone()
     }
 
@@ -202,6 +206,16 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
                 b: "?b".parse().unwrap(),
             }
         ),
+        Rewrite::new(
+            "dim_subst",
+            Math::parse_pattern("(subst ?e (dim ?v ?m) (dim ?i ?n))").unwrap(),
+            DimSubst {
+                e: "?e".parse().unwrap(),
+                v: "?v".parse().unwrap(),
+                i: "?i".parse().unwrap(),
+                n: "?n".parse().unwrap(),
+            }
+        ),
 
     ]
 }
@@ -225,6 +239,14 @@ struct PullMul {
     i: QuestionMarkName,
     a: QuestionMarkName,
     b: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct DimSubst {
+    e: QuestionMarkName,
+    v: QuestionMarkName,
+    i: QuestionMarkName,
+    n: QuestionMarkName,
 }
 
 impl Applier<Math, Meta> for SubstAgg {
@@ -293,5 +315,25 @@ impl Applier<Math, Meta> for PullMul {
         }
 
         res
+    }
+}
+
+impl Applier<Math, Meta> for DimSubst {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let e = map[&self.e][0];
+        let v = map[&self.v][0];
+        let i = map[&self.i][0];
+        let n = map[&self.n][0];
+
+        let res = if i == v {
+            AddResult {
+                was_there: true,
+                id: e
+            }
+        } else {
+            egraph.add(Expr::new(Math::Dim, smallvec![i, n]))
+        };
+
+        vec![res]
     }
 }
