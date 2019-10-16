@@ -421,9 +421,11 @@ impl Applier<Math, Meta> for PushMul {
             let mut s = DefaultHasher::new();
             [i, a, b].hash(&mut s);
             let fresh_s = "v".to_owned() + &(s.finish() % 976521).to_string();
+
             let fresh_v = egraph.add(Expr::new(Math::Var(fresh_s), smallvec![]));
             let fresh_n = egraph.add(Expr::new(Math::Num(i_n as i32), smallvec![]));
             let fresh_dim = egraph.add(Expr::new(Math::Dim, smallvec![fresh_v.id, fresh_n.id]));
+
             let b_subst = egraph.add(Expr::new(Math::Subst, smallvec![fresh_dim.id, i, b]));
             let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b_subst.id]));
             let agg = egraph.add(Expr::new(Math::Agg, smallvec![fresh_dim.id, mul.id]));
