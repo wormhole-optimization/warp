@@ -178,7 +178,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         Rewrite::new(
             "agg-subst",
             Math::parse_pattern("(subst ?e ?v1 (sum ?v2 ?body))",).unwrap(),
-            AggSubst {
+            SubstAgg {
                 e: "?e".parse().unwrap(),
                 v1: "?v1".parse().unwrap(),
                 v2: "?v2".parse().unwrap(),
@@ -193,11 +193,21 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
                 a: "?a".parse().unwrap(),
             },
         ),
+        Rewrite::new(
+            "pullup_mul",
+            Math::parse_pattern("(sum ?i (* ?a ?b))").unwrap(),
+            PullMul {
+                i: "?i".parse().unwrap(),
+                a: "?a".parse().unwrap(),
+                b: "?b".parse().unwrap(),
+            }
+        ),
+
     ]
 }
 
 #[derive(Debug)]
-struct AggSubst {
+struct SubstAgg {
     e: QuestionMarkName,
     v1: QuestionMarkName,
     v2: QuestionMarkName,
@@ -210,7 +220,14 @@ struct SumIA {
     a: QuestionMarkName,
 }
 
-impl Applier<Math, Meta> for AggSubst {
+#[derive(Debug)]
+struct PullMul {
+    i: QuestionMarkName,
+    a: QuestionMarkName,
+    b: QuestionMarkName,
+}
+
+impl Applier<Math, Meta> for SubstAgg {
     fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
         let v1 = map[&self.v1][0];
         let v2 = map[&self.v2][0];
@@ -243,6 +260,32 @@ impl Applier<Math, Meta> for SumIA {
                 let i_abs = egraph.add(Expr::new(Math::Num(*n as i32), smallvec![]));
                 let i_val = egraph.add(Expr::new(Math::Lit, smallvec![i_abs.id]));
                 let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, i_val.id]));
+                res.push(mul);
+            }
+        } else {
+            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_schema, a_schema);
+        }
+
+        res
+    }
+}
+
+
+impl Applier<Math, Meta> for PullMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&self.i][0];
+        let a = map[&self.a][0];
+        let b = map[&self.b][0];
+
+        let i_schema = egraph[i].metadata.clone();
+        let a_schema = egraph[a].metadata.clone();
+
+        let mut res = Vec::new();
+
+        if let (Meta::Dims(k, n), Meta::Schema(body)) = (&i_schema, &a_schema) {
+            if !body.contains_key(k) {
+                let agg = egraph.add(Expr::new(Math::Agg, smallvec![i, b]));
+                let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, agg.id]));
                 res.push(mul);
             }
         } else {

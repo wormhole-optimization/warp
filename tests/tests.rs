@@ -85,3 +85,12 @@ fn sum_i_a() {
         &["(*  (mat x (dim j 9) (dim k 8)) (lit 10))"],
     );
 }
+
+#[test]
+fn pull_mul() {
+    prove_something(
+        5_000,
+        "(sum (dim i 10) (* (mat y (dim j 9) (dim k 8)) (mat x (dim i 9) (dim k 8))))",
+        &["(*(mat y (dim j 9) (dim k 8)) (sum (dim i 10)  (mat x (dim i 9) (dim k 8))))"],
+    );
+}
