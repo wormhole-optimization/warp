@@ -76,3 +76,12 @@ fn schema() {
         &["(dim k 3)"],
     );
 }
+
+#[test]
+fn sum_i_a() {
+    prove_something(
+        5_000,
+        "(sum (dim i 10) (mat x (dim j 9) (dim k 8)))",
+        &["(*  (mat x (dim j 9) (dim k 8)) (lit 10))"],
+    );
+}

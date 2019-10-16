@@ -184,9 +184,18 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
                 v2: "?v2".parse().unwrap(),
                 body: "?body".parse().unwrap(),
             },
-        )
+        ),
+        Rewrite::new(
+            "sum_i_a",
+            Math::parse_pattern("(sum ?i ?a)").unwrap(),
+            SumIA {
+                i: "?i".parse().unwrap(),
+                a: "?a".parse().unwrap(),
+            },
+        ),
     ]
 }
+
 #[derive(Debug)]
 struct AggSubst {
     e: QuestionMarkName,
@@ -194,6 +203,13 @@ struct AggSubst {
     v2: QuestionMarkName,
     body: QuestionMarkName,
 }
+
+#[derive(Debug)]
+struct SumIA {
+    i: QuestionMarkName,
+    a: QuestionMarkName,
+}
+
 impl Applier<Math, Meta> for AggSubst {
     fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
         let v1 = map[&self.v1][0];
@@ -209,5 +225,30 @@ impl Applier<Math, Meta> for AggSubst {
         };
 
         vec![res]
+    }
+}
+
+impl Applier<Math, Meta> for SumIA {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&self.i][0];
+        let a = map[&self.a][0];
+
+        let i_schema = egraph[i].metadata.clone();
+        let a_schema = egraph[a].metadata.clone();
+
+        let mut res = Vec::new();
+
+        if let (Meta::Dims(k, n), Meta::Schema(body)) = (&i_schema, &a_schema) {
+            if !body.contains_key(k) {
+                let i_abs = egraph.add(Expr::new(Math::Num(*n as i32), smallvec![]));
+                let i_val = egraph.add(Expr::new(Math::Lit, smallvec![i_abs.id]));
+                let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, i_val.id]));
+                res.push(mul);
+            }
+        } else {
+            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_schema, a_schema);
+        }
+
+        res
     }
 }
