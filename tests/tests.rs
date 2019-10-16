@@ -126,3 +126,12 @@ fn push_mul() {
         &[ "(sum (dim v671645 10) (* (mat a (dim i 10) (dim j 10)) (subst (dim v671645 10) (dim i 10) (mat b (dim i 10) (dim k 10))))) "],
     );
 }
+
+#[test]
+fn push_mul_2() {
+    prove_something(
+        5_000,
+        "(* (mat a (dim k 10) (dim j 10)) (sum (dim i 10) (mat b (dim i 10) (dim k 10))))",
+        &[ "(sum (dim i 10) (* (mat a (dim k 10) (dim j 10))  (mat b (dim i 10) (dim k 10)))) "],
+    );
+}
