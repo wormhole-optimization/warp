@@ -206,6 +206,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j))"),
         rw("subst-lit",    "(subst ?e ?v (lit ?n))",      "(lit ?n)"),
 
+        rw("matrix-swap-dims", "(mat ?x ?i ?j)", "(mat ?x ?j ?i)"),
 
         rw("distribute-lft-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?a ?b) (* ?a ?c))"),
         rw("distribute-rgt-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?b ?a) (* ?c ?a))"),
@@ -220,6 +221,18 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         rw("pushdown-add",  "(+ (sum ?i ?a) (sum ?i ?b))",  "(sum ?i (+ ?a ?b))",),
 
         rw("swap-agg", "(sum ?i (sum ?j ?a))", "(sum ?j (sum ?i ?a))"),
+
+        Rewrite::new(
+            "foundit",
+            Math::parse_pattern(
+                "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j) (mat ?x ?i ?j)) (+ \
+                 (* (mat ?x ?i ?j) (sum ?k (* (mat ?u ?i ?k) (mat ?v ?k ?j)))) \
+                 (* (mat ?x ?i ?j) (sum ?k (* (mat ?u ?i ?k) (mat ?v ?k ?j)))))))) \
+                 (sum ?c (sum ?a (* \
+                 (sum ?b (* (mat ?u ?a ?b) (mat ?u ?b ?c)))\
+                 (sum ?d (* (mat ?v ?a ?d) (mat ?v ?d ?c)))))))",).unwrap(),
+            Foundit,
+        ),
 
         Rewrite::new(
             "agg-subst",
@@ -272,6 +285,9 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 }
 
 #[derive(Debug)]
+struct Foundit;
+
+#[derive(Debug)]
 struct SubstAgg {
     e: QuestionMarkName,
     v1: QuestionMarkName,
@@ -305,6 +321,12 @@ struct DimSubst {
     v: QuestionMarkName,
     i: QuestionMarkName,
     n: QuestionMarkName,
+}
+
+impl Applier<Math, Meta> for Foundit {
+    fn apply(&self, _egraph: &mut EGraph, _map: &WildMap) -> Vec<AddResult> {
+        panic!("FOUNDITTT")
+    }
 }
 
 impl Applier<Math, Meta> for SubstAgg {

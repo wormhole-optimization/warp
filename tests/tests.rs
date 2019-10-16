@@ -135,3 +135,14 @@ fn push_mul_2() {
         &[ "(sum (dim i 10) (* (mat a (dim k 10) (dim j 10))  (mat b (dim i 10) (dim k 10)))) "],
     );
 }
+
+#[test]
+fn parrot() {
+    prove_something(
+        5_000,
+        "(sum (dim j 0) (sum (dim k 0) (* \
+         (+ (mat x (dim j 0) (dim k 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)) (mat v (dim i 0) (dim k 0))))) \
+         (+ (mat x (dim j 0) (dim k 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)) (mat v (dim i 0) (dim k 0))))))))",
+        &[ "lol"],
+    );
+}
