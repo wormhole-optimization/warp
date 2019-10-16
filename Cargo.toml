@@ -1,0 +1,23 @@
+[package]
+name = "warp"
+version = "0.1.0"
+authors = ["remysucre <remy.sucre@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+egg = { path = "../egg/egg" }
+log = "0.4"
+indexmap = "1.1"
+nanoid = "0.2"
+
+ordered-float = "1"
+env_logger = "0.6"
+smallvec = "0.6"
+
+pest = "2.0"
+pest_derive = "2.0"
+
+[features]
+parent-pointers = ["egg/parent-pointers"]
