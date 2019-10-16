@@ -179,8 +179,48 @@ impl Language for Math {
 }
 #[rustfmt::skip]
 pub fn rules() -> Vec<Rewrite<Math, Meta>> {
-    let _rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
+    let rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
     vec![
+        rw("+-commutative", "(+ ?a ?b)", "(+ ?b ?a)"),
+        rw("*-commutative", "(* ?a ?b)", "(* ?b ?a)"),
+
+        rw("associate-+r+", "(+ ?a (+ ?b ?c))", "(+ (+ ?a ?b) ?c)"),
+        rw("associate-+l+", "(+ (+ ?a ?b) ?c)", "(+ ?a (+ ?b ?c))"),
+        rw("associate-+r-", "(+ ?a (- ?b ?c))", "(- (+ ?a ?b) ?c)"),
+        rw("associate-+l-", "(+ (- ?a ?b) ?c)", "(- ?a (- ?b ?c))"),
+        rw("associate--r+", "(- ?a (+ ?b ?c))", "(- (- ?a ?b) ?c)"),
+        rw("associate--l+", "(- (+ ?a ?b) ?c)", "(+ ?a (- ?b ?c))"),
+        rw("associate--l-", "(- (- ?a ?b) ?c)", "(- ?a (+ ?b ?c))"),
+        rw("associate--r-", "(- ?a (- ?b ?c))", "(+ (- ?a ?b) ?c)"),
+        rw("associate-*r*", "(* ?a (* ?b ?c))", "(* (* ?a ?b) ?c)"),
+        rw("associate-*l*", "(* (* ?a ?b) ?c)", "(* ?a (* ?b ?c))"),
+        rw("associate-*r/", "(* ?a (/ ?b ?c))", "(/ (* ?a ?b) ?c)"),
+        rw("associate-*l/", "(* (/ ?a ?b) ?c)", "(/ (* ?a ?c) ?b)"),
+        rw("associate-/r*", "(/ ?a (* ?b ?c))", "(/ (/ ?a ?b) ?c)"),
+        rw("associate-/l*", "(/ (* ?b ?c) ?a)", "(/ ?b (/ ?a ?c))"),
+        rw("associate-/r/", "(/ ?a (/ ?b ?c))", "(* (/ ?a ?b) ?c)"),
+        rw("associate-/l/", "(/ (/ ?b ?c) ?a)", "(/ ?b (* ?a ?c))"),
+
+        rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",     "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
+        rw("subst-*",      "(subst ?e ?v (* ?a ?b))",     "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
+        rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j))"),
+        rw("subst-lit",    "(subst ?e ?v (lit ?n))",      "(lit ?n)"),
+
+
+        rw("distribute-lft-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?a ?b) (* ?a ?c))"),
+        rw("distribute-rgt-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?b ?a) (* ?c ?a))"),
+        rw("distribute-lft-out",   "(+ (* ?a ?b) (* ?a ?c))", "(* ?a (+ ?b ?c))"),
+        rw("distribute-lft-out--", "(- (* ?a ?b) (* ?a ?c))", "(* ?a (- ?b ?c))"),
+        rw("distribute-rgt-out",   "(+ (* ?b ?a) (* ?c ?a))", "(* ?a (+ ?b ?c))"),
+        rw("distribute-rgt-out--", "(- (* ?b ?a) (* ?c ?a))", "(* ?a (- ?b ?c))"),
+        rw("distribute-lft1-in",   "(+ (* ?b ?a) ?a)",        "(* (+ ?b 1) ?a)"),
+        rw("distribute-rgt1-in",   "(+ ?a (* ?c ?a))",        "(* (+ ?c 1) ?a)"),
+
+        rw("pullup-add",    "(sum ?i (+ ?a ?b))",            "(+ (sum ?i ?a) (sum ?i ?b))"),
+        rw("pushdown-add",  "(+ (sum ?i ?a) (sum ?i ?b))",  "(sum ?i (+ ?a ?b))",),
+
+        rw("swap-agg", "(sum ?i (sum ?j ?a))", "(sum ?j (sum ?i ?a))"),
+
         Rewrite::new(
             "agg-subst",
             Math::parse_pattern("(subst ?e ?v1 (sum ?v2 ?body))",).unwrap(),
