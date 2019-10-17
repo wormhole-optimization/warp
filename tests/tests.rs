@@ -139,6 +139,7 @@ fn push_mul_2() {
 #[test]
 fn test_extract() {
     let start = "(* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (lit 1))))))))";
+    println!("input: {:?}", start);
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 

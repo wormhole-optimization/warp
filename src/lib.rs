@@ -18,6 +18,8 @@ use lp_modeler::solvers::{GurobiSolver, SolverTrait};
 use lp_modeler::dsl::*;
 use lp_modeler::format::lp_format::LpFileFormat;
 
+use bimap::BiMap;
+
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
 type Number = i32;
@@ -50,7 +52,6 @@ impl egg::egraph::Metadata<Math> for Meta {
             assert_eq!(l, r, "merging expressions with different schema");
         }
         // TODO check which way schema is merged
-        println!("new schema {:?}", self);
         self.clone()
     }
 
@@ -145,11 +146,9 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Math::Var(s) => {
-                println!("var schema{:?}", s);
                 Meta::Attr(s.clone())
             },
             Math::Num(n) => {
-                println!("num schema{:?}", n);
                 Meta::Size(n as usize)
             }
         };
@@ -476,18 +475,18 @@ pub fn extract(egraph: EGraph, root: Id) {
     //let mut constraint_fn = HashMap::new();
     // TODO might need to iterate over eclass for this
     // to work properly
-    let var_bns: HashMap<_,_> = egraph.memo.keys().map(|e| {
+    let var_bns: BiMap<_,_> = egraph.memo.keys().map(|e| {
         let mut s = DefaultHasher::new();
         e.hash(&mut s);
         let bnv = "bn".to_owned() + &s.finish().to_string();
         let bn = LpBinary::new(&bnv);
-        (e, bn)
+        (e, SymVar(bn))
     }).collect();
 
-    let var_bqs: HashMap<_,_> = egraph.classes().map(|c| {
+    let var_bqs: BiMap<_,_> = egraph.classes().map(|c| {
         let bqv = "bq".to_owned() + &c.id.to_string();
         let bq = LpBinary::new(&bqv);
-        (c.id, bq)
+        (c.id, SymVar(bq))
     }).collect();
 
     // map each Bn to vec of Bq
@@ -506,21 +505,21 @@ pub fn extract(egraph: EGraph, root: Id) {
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(_e, bin)| {
             let coef = 2;
-            coef * bin
+            coef * &bin.0
         }).collect()
     };
 
     problem += obj_vec.sum();
 
     // Br: must pick root
-    problem += (0 + var_bqs.get(&root).unwrap()).equal(1);
+    problem += (0 + &var_bqs.get_by_left(&root).unwrap().0).equal(1);
 
     for node in egraph.memo.keys() {
         // Fn: Bn => AND Bq in n.children
         // (not Bn) or (AND Bq)
         for class in node.children.iter() {
             // (1-Bn) + bq > 0
-            problem += ((1-var_bns.get(&node).unwrap()) + var_bqs.get(class).unwrap()).ge(1);
+            problem += ((1-&var_bns.get_by_left(&node).unwrap().0) + &var_bqs.get_by_left(class).unwrap().0).ge(1);
         }
     }
 
@@ -528,11 +527,8 @@ pub fn extract(egraph: EGraph, root: Id) {
         // Gq: Bq => OR Bn in q.nodes
         // (not Bq) or (OR Bn)
         // (1-Bq) + (sum Bn) > 0
-        problem += ((1-var_bqs.get(&class.id).unwrap()) + sum(&class.nodes, |n| var_bns.get(n).unwrap())).ge(1);
+        problem += ((1-&var_bqs.get_by_left(&class.id).unwrap().0) + sum(&class.nodes, |n| &var_bns.get_by_left(&n).unwrap().0)).ge(1);
     }
-
-    println!("GOOOOOOO");
-    problem.write_lp("/Users/r/wormhole/warp/problem.lp");
 
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
@@ -544,7 +540,20 @@ pub fn extract(egraph: EGraph, root: Id) {
     for (var_name, var_value) in &var_values {
         let int_var_value = *var_value as u32;
         if int_var_value == 1{
-            println!("{} = {}", var_name, var_value);
+            if let Some(v) = var_bns.get_by_right(&SymVar(LpBinary::new(var_name))) {
+                println!("{}", v.op);
+            }
         }
+    }
+}
+
+#[derive(PartialEq)]
+struct SymVar(LpBinary);
+
+impl Eq for SymVar {}
+
+impl Hash for SymVar {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.name.hash(state);
     }
 }
