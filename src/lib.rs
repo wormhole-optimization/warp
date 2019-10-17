@@ -1,7 +1,7 @@
 use egg::{
     define_term,
     egraph::{AddResult, EClass},
-    expr::{Expr, Language, QuestionMarkName, Id},
+    expr::{Expr, Language, QuestionMarkName, Id, RecExpr},
     //extract::{calculate_cost, Extractor},
     parse::ParsableLanguage,
     pattern::{Applier, Rewrite, WildMap},
@@ -9,7 +9,7 @@ use egg::{
 
 ///use log::*;
 use smallvec::smallvec;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::i32;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
@@ -537,14 +537,33 @@ pub fn extract(egraph: EGraph, root: Id) {
 
     let (solver_status, var_values) = result.unwrap();
 
+    let mut selected = HashSet::new();
+
     for (var_name, var_value) in &var_values {
         let int_var_value = *var_value as u32;
         if int_var_value == 1{
-            if let Some(v) = var_bns.get_by_right(&SymVar(LpBinary::new(var_name))) {
-                println!("{}", v.op);
+            if let Some(&v) = var_bns.get_by_right(&SymVar(LpBinary::new(var_name))) {
+                //println!("{}", v.op);
+                selected.insert(v);
             }
         }
     }
+
+    let best = best_expr(&egraph, root, &selected);
+    println!("{}", best.pretty(40));
+}
+
+fn best_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) -> RecExpr<Math> {
+    let eclass = egraph.find(class);
+    let best_node = egraph[eclass]
+        .iter()
+        .find(|n| selected.contains(n))
+        .expect("no node selected in class");
+
+    best_node
+        .clone()
+        .map_children(|child| best_expr(egraph, child, selected))
+        .into()
 }
 
 #[derive(PartialEq)]
