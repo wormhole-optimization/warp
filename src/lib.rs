@@ -1,7 +1,7 @@
 use egg::{
     define_term,
     egraph::{AddResult, EClass},
-    expr::{Expr, Language, QuestionMarkName},
+    expr::{Expr, Language, QuestionMarkName, Id},
     //extract::{calculate_cost, Extractor},
     parse::ParsableLanguage,
     pattern::{Applier, Rewrite, WildMap},
@@ -13,6 +13,10 @@ use std::collections::HashMap;
 use std::i32;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
+
+use lp_modeler::solvers::{GurobiSolver, SolverTrait};
+use lp_modeler::dsl::*;
+use lp_modeler::format::lp_format::LpFileFormat;
 
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
@@ -452,5 +456,95 @@ impl Applier<Math, Meta> for DimSubst {
         };
 
         vec![res]
+    }
+}
+
+pub fn extract(egraph: EGraph, root: Id) {
+    // generate variables
+    // Br = variable for root
+    // Bn = variable for each node
+    // Bq = variable for each class
+
+    // generate constraints
+    // Br: must pick root
+    // Fn: Bn => AND Bq in n.children
+
+    let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
+
+    let br = "bq".to_owned() + &root.to_string();
+
+    //let mut constraint_fn = HashMap::new();
+    // TODO might need to iterate over eclass for this
+    // to work properly
+    let var_bns: HashMap<_,_> = egraph.memo.keys().map(|e| {
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        let bnv = "bn".to_owned() + &s.finish().to_string();
+        let bn = LpBinary::new(&bnv);
+        (e, bn)
+    }).collect();
+
+    let var_bqs: HashMap<_,_> = egraph.classes().map(|c| {
+        let bqv = "bq".to_owned() + &c.id.to_string();
+        let bq = LpBinary::new(&bqv);
+        (c.id, bq)
+    }).collect();
+
+    // map each Bn to vec of Bq
+    // Gq: Bq => OR Bn in q.nodes
+
+    //let mut constraint_gq = HashMap::new();
+
+    // map each Bq to vec of Bn
+
+    // generate objective
+    // min SUM_n Bn * Cn
+    // map each Bn to cost
+
+    // 2 maps: map Bn to Bqs, and map Bq to Bns
+
+    let obj_vec: Vec<LpExpression> = {
+        var_bns.iter().map(|(_e, bin)| {
+            let coef = 2;
+            coef * bin
+        }).collect()
+    };
+
+    problem += obj_vec.sum();
+
+    // Br: must pick root
+    problem += (0 + var_bqs.get(&root).unwrap()).equal(1);
+
+    for node in egraph.memo.keys() {
+        // Fn: Bn => AND Bq in n.children
+        // (not Bn) or (AND Bq)
+        for class in node.children.iter() {
+            // (1-Bn) + bq > 0
+            problem += ((1-var_bns.get(&node).unwrap()) + var_bqs.get(class).unwrap()).ge(1);
+        }
+    }
+
+    for class in egraph.classes() {
+        // Gq: Bq => OR Bn in q.nodes
+        // (not Bq) or (OR Bn)
+        // (1-Bq) + (sum Bn) > 0
+        problem += ((1-var_bqs.get(&class.id).unwrap()) + sum(&class.nodes, |n| var_bns.get(n).unwrap())).ge(1);
+    }
+
+    println!("GOOOOOOO");
+    problem.write_lp("/Users/r/wormhole/warp/problem.lp");
+
+    let solver = GurobiSolver::new();
+    let result = solver.run(&problem);
+
+    assert!(result.is_ok(), result.unwrap_err());
+
+    let (solver_status, var_values) = result.unwrap();
+
+    for (var_name, var_value) in &var_values {
+        let int_var_value = *var_value as u32;
+        if int_var_value == 1{
+            println!("{} = {}", var_name, var_value);
+        }
     }
 }

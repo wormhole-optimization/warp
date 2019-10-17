@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules};
+use warp::{Math, EGraph, rules, extract};
 use egg::{
     define_term,
     egraph::{AddResult, EClass, Metadata},
@@ -137,6 +137,22 @@ fn push_mul_2() {
 }
 
 #[test]
+fn test_extract() {
+    let start = "(* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (* (lit 1) (lit 1))))))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = rules();
+    for i in 1..50 {
+        for rw in &rules {
+            rw.run(&mut egraph);
+        }
+    }
+
+    extract(egraph, root)
+}
+
+//#[test]
 fn parrot() {
     prove_something(
         5_000,
