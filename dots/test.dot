@@ -85,19 +85,12 @@ digraph {
   }
   subgraph cluster_51 {
     style=dotted
-    51.0[label = "lit"]
-    51.1[label = "subst"]
-  }
-  subgraph cluster_53 {
-    style=dotted
-    53.0[label = "lit"]
-    53.1[label = "subst"]
-  }
-  subgraph cluster_54 {
-    style=dotted
-    54.0[label = "*"]
-    54.1[label = "sum"]
-    54.2[label = "subst"]
+ .0 51.0[label = "lit"]
+    51.1[label =.1 -> 2.0 [lhe  subgraph clu, lab53 {
+     11.1 -> 10.0 [lhead0[label = "lit"]
+    53.1[la11.2 -> 13.0 [lhead  subgraph cluster_54 {
+    11.2 -> 10.0 [lhead.0[label = "*"]
+    54.1[label 0 -> 1.0     54.2[label = "subst"]
     54.3[label = "*"]
     54.4[label = "sum"]
   }

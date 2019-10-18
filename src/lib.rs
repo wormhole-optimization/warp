@@ -19,20 +19,67 @@ use lp_modeler::dsl::*;
 use lp_modeler::format::lp_format::LpFileFormat;
 
 use bimap::BiMap;
+use ordered_float::NotNan;
 
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
 type Number = i32;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Meta {
+pub struct Meta {
+    schema: Schema,
+    sparsity: Sparsity,
+    nnz: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Sparsity {
+    NA,
+    One,
+    Zero,
+    Sparse(NotNan<f64>)
+}
+
+impl Sparsity {
+    fn merge(&self, other: &Sparsity, op: Math) -> Self {
+        match op {
+            Math::Add => match self {
+                Self::NA => Self::Sparse(NotNan::from(0 as f64)),
+                Self::One => Self::Sparse(NotNan::from(0 as f64)),
+                Self::Zero => other.clone(),
+                Self::Sparse(s1) => match other {
+                    Self::NA => Self::Sparse(NotNan::from(0 as f64)),
+                    Self::One => Self::Sparse(NotNan::from(0 as f64)),
+                    Self::Zero => Self::Sparse(*s1),
+                    Self::Sparse(s2) => Self::Sparse(std::cmp::min(
+                        NotNan::from(1 as f64), *s1 + *s2)),
+                }
+            },
+            Math::Mul => match self {
+                Self::NA => other.clone(),
+                Self::One => other.clone(),
+                Self::Zero => Self::Sparse(NotNan::from(1 as f64)),
+                Self::Sparse(s1) => match other {
+                    Self::NA => Self::Sparse(*s1),
+                    Self::One => Self::Sparse(*s1),
+                    Self::Zero => Self::Sparse(NotNan::from(1 as f64)),
+                    Self::Sparse(s2) => Self::Sparse(std::cmp::min(*s1, *s2)),
+                }
+            },
+            _ => panic!("merging non sum/product")
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Schema {
     Schema(HashMap<String, usize>),
     Dims(String, usize),
     Attr(String),
     Size(usize),
 }
 
-impl Meta {
+impl Schema {
     fn union(&self, other: &Self) -> Self {
         if let (Self::Schema(s1), Self::Schema(s2)) = (self, other) {
             let mut res = s1.clone();
@@ -48,26 +95,68 @@ impl egg::egraph::Metadata<Math> for Meta {
     type Error = std::convert::Infallible;
     fn modify(_eclass: &mut EClass<Math, Self>) {}
     fn merge(&self, other: &Self) -> Self {
-        if let (Meta::Schema(l), Meta::Schema(r)) = (self, other) {
+
+        // merge sparsity and nnz
+        let sparsity = match self.sparsity {
+            Sparsity::Sparse(s1) => {
+                match other.sparsity {
+                    Sparsity::Sparse(s2) => Sparsity::Sparse(std::cmp::max(s1, s2)),
+                    other => self.sparsity
+                }
+            }
+            other => other,
+        };
+        let nnz = std::cmp::min(self.nnz, other.nnz);
+
+        // merge schema
+        if let (Schema::Schema(l), Schema::Schema(r)) = (self.schema, other.schema) {
             assert_eq!(l, r, "merging expressions with different schema");
         }
         // TODO check which way schema is merged
-        self.clone()
+        Meta {schema: self.schema, sparsity: sparsity, nnz: nnz}
     }
 
     fn make(expr: Expr<Math, &Self>) -> Self {
         let schema = match expr.op {
             Math::Add => {
                 assert_eq!(expr.children.len(), 2, "wrong length in add");
-                let x_schema = &expr.children[0];
-                let y_schema = &expr.children[1];
-                x_schema.union(y_schema)
+                let x = &expr.children[0];
+                let y = &expr.children[1];
+                let schema = x.schema.union(&y.schema);
+
+                let sparsity = x.sparsity.merge(&y.sparsity, Math::Add);
+
+                let nnz = if let Schema::Schema(s1) = schema {
+                    match sparsity {
+                        Sparsity::Sparse(s2) => {
+                            s1.values().product() * (NotNan::from(1 as f64)-s2)
+                        },
+                        _ => 0
+                    }
+                } else {
+                    panic!("wrong schema in add")
+                };
+                Meta {schema, sparsity, nnz}
             },
             Math::Mul => {
                 assert_eq!(expr.children.len(), 2, "wrong length in mul");
-                let x_schema = &expr.children[0];
-                let y_schema = &expr.children[1];
-                x_schema.union(y_schema)
+                let x = &expr.children[0];
+                let y = &expr.children[1];
+                let schema = x.schema.union(&y.schema);
+
+                let sparsity = x.sparsity.merge(&y.sparsity, Math::Mul);
+
+                let nnz = if let Schema::Schema(s1) = schema {
+                    match sparsity {
+                        Sparsity::Sparse(s2) => {
+                            s1.values().product() * (NotNan::from(1 as f64)-s2)
+                        },
+                        _ => 0
+                    }
+                } else {
+                    panic!("wrong schema in mul")
+                };
+                Meta {schema, sparsity, nnz}
             },
             Math::Agg => {
                 assert_eq!(expr.children.len(), 2, "wrong length in sum");
@@ -75,14 +164,27 @@ impl egg::egraph::Metadata<Math> for Meta {
                 let body = &expr.children[1];
 
                 let (k, mut body_schema) =
-                    if let (Meta::Dims(i, n), Meta::Schema(schema)) = (dim, body) {
+                    if let (Schema::Dims(i,n), Schema::Schema(schema)) =
+                    (dim.schema, body.schema) {
                         (i, schema.clone())
                     } else {
                         panic!("wrong schema in aggregate")
                     };
 
-                body_schema.remove(k);
-                Meta::Schema(body_schema)
+                body_schema.remove(&k);
+                let schema = Schema::Schema(body_schema);
+                let sparsity = if let Schema::Schema(s) = schema {
+                    Sparsity::Sparse(
+                        std::cmp::min(
+                            NotNan::from(1 as f64),
+                            body.nnz / s.values().product()
+                        )
+                    )
+                } else {
+                    panic!("wrong schema in aggregate")
+                };
+
+                Meta {schema, sparsity, nnz: body.nnz}
             },
             Math::Lit => {
                 Meta::Schema(HashMap::default())
