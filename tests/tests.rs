@@ -83,8 +83,8 @@ fn schema() {
 fn sum_i_a() {
     prove_something(
         5_000,
-        "(sum (dim i 10) (mat x (dim j 9) (dim k 8)))",
-        &["(*  (mat x (dim j 9) (dim k 8)) (lit 10))"],
+        "(sum (dim i 10) (mat x (dim j 9) (dim k 8) (nnz 0)))",
+        &["(*  (mat x (dim j 9) (dim k 8) (nnz 0)) (lit 10))"],
     );
 }
 
@@ -112,8 +112,8 @@ fn dim_subst_fail() {
 fn pull_mul() {
     prove_something(
         5_000,
-        "(sum (dim i 10) (* (mat y (dim j 9) (dim k 8)) (mat x (dim i 9) (dim k 8))))",
-        &["(*(mat y (dim j 9) (dim k 8)) (sum (dim i 10)  (mat x (dim i 9) (dim k 8))))"],
+        "(sum (dim i 10) (* (mat y (dim j 9) (dim k 8) (nnz 0)) (mat x (dim i 9) (dim k 8) (nnz 0))))",
+        &["(*(mat y (dim j 9) (dim k 8) (nnz 0)) (sum (dim i 10)  (mat x (dim i 9) (dim k 8) (nnz 0))))"],
     );
 }
 
@@ -122,8 +122,8 @@ fn pull_mul() {
 fn push_mul() {
     prove_something(
         5_000,
-        "(* (mat a (dim i 10) (dim j 10)) (sum (dim i 10) (mat b (dim i 10) (dim k 10))))",
-        &[ "(sum (dim v671645 10) (* (mat a (dim i 10) (dim j 10)) (mat b (dim v671645 10) (dim k 10)))) "],
+        "(* (mat a (dim i 10) (dim j 10) (nnz 0)) (sum (dim i 10) (mat b (dim i 10) (dim k 10) (nnz 0))))",
+        &[ "(sum (dim v734493 10) (* (mat a (dim i 10) (dim j 10) (nnz 0)) (mat b (dim v734493 10) (dim k 10) (nnz 0)))) "],
     );
 }
 
@@ -131,8 +131,8 @@ fn push_mul() {
 fn push_mul_2() {
     prove_something(
         5_000,
-        "(* (mat a (dim k 10) (dim j 10)) (sum (dim i 10) (mat b (dim i 10) (dim k 10))))",
-        &[ "(sum (dim i 10) (* (mat a (dim k 10) (dim j 10))  (mat b (dim i 10) (dim k 10)))) "],
+        "(* (mat a (dim k 10) (dim j 10)(nnz 0)) (sum (dim i 10) (mat b (dim i 10) (dim k 10)(nnz 0))))",
+        &[ "(sum (dim i 10) (* (mat a (dim k 10) (dim j 10)(nnz 0))  (mat b (dim i 10) (dim k 10)(nnz 0)))) "],
     );
 }
 
@@ -158,8 +158,8 @@ fn parrot() {
     prove_something(
         5_000,
         "(sum (dim j 0) (sum (dim k 0) (* \
-         (+ (mat x (dim j 0) (dim k 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)) (mat v (dim i 0) (dim k 0))))) \
-         (+ (mat x (dim j 0) (dim k 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)) (mat v (dim i 0) (dim k 0))))))))",
+         (+ (mat x (dim j 0) (dim k 0)(nnz 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)(nnz 0)) (mat v (dim i 0) (dim k 0)(nnz 0))))) \
+         (+ (mat x (dim j 0) (dim k 0)(nnz 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)(nnz 0)) (mat v (dim i 0) (dim k 0)(nnz 0))))))))",
         &[ "lol"],
     );
 }

@@ -97,23 +97,23 @@ impl egg::egraph::Metadata<Math> for Meta {
     fn merge(&self, other: &Self) -> Self {
 
         // merge sparsity and nnz
-        let sparsity = match self.sparsity {
+        let sparsity = match &self.sparsity {
             Sparsity::Sparse(s1) => {
-                match other.sparsity {
-                    Sparsity::Sparse(s2) => Sparsity::Sparse(std::cmp::max(s1, s2)),
-                    other => self.sparsity
+                match &other.sparsity {
+                    Sparsity::Sparse(s2) => Sparsity::Sparse(std::cmp::max(*s1, *s2)),
+                    _other => self.sparsity.clone()
                 }
             }
-            other => other,
+            other => other.clone(),
         };
         let nnz = std::cmp::min(self.nnz, other.nnz);
 
         // merge schema
-        if let (Schema::Schema(l), Schema::Schema(r)) = (self.schema, other.schema) {
+        if let (Schema::Schema(l), Schema::Schema(r)) = (&self.schema, &other.schema) {
             assert_eq!(l, r, "merging expressions with different schema");
         }
         // TODO check which way schema is merged
-        Meta {schema: self.schema, sparsity: sparsity, nnz: nnz}
+        Meta {schema: self.schema.clone(), sparsity: sparsity, nnz: nnz}
     }
 
     fn make(expr: Expr<Math, &Self>) -> Self {
@@ -126,17 +126,19 @@ impl egg::egraph::Metadata<Math> for Meta {
 
                 let sparsity = x.sparsity.merge(&y.sparsity, Math::Add);
 
-                let nnz = if let Schema::Schema(s1) = schema {
+                let nnz = if let Schema::Schema(s1) = &schema {
+                    let vol: usize = s1.values().product();
                     match sparsity {
                         Sparsity::Sparse(s2) => {
-                            s1.values().product() * (NotNan::from(1 as f64)-s2)
+                            NotNan::from(vol as f64) * (NotNan::from(1 as f64)-s2)
                         },
-                        _ => 0
+                        _ => NotNan::from(0 as f64)
                     }
                 } else {
                     panic!("wrong schema in add")
                 };
-                Meta {schema, sparsity, nnz}
+
+                Meta {schema, sparsity, nnz: nnz.round() as usize }
             },
             Math::Mul => {
                 assert_eq!(expr.children.len(), 2, "wrong length in mul");
@@ -146,17 +148,18 @@ impl egg::egraph::Metadata<Math> for Meta {
 
                 let sparsity = x.sparsity.merge(&y.sparsity, Math::Mul);
 
-                let nnz = if let Schema::Schema(s1) = schema {
+                let nnz = if let Schema::Schema(s1) = &schema {
+                    let vol: usize = s1.values().product();
                     match sparsity {
                         Sparsity::Sparse(s2) => {
-                            s1.values().product() * (NotNan::from(1 as f64)-s2)
+                            NotNan::from(vol as f64) * (NotNan::from(1 as f64)-s2)
                         },
-                        _ => 0
+                        _ => NotNan::from(0 as f64)
                     }
                 } else {
                     panic!("wrong schema in mul")
                 };
-                Meta {schema, sparsity, nnz}
+                Meta {schema, sparsity, nnz: nnz.round() as usize }
             },
             Math::Agg => {
                 assert_eq!(expr.children.len(), 2, "wrong length in sum");
@@ -165,19 +168,20 @@ impl egg::egraph::Metadata<Math> for Meta {
 
                 let (k, mut body_schema) =
                     if let (Schema::Dims(i,n), Schema::Schema(schema)) =
-                    (dim.schema, body.schema) {
+                    (&dim.schema, &body.schema) {
                         (i, schema.clone())
                     } else {
                         panic!("wrong schema in aggregate")
                     };
 
-                body_schema.remove(&k);
+                body_schema.remove(k);
                 let schema = Schema::Schema(body_schema);
-                let sparsity = if let Schema::Schema(s) = schema {
+                let sparsity = if let Schema::Schema(s) = &schema {
+                    let vol: usize = s.values().product();
                     Sparsity::Sparse(
                         std::cmp::min(
                             NotNan::from(1 as f64),
-                            body.nnz / s.values().product()
+                            NotNan::from(body.nnz as f64) / NotNan::from(vol as f64)
                         )
                     )
                 } else {
@@ -187,71 +191,115 @@ impl egg::egraph::Metadata<Math> for Meta {
                 Meta {schema, sparsity, nnz: body.nnz}
             },
             Math::Lit => {
-                Meta::Schema(HashMap::default())
+                let num = &expr.children[0];
+                Meta {
+                    schema: Schema::Schema(HashMap::default()),
+                    sparsity: num.sparsity.clone(),
+                    nnz: num.nnz
+                }
             },
             Math::Matrix => {
-                assert_eq!(expr.children.len(), 3, "wrong length in matrix");
+                assert_eq!(expr.children.len(), 4, "wrong length in matrix");
                 let i_schema = &expr.children[1];
                 let j_schema = &expr.children[2];
-                if let (Meta::Dims(i, n), Meta::Dims(j, m)) = (i_schema, j_schema) {
+                let nnz = &expr.children[3].nnz;
+
+                let (schema, n, m) = if let (Schema::Dims(i, n), Schema::Dims(j, m)) = (&i_schema.schema, &j_schema.schema) {
                     let res: HashMap<_,_> = vec![(i.clone(), *n), (j.clone(), *m)]
                         .into_iter().collect();
-                    Meta::Schema(res)
+                    (Schema::Schema(res), n, m)
                 } else {
                     panic!("wrong schema in matrix")
+                };
+
+                Meta {
+                    schema: schema,
+                    nnz: *nnz,
+                    sparsity: Sparsity::Sparse(NotNan::from(*nnz as f64 / (n * m) as f64))
                 }
             },
             Math::Dim => {
                 assert_eq!(expr.children.len(), 2, "wrong length in dim");
-                let i_schema = &expr.children[0];
-                let n_schema = &expr.children[1];
-                if let (Meta::Attr(i), Meta::Size(n)) = (i_schema, n_schema) {
-                    Meta::Dims(i.clone(), *n)
+                let i = &expr.children[0];
+                let n = &expr.children[1];
+                let schema = if let (Schema::Attr(i), Schema::Size(n)) = (&i.schema, &n.schema) {
+                    Schema::Dims(i.clone(), *n)
                 } else {
-                    panic!("wrong schema in dim {:?}", (i_schema, n_schema))
+                    panic!("wrong schema in dim {:?}", (i, n))
+                };
+                Meta {
+                    schema: schema,
+                    nnz: 0,
+                    sparsity: Sparsity::Sparse(NotNan::from(1 as f64))
                 }
             },
             Math::Subst => {
                 assert_eq!(expr.children.len(), 3, "wrong length in subst");
-                let e_schema = &expr.children[0];
-                let v_schema = &expr.children[1];
-                let body_schema = &expr.children[2];
+                let e = &expr.children[0];
+                let v = &expr.children[1];
+                let body = &expr.children[2];
 
-                let (e_i, e_n) = if let Meta::Dims(i, n) = e_schema {
+                let (e_i, e_n) = if let Schema::Dims(i, n) = &e.schema {
                     (i, n)
                 } else {
                     panic!("wrong schema in subst e")
                 };
 
-                let (v_i, v_n) = if let Meta::Dims(i, n) = v_schema {
+                let (v_i, v_n) = if let Schema::Dims(i, n) = &v.schema {
                     (i, n)
                 } else {
                     panic!("wrong schema in subst v")
                 };
 
-                match body_schema {
-                    Meta::Schema(schema) => {
+                let schema = match &body.schema {
+                    Schema::Schema(schema) => {
                         let mut res = schema.clone();
                         if let Some(m) = res.remove(v_i) {
                             res.insert(e_i.clone(), m);
                         }
-                        Meta::Schema(res)
+                        Schema::Schema(res)
                     },
-                    Meta::Dims(body_i, body_n) => {
+                    Schema::Dims(body_i, body_n) => {
                         if body_i == v_i {
-                            Meta::Dims(e_i.clone(), *e_n)
+                            Schema::Dims(e_i.clone(), *e_n)
                         } else {
-                            Meta::Dims(body_i.clone(), *body_n)
+                            Schema::Dims(body_i.clone(), *body_n)
                         }
                     },
                     _ => panic!("cannot subst for attr. and size")
+                };
+
+                Meta {
+                    schema: schema,
+                    nnz: body.nnz,
+                    sparsity: body.sparsity.clone()
                 }
             },
             Math::Var(s) => {
-                Meta::Attr(s.clone())
+                Meta {
+                    schema: Schema::Attr(s.clone()),
+                    nnz: 0,
+                    sparsity: Sparsity::NA
+                }
             },
             Math::Num(n) => {
-                Meta::Size(n as usize)
+                Meta {
+                    schema: Schema::Size(n as usize),
+                    nnz: n as usize,
+                    sparsity: match n {
+                        1 => Sparsity::One,
+                        0 => Sparsity::Zero,
+                        _ => Sparsity::NA
+                    }
+                }
+            },
+            Math::Nnz => {
+                let nnz = &expr.children[0].nnz;
+                Meta {
+                    schema: Schema::Size(0),
+                    nnz: *nnz,
+                    sparsity: Sparsity::NA,
+                }
             }
         };
         schema
@@ -269,6 +317,7 @@ define_term! {
 
         Matrix = "mat",
         Dim = "dim",
+        Nnz = "nnz",
 
         Subst = "subst",
         Num(Number),
@@ -308,10 +357,10 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",     "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-*",      "(subst ?e ?v (* ?a ?b))",     "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
-        rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j))"),
+        rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j ?z))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j) ?z)"),
         rw("subst-lit",    "(subst ?e ?v (lit ?n))",      "(lit ?n)"),
 
-        rw("matrix-swap-dims", "(mat ?x ?i ?j)", "(mat ?x ?j ?i)"),
+        rw("matrix-swap-dims", "(mat ?x ?i ?j ?z)", "(mat ?x ?j ?i ?z)"),
 
         rw("distribute-lft-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?a ?b) (* ?a ?c))"),
         rw("distribute-rgt-in",    "(* ?a (+ ?b ?c))",        "(+ (* ?b ?a) (* ?c ?a))"),
@@ -330,12 +379,12 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         Rewrite::new(
             "foundit",
             Math::parse_pattern(
-                "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j) (mat ?x ?i ?j)) (+ \
-                 (* (mat ?x ?i ?j) (sum ?k (* (mat ?u ?i ?k) (mat ?v ?k ?j)))) \
-                 (* (mat ?x ?i ?j) (sum ?k (* (mat ?u ?i ?k) (mat ?v ?k ?j)))))))) \
+                "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?z) (mat ?x ?i ?j ?z)) (+ \
+                 (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))) \
+                 (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))))))) \
                  (sum ?c (sum ?a (* \
-                 (sum ?b (* (mat ?u ?a ?b) (mat ?u ?b ?c)))\
-                 (sum ?d (* (mat ?v ?a ?d) (mat ?v ?d ?c)))))))",).unwrap(),
+                 (sum ?b (* (mat ?u ?a ?b ?z) (mat ?u ?b ?c ?z)))\
+                 (sum ?d (* (mat ?v ?a ?d ?z) (mat ?v ?d ?c ?z)))))))",).unwrap(),
             Foundit,
         ),
 
@@ -457,12 +506,12 @@ impl Applier<Math, Meta> for SumIA {
         let i = map[&self.i][0];
         let a = map[&self.a][0];
 
-        let i_schema = egraph[i].metadata.clone();
-        let a_schema = egraph[a].metadata.clone();
+        let i_m = egraph[i].metadata.clone();
+        let a_m = egraph[a].metadata.clone();
 
         let mut res = Vec::new();
 
-        if let (Meta::Dims(k, n), Meta::Schema(body)) = (&i_schema, &a_schema) {
+        if let (Schema::Dims(k, n), Schema::Schema(body)) = (&i_m.schema, &a_m.schema) {
             if !body.contains_key(k) {
                 let i_abs = egraph.add(Expr::new(Math::Num(*n as i32), smallvec![]));
                 let i_val = egraph.add(Expr::new(Math::Lit, smallvec![i_abs.id]));
@@ -470,7 +519,7 @@ impl Applier<Math, Meta> for SumIA {
                 res.push(mul);
             }
         } else {
-            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_schema, a_schema);
+            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_m.schema, a_m.schema);
         }
 
         res
@@ -489,7 +538,7 @@ impl Applier<Math, Meta> for PullMul {
 
         let mut res = Vec::new();
 
-        if let (Meta::Dims(k, n), Meta::Schema(body)) = (&i_schema, &a_schema) {
+        if let (Schema::Dims(k, n), Schema::Schema(body)) = (&i_schema.schema, &a_schema.schema) {
             if !body.contains_key(k) {
                 let agg = egraph.add(Expr::new(Math::Agg, smallvec![i, b]));
                 let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, agg.id]));
@@ -509,8 +558,8 @@ impl Applier<Math, Meta> for PushMul {
         let i = map[&self.i][0];
         let b = map[&self.b][0];
 
-        let ((i_i, i_n), a_schema) = if let (Meta::Dims(i, n) , Meta::Schema(a_s))
-            = (egraph[i].metadata.clone(), egraph[a].metadata.clone()) {
+        let ((i_i, i_n), a_schema) = if let (Schema::Dims(i, n) , Schema::Schema(a_s))
+            = (egraph[i].metadata.clone().schema, egraph[a].metadata.clone().schema) {
                 ((i, n), a_s)
             } else {
                 panic!("wrong schema in push multiply");
