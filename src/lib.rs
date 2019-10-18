@@ -376,17 +376,17 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 
         rw("swap-agg", "(sum ?i (sum ?j ?a))", "(sum ?j (sum ?i ?a))"),
 
-        Rewrite::new(
-            "foundit",
-            Math::parse_pattern(
-                "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?z) (mat ?x ?i ?j ?z)) (+ \
-                 (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))) \
-                 (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))))))) \
-                 (sum ?c (sum ?a (* \
-                 (sum ?b (* (mat ?u ?a ?b ?z) (mat ?u ?b ?c ?z)))\
-                 (sum ?d (* (mat ?v ?a ?d ?z) (mat ?v ?d ?c ?z)))))))",).unwrap(),
-            Foundit,
-        ),
+        //Rewrite::new(
+        //    "foundit",
+        //    Math::parse_pattern(
+        //        "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?z) (mat ?x ?i ?j ?z)) (+ \
+        //         (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))) \
+        //         (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))))))) \
+        //         (sum ?c (sum ?a (* \
+        //         (sum ?b (* (mat ?u ?a ?b ?z) (mat ?u ?b ?c ?z)))\
+        //         (sum ?d (* (mat ?v ?a ?d ?z) (mat ?v ?d ?c ?z)))))))",).unwrap(),
+        //    Foundit,
+        //),
 
         Rewrite::new(
             "agg-subst",
@@ -609,6 +609,60 @@ impl Applier<Math, Meta> for DimSubst {
     }
 }
 
+fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+    match expr.op {
+        Math::Add => {
+            assert_eq!(expr.children.len(), 2);
+            let x = expr.children[0];
+            let y = expr.children[1];
+
+            egraph[x].metadata.nnz + egraph[y].metadata.nnz
+        },
+        Math::Mul => {
+            assert_eq!(expr.children.len(), 2, "wrong length in mul");
+            let x_id = &expr.children[0];
+            let x = &egraph[*x_id].metadata;
+            let y_id = &expr.children[1];
+            let y = &egraph[*y_id].metadata;
+
+            let schema = x. schema.union(&y.schema);
+
+            let sparsity = x.sparsity.merge(&y.sparsity, Math::Mul);
+
+            let nnz = if let Schema::Schema(s1) = &schema {
+                let vol: usize = s1.values().product();
+                match sparsity {
+                    Sparsity::Sparse(s2) => {
+                        NotNan::from(vol as f64) * (NotNan::from(1 as f64)-s2)
+                    },
+                    _ => NotNan::from(0 as f64)
+                }
+            } else {
+                panic!("wrong schema in mul")
+            };
+            nnz.round() as usize
+        },
+        Math::Agg => {
+            assert_eq!(expr.children.len(), 2, "wrong length in mul");
+            let i_id = &expr.children[0];
+            let i = &egraph[*i_id].metadata;
+            let body_id = &expr.children[1];
+            let body = &egraph[*body_id].metadata;
+
+            if let Schema::Dims(_, size) = i.schema {
+                match body.sparsity {
+                    Sparsity::Sparse(s) => (NotNan::from(size as f64) * s).round() as usize,
+                    _ => size
+                }
+            } else {
+                panic!("wrong schema in dimension")
+            }
+
+        },
+        _ => 0
+    }
+}
+
 pub fn extract(egraph: EGraph, root: Id) {
     // generate variables
     // Br = variable for root
@@ -654,9 +708,9 @@ pub fn extract(egraph: EGraph, root: Id) {
     // 2 maps: map Bn to Bqs, and map Bq to Bns
 
     let obj_vec: Vec<LpExpression> = {
-        var_bns.iter().map(|(_e, bin)| {
-            let coef = 2;
-            coef * &bin.0
+        var_bns.iter().map(|(e, bin)| {
+            let coef = cost(&egraph, e);
+            coef as f32 * &bin.0
         }).collect()
     };
 

@@ -157,9 +157,28 @@ fn test_extract() {
 fn parrot() {
     prove_something(
         5_000,
-        "(sum (dim j 0) (sum (dim k 0) (* \
-         (+ (mat x (dim j 0) (dim k 0)(nnz 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)(nnz 0)) (mat v (dim i 0) (dim k 0)(nnz 0))))) \
-         (+ (mat x (dim j 0) (dim k 0)(nnz 0)) (sum (dim i 0) (* (mat u (dim j 0) (dim i 0)(nnz 0)) (mat v (dim i 0) (dim k 0)(nnz 0))))))))",
+        "(sum (dim j 1000000) (sum (dim k 500000) (* \
+         (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))) \
+         (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))))))",
         &[ "lol"],
     );
+}
+
+#[test]
+fn extract_parrot() {
+    let start = "(sum (dim j 1000000) (sum (dim k 500000) (* \
+     (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))) \
+     (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))))))";
+    println!("input: {:?}", start);
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = rules();
+    for i in 1..25 {
+        for rw in &rules {
+            rw.run(&mut egraph);
+        }
+    }
+
+    extract(egraph, root)
 }
