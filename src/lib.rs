@@ -719,7 +719,7 @@ pub fn extract(egraph: EGraph, root: Id) {
     println!("after cost");
     println!("{:?}", obj_vec.len());
 
-    problem += obj_vec.sum();// sum_lp(obj_vec);
+    problem += binary_sum(&obj_vec); //obj_vec.sum();// sum_lp(obj_vec);
 
     println!("after cost");
 
@@ -806,5 +806,16 @@ pub fn sum_lp<T>(expr: Vec<T>) -> LpExpression where T: Into<LpExpression> + Clo
         res
     } else {
         panic!("vector should have at least one element");
+    }
+}
+
+fn binary_sum(expr: &[LpExpression]) -> LpExpression
+{
+    let l = expr.len();
+    assert_ne!(l, 0);
+    match l {
+        1 => expr[0].clone(),
+        _ => LpExpression::AddExpr(Box::new(binary_sum(&expr[(l/2)..])),
+                                   Box::new(binary_sum(&expr[0..(l/2)])))
     }
 }
