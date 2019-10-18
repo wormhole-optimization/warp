@@ -174,7 +174,7 @@ fn extract_parrot() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for i in 1..25 {
+    for i in 1..1 {
         for rw in &rules {
             rw.run(&mut egraph);
         }

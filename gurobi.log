@@ -1041,3 +1041,75 @@ Best objective 1.000000000000e+01, best bound 1.000000000000e+01, gap 0.0000%
 
 Wrote result file '60b6f2df-75e7-43ef-b328-af4586c53dc4.sol'
 
+
+Gurobi 8.1.1 (mac64) logging started Thu Oct 17 22:24:53 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_075e99c3-555e-4a27-96c3-3b8c148ab3e8.lp
+Reading time = 0.00 seconds
+obj: 61 rows, 54 columns, 121 nonzeros
+Optimize a model with 61 rows, 54 columns and 121 nonzeros
+Variable types: 0 continuous, 54 integer (54 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 5e+11]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 5.000010e+11
+Presolve removed 61 rows and 54 columns
+Presolve time: 0.01s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 5.00001e+11 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000010005100e+11, best bound 5.000010005100e+11, gap 0.0000%
+
+Wrote result file '7b35b575-552c-4d04-b75a-b1465a1741f8.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Thu Oct 17 22:26:38 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_299a472c-9a33-412b-ab24-8e4b7a693e71.lp
+Reading time = 0.00 seconds
+obj: 61 rows, 54 columns, 121 nonzeros
+Optimize a model with 61 rows, 54 columns and 121 nonzeros
+Variable types: 0 continuous, 54 integer (54 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 5e+11]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 5.000010e+11
+Presolve removed 61 rows and 54 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 5.00001e+11 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000010005100e+11, best bound 5.000010005100e+11, gap 0.0000%
+
+Wrote result file '1becba5b-1597-419b-94c0-9cd714c9ebb3.sol'
+

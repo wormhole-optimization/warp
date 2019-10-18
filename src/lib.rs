@@ -707,6 +707,8 @@ pub fn extract(egraph: EGraph, root: Id) {
 
     // 2 maps: map Bn to Bqs, and map Bq to Bns
 
+    println!("before cost");
+
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(e, bin)| {
             let coef = cost(&egraph, e);
@@ -714,10 +716,17 @@ pub fn extract(egraph: EGraph, root: Id) {
         }).collect()
     };
 
-    problem += obj_vec.sum();
+    println!("after cost");
+    println!("{:?}", obj_vec.len());
+
+    problem += obj_vec.sum();// sum_lp(obj_vec);
+
+    println!("after cost");
 
     // Br: must pick root
     problem += (0 + &var_bqs.get_by_left(&root).unwrap().0).equal(1);
+
+    println!("before fn");
 
     for node in egraph.memo.keys() {
         // Fn: Bn => AND Bq in n.children
@@ -728,12 +737,17 @@ pub fn extract(egraph: EGraph, root: Id) {
         }
     }
 
+    println!("after fn");
+    println!("before gq");
+
     for class in egraph.classes() {
         // Gq: Bq => OR Bn in q.nodes
         // (not Bq) or (OR Bn)
         // (1-Bq) + (sum Bn) > 0
         problem += ((1-&var_bqs.get_by_left(&class.id).unwrap().0) + sum(&class.nodes, |n| &var_bns.get_by_left(&n).unwrap().0)).ge(1);
     }
+
+    println!("after gq");
 
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
@@ -779,5 +793,18 @@ impl Eq for SymVar {}
 impl Hash for SymVar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.name.hash(state);
+    }
+}
+
+pub fn sum_lp<T>(expr: Vec<T>) -> LpExpression where T: Into<LpExpression> + Clone {
+    if let Some(first) = expr.first() {
+        let mut res = first.clone().into();
+        for e in expr.iter() {
+            let prev = &res;
+            res = LpExpression::AddExpr(Box::new(e.clone().into()), Box::new(prev.clone().into()));
+        }
+        res
+    } else {
+        panic!("vector should have at least one element");
     }
 }
