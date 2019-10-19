@@ -1,26 +1,19 @@
 use crate::{EGraph, Math, Schema, Sparsity};
 
 use egg::{
-    define_term,
-    egraph::{AddResult, EClass},
-    expr::{Expr, Language, QuestionMarkName, Id, RecExpr},
+    expr::{Expr, Id, RecExpr},
     //extract::{calculate_cost, Extractor},
-    parse::ParsableLanguage,
-    pattern::{Applier, Rewrite, WildMap},
 };
 use lp_modeler::solvers::{GurobiSolver, SolverTrait};
 use lp_modeler::dsl::*;
-use lp_modeler::format::lp_format::LpFileFormat;
 use bimap::BiMap;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 use ordered_float::NotNan;
 
 pub fn extract(egraph: EGraph, root: Id) {
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
-
-    let br = "bq".to_owned() + &root.to_string();
 
     let mut var_bns = BiMap::<&Expr<Math, Id>, SymVar>::new();
     let mut var_bqs = BiMap::<Id, SymVar>::new();
@@ -56,7 +49,7 @@ pub fn extract(egraph: EGraph, root: Id) {
             e.hash(&mut s);
             let bnv = "bn".to_owned() + &s.finish().to_string();
             let bn = LpBinary::new(&bnv);
-            var_bns.insert_no_overwrite(e, SymVar(bn));
+            var_bns.insert_no_overwrite(e, SymVar(bn)).expect("equal exprs not merged");
         }
     };
 
@@ -70,7 +63,7 @@ pub fn extract(egraph: EGraph, root: Id) {
     println!("after cost");
     println!("{:?}", obj_vec.len());
 
-    problem += binary_sum(&obj_vec); //obj_vec.sum();// sum_lp(obj_vec);
+    problem += obj_vec.sum();
 
     println!("after cost");
 
@@ -137,7 +130,7 @@ fn best_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
         .into()
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 struct SymVar(LpBinary);
 
 impl Eq for SymVar {}
@@ -199,29 +192,5 @@ fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
 
         },
         _ => 0
-    }
-}
-
-pub fn sum_lp<T>(expr: Vec<T>) -> LpExpression where T: Into<LpExpression> + Clone {
-    if let Some(first) = expr.first() {
-        let mut res = first.clone().into();
-        for e in expr.iter() {
-            let prev = &res;
-            res = LpExpression::AddExpr(Box::new(e.clone().into()), Box::new(prev.clone().into()));
-        }
-        res
-    } else {
-        panic!("vector should have at least one element");
-    }
-}
-
-fn binary_sum(expr: &[LpExpression]) -> LpExpression
-{
-    let l = expr.len();
-    assert_ne!(l, 0);
-    match l {
-        1 => expr[0].clone(),
-        _ => LpExpression::AddExpr(Box::new(binary_sum(&expr[(l/2)..])),
-                                   Box::new(binary_sum(&expr[0..(l/2)])))
     }
 }
