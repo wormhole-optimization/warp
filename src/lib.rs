@@ -664,50 +664,47 @@ fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
 }
 
 pub fn extract(egraph: EGraph, root: Id) {
-    // generate variables
-    // Br = variable for root
-    // Bn = variable for each node
-    // Bq = variable for each class
-
-    // generate constraints
-    // Br: must pick root
-    // Fn: Bn => AND Bq in n.children
-
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
 
     let br = "bq".to_owned() + &root.to_string();
 
-    //let mut constraint_fn = HashMap::new();
-    // TODO might need to iterate over eclass for this
-    // to work properly
-    let var_bns: BiMap<_,_> = egraph.memo.keys().map(|e| {
-        let mut s = DefaultHasher::new();
-        e.hash(&mut s);
-        let bnv = "bn".to_owned() + &s.finish().to_string();
-        let bn = LpBinary::new(&bnv);
-        (e, SymVar(bn))
-    }).collect();
+    let mut var_bns = BiMap::<&Expr<Math, Id>, SymVar>::new();
+    let mut var_bqs = BiMap::<Id, SymVar>::new();
 
-    let var_bqs: BiMap<_,_> = egraph.classes().map(|c| {
+    let mut cs = HashSet::new();
+
+    for c in egraph.classes() {
+        cs.insert(c.id);
+        for e in c.nodes.iter() {
+            for class in e.children.iter() {
+                cs.insert(*class);
+            }
+        }
+    }
+
+    let mut count = 0;
+
+    for _ in egraph.classes() {
+        count += 1;
+    }
+
+    let clen = cs.len();
+
+    assert_eq!(count, clen, "DIFFERS BY {}", clen - count);
+
+    for c in egraph.classes() {
         let bqv = "bq".to_owned() + &c.id.to_string();
         let bq = LpBinary::new(&bqv);
-        (c.id, SymVar(bq))
-    }).collect();
+        var_bqs.insert(c.id, SymVar(bq));
 
-    // map each Bn to vec of Bq
-    // Gq: Bq => OR Bn in q.nodes
-
-    //let mut constraint_gq = HashMap::new();
-
-    // map each Bq to vec of Bn
-
-    // generate objective
-    // min SUM_n Bn * Cn
-    // map each Bn to cost
-
-    // 2 maps: map Bn to Bqs, and map Bq to Bns
-
-    println!("before cost");
+        for e in c.nodes.iter() {
+            let mut s = DefaultHasher::new();
+            e.hash(&mut s);
+            let bnv = "bn".to_owned() + &s.finish().to_string();
+            let bn = LpBinary::new(&bnv);
+            var_bns.insert_no_overwrite(e, SymVar(bn));
+        }
+    };
 
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(e, bin)| {
@@ -726,18 +723,6 @@ pub fn extract(egraph: EGraph, root: Id) {
     // Br: must pick root
     problem += (0 + &var_bqs.get_by_left(&root).unwrap().0).equal(1);
 
-    println!("before fn");
-
-    for node in egraph.memo.keys() {
-        // Fn: Bn => AND Bq in n.children
-        // (not Bn) or (AND Bq)
-        for class in node.children.iter() {
-            // (1-Bn) + bq > 0
-            problem += ((1-&var_bns.get_by_left(&node).unwrap().0) + &var_bqs.get_by_left(class).unwrap().0).ge(1);
-        }
-    }
-
-    println!("after fn");
     println!("before gq");
 
     for class in egraph.classes() {
@@ -745,6 +730,17 @@ pub fn extract(egraph: EGraph, root: Id) {
         // (not Bq) or (OR Bn)
         // (1-Bq) + (sum Bn) > 0
         problem += ((1-&var_bqs.get_by_left(&class.id).unwrap().0) + sum(&class.nodes, |n| &var_bns.get_by_left(&n).unwrap().0)).ge(1);
+
+        for node in class.iter() {
+            // Fn: Bn => AND Bq in n.children
+            // (not Bn) or (AND Bq)
+            let bn = &var_bns.get_by_left(&node).unwrap().0;
+            for class in node.children.iter() {
+                // (1-Bn) + bq > 0
+                let bq = &var_bqs.get_by_left(&class).unwrap().0;
+                problem += ((1-bn) + bq).ge(1);
+            }
+        }
     }
 
     println!("after gq");
@@ -754,7 +750,7 @@ pub fn extract(egraph: EGraph, root: Id) {
 
     assert!(result.is_ok(), result.unwrap_err());
 
-    let (solver_status, var_values) = result.unwrap();
+    let (_solver_status, var_values) = result.unwrap();
 
     let mut selected = HashSet::new();
 

@@ -1113,3 +1113,545 @@ Best objective 5.000010005100e+11, best bound 5.000010005100e+11, gap 0.0000%
 
 Wrote result file '1becba5b-1597-419b-94c0-9cd714c9ebb3.sol'
 
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 19:47:07 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_fb2d1e7e-4476-48d9-a7d7-21217fa684e7.lp
+Reading time = 0.00 seconds
+obj: 61 rows, 54 columns, 121 nonzeros
+Optimize a model with 61 rows, 54 columns and 121 nonzeros
+Variable types: 0 continuous, 54 integer (54 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 5e+11]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 5.000010e+11
+Presolve removed 61 rows and 54 columns
+Presolve time: 0.01s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 5.00001e+11 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000010005100e+11, best bound 5.000010005100e+11, gap 0.0000%
+
+Wrote result file 'b28f4b07-3d03-4b1a-875c-0f322f89a0b5.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 19:47:07 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Warning: Numeric variable name in LP file ('0') - often the result
+         of a constant term in the left-hand side of a constraint.
+
+Read LP format model from file wormhole_dc6097ff-bbbe-43c3-acec-4299dffb2e4c.lp
+Reading time = 0.00 seconds
+obj: 67 rows, 40 columns, 154 nonzeros
+Optimize a model with 67 rows, 40 columns and 154 nonzeros
+Variable types: 1 continuous, 39 integer (39 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 0.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 0 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 0.000000000000e+00, best bound 0.000000000000e+00, gap 0.0000%
+
+Wrote result file 'ae4ef107-ff83-4647-ac65-c4a194b6a0b7.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 19:47:21 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Warning: Numeric variable name in LP file ('0') - often the result
+         of a constant term in the left-hand side of a constraint.
+
+Read LP format model from file wormhole_bb733b3b-979f-4d9c-a690-e79dc841151c.lp
+Reading time = 0.00 seconds
+obj: 67 rows, 40 columns, 154 nonzeros
+Optimize a model with 67 rows, 40 columns and 154 nonzeros
+Variable types: 1 continuous, 39 integer (39 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 0.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 0 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 0.000000000000e+00, best bound 0.000000000000e+00, gap 0.0000%
+
+Wrote result file '9412bc96-7c6b-4449-b667-65d2ed25bafa.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 20:12:49 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Warning: Numeric variable name in LP file ('0') - often the result
+         of a constant term in the left-hand side of a constraint.
+
+Read LP format model from file wormhole_89e66477-ae84-4e4d-a307-39ccb0b3f899.lp
+Reading time = 0.00 seconds
+obj: 67 rows, 40 columns, 154 nonzeros
+Optimize a model with 67 rows, 40 columns and 154 nonzeros
+Variable types: 1 continuous, 39 integer (39 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 0.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 0 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 0.000000000000e+00, best bound 0.000000000000e+00, gap 0.0000%
+
+Wrote result file '6baf34c5-e6f8-4644-9397-a36cc2178717.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:25:47 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_6c42693c-2fdd-4ec5-aebe-11c54794f44a.lp
+Reading time = 0.01 seconds
+obj: 1816 rows, 1032 columns, 4123 nonzeros
+Optimize a model with 1816 rows, 1032 columns and 4123 nonzeros
+Variable types: 0 continuous, 1032 integer (1032 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 2.660007e+14
+Presolve removed 1250 rows and 621 columns
+Presolve time: 0.02s
+Presolved: 566 rows, 411 columns, 1420 nonzeros
+Found heuristic solution: objective 4.250001e+13
+Variable types: 0 continuous, 411 integer (411 binary)
+
+Root relaxation: objective 4.166775e+10, 171 iterations, 0.01 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   37 4.2500e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   29 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   20 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   31 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  Zero half: 1
+
+Explored 1 nodes (337 simplex iterations) in 0.10 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 5.00002e+11 4.25e+13 2.01e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000005001000e+11, gap 0.0002%
+
+Wrote result file '36eea7e7-e130-4c9e-9c62-91dcfa900a10.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:26:07 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_4436b909-68dc-46b2-a592-7a6bc1bec6ec.lp
+Reading time = 0.00 seconds
+obj: 1816 rows, 1032 columns, 4123 nonzeros
+Optimize a model with 1816 rows, 1032 columns and 4123 nonzeros
+Variable types: 0 continuous, 1032 integer (1032 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 2.465004e+14
+Presolve removed 1250 rows and 621 columns
+Presolve time: 0.01s
+Presolved: 566 rows, 411 columns, 1420 nonzeros
+Found heuristic solution: objective 4.250001e+13
+Variable types: 0 continuous, 411 integer (411 binary)
+
+Root relaxation: objective 4.166775e+10, 171 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   37 4.2500e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   30 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   20 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   31 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 1
+  Zero half: 1
+
+Explored 1 nodes (325 simplex iterations) in 0.03 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 4: 5.00002e+11 5.00002e+11 4.25e+13 2.015e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000005001000e+11, gap 0.0002%
+
+Wrote result file 'e6faaf6c-b5a5-48ad-9936-638413d1017f.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:26:59 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_89903703-7033-4f22-b2dd-cf36a4b16db4.lp
+Reading time = 0.01 seconds
+obj: 2301 rows, 1260 columns, 5379 nonzeros
+Optimize a model with 2301 rows, 1260 columns and 5379 nonzeros
+Variable types: 0 continuous, 1260 integer (1260 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 2.010010e+14
+Presolve removed 1492 rows and 672 columns
+Presolve time: 0.01s
+Presolved: 809 rows, 588 columns, 2046 nonzeros
+Found heuristic solution: objective 7.400004e+13
+Variable types: 0 continuous, 588 integer (588 binary)
+
+Root relaxation: objective 4.166771e+10, 183 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   41 7.4000e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   37 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   22 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   33 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 1
+  Zero half: 1
+
+Explored 1 nodes (396 simplex iterations) in 0.04 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 5.00002e+11 7.4e+13 1.21e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000004375988e+11, gap 0.0002%
+
+Wrote result file 'cea4809d-2c82-4166-9293-220abdd6a3aa.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:27:37 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_a9f21a6e-ecd2-42ba-b5df-1bc76bc22b1d.lp
+Reading time = 0.01 seconds
+obj: 2301 rows, 1260 columns, 5379 nonzeros
+Optimize a model with 2301 rows, 1260 columns and 5379 nonzeros
+Variable types: 0 continuous, 1260 integer (1260 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 1.580009e+14
+Presolve removed 1492 rows and 672 columns
+Presolve time: 0.01s
+Presolved: 809 rows, 588 columns, 2046 nonzeros
+Found heuristic solution: objective 6.950004e+13
+Variable types: 0 continuous, 588 integer (588 binary)
+
+Root relaxation: objective 4.166771e+10, 192 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   41 6.9500e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   32 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   22 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   33 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 1
+  Zero half: 1
+
+Explored 1 nodes (396 simplex iterations) in 0.04 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 5.00002e+11 6.95e+13 1.13e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000004375988e+11, gap 0.0002%
+
+Wrote result file '97fd9066-5b4c-4e64-9378-8263264c01f3.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:28:22 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_43043a1f-b45c-49c6-b26c-41b1242743b7.lp
+Reading time = 0.01 seconds
+obj: 2301 rows, 1260 columns, 5379 nonzeros
+Optimize a model with 2301 rows, 1260 columns and 5379 nonzeros
+Variable types: 0 continuous, 1260 integer (1260 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 1.755012e+14
+Presolve removed 1492 rows and 672 columns
+Presolve time: 0.01s
+Presolved: 809 rows, 588 columns, 2046 nonzeros
+Found heuristic solution: objective 6.000001e+13
+Variable types: 0 continuous, 588 integer (588 binary)
+
+Root relaxation: objective 4.166771e+10, 184 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   41 6.0000e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   32 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   22 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   33 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 2
+  Zero half: 1
+
+Explored 1 nodes (371 simplex iterations) in 0.05 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 5.00002e+11 6e+13 1.105e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000004375988e+11, gap 0.0002%
+
+Wrote result file 'b682d0f6-63d8-4587-baf1-c0d532826199.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:30:31 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_548229f0-664c-4c27-a68e-9e20ffb34f2b.lp
+Reading time = 0.01 seconds
+obj: 2301 rows, 1260 columns, 5379 nonzeros
+Optimize a model with 2301 rows, 1260 columns and 5379 nonzeros
+Variable types: 0 continuous, 1260 integer (1260 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 1.940009e+14
+Presolve removed 1492 rows and 672 columns
+Presolve time: 0.03s
+Presolved: 809 rows, 588 columns, 2046 nonzeros
+Found heuristic solution: objective 6.900004e+13
+Variable types: 0 continuous, 588 integer (588 binary)
+
+Root relaxation: objective 4.166771e+10, 189 iterations, 0.01 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   41 6.9000e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   32 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   22 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   33 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 2
+  Zero half: 1
+
+Explored 1 nodes (380 simplex iterations) in 0.10 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 4: 5.00002e+11 5.00002e+11 6.9e+13 1.29e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000004375988e+11, gap 0.0002%
+
+Wrote result file '40213a58-8a75-4cfd-adef-59c22652d588.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:32:24 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_2d77afe6-fb6c-4fc0-9786-9cb31d1ebfe1.lp
+Reading time = 0.00 seconds
+obj: 67 rows, 39 columns, 154 nonzeros
+Optimize a model with 67 rows, 39 columns and 154 nonzeros
+Variable types: 0 continuous, 39 integer (39 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [0e+00, 0e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 0.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 0 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 0.000000000000e+00, best bound 0.000000000000e+00, gap 0.0000%
+
+Wrote result file '9c8cf668-1874-4843-ac69-99abca56a8a6.sol'
+
+
+Gurobi 8.1.1 (mac64) logging started Fri Oct 18 21:34:49 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (mac64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Read LP format model from file wormhole_310fdbcc-c98e-4830-9b33-d6f4bc240d8e.lp
+Reading time = 0.01 seconds
+obj: 2301 rows, 1260 columns, 5379 nonzeros
+Optimize a model with 2301 rows, 1260 columns and 5379 nonzeros
+Variable types: 0 continuous, 1260 integer (1260 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+13]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Warning: Model contains large objective coefficients
+         Consider reformulating model or setting NumericFocus parameter
+         to avoid numerical issues.
+Found heuristic solution: objective 1.835010e+14
+Presolve removed 1492 rows and 672 columns
+Presolve time: 0.01s
+Presolved: 809 rows, 588 columns, 2046 nonzeros
+Found heuristic solution: objective 6.400001e+13
+Variable types: 0 continuous, 588 integer (588 binary)
+
+Root relaxation: objective 4.166771e+10, 185 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 4.1668e+10    0   41 6.4000e+13 4.1668e+10   100%     -    0s
+H    0     0                    5.000015e+11 4.1668e+10  91.7%     -    0s
+     0     0 1.1111e+11    0   37 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 1.1111e+11    0   22 5.0000e+11 1.1111e+11  77.8%     -    0s
+     0     0 5.0000e+11    0   33 5.0000e+11 5.0000e+11  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  MIR: 2
+  Zero half: 1
+
+Explored 1 nodes (381 simplex iterations) in 0.04 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 5.00002e+11 6.4e+13 1.135e+14 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.000015005100e+11, best bound 5.000004375988e+11, gap 0.0002%
+
+Wrote result file '237dbdf6-e6ae-40c5-a9e8-209d9a90836b.sol'
+

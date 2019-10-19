@@ -174,10 +174,11 @@ fn extract_parrot() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for i in 1..1 {
+    for i in 1..50 {
         for rw in &rules {
             rw.run(&mut egraph);
         }
+        egraph.rebuild();
     }
 
     extract(egraph, root)
