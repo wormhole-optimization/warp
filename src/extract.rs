@@ -1,58 +1,42 @@
 use crate::{EGraph, Math, Schema, Sparsity};
 
-use egg::{
-    expr::{Expr, Id, RecExpr},
-    //extract::{calculate_cost, Extractor},
-};
+use egg::expr::{Expr, Id, RecExpr};
+
 use lp_modeler::solvers::{GurobiSolver, SolverTrait};
 use lp_modeler::dsl::*;
+
 use bimap::BiMap;
-use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
-use std::collections::hash_map::DefaultHasher;
 use ordered_float::NotNan;
 
-pub fn extract(egraph: EGraph, root: Id) {
+use std::{
+    collections::HashSet,
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
+pub fn extract(egraph: EGraph, root: Id) -> RecExpr<Math> {
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
 
+    // Create symbolic variables Bn (for each node) & Bq (each class)
     let mut var_bns = BiMap::<&Expr<Math, Id>, SymVar>::new();
     let mut var_bqs = BiMap::<Id, SymVar>::new();
 
-    let mut cs = HashSet::new();
-
     for c in egraph.classes() {
-        cs.insert(c.id);
-        for e in c.nodes.iter() {
-            for class in e.children.iter() {
-                cs.insert(*class);
-            }
-        }
-    }
-
-    let mut count = 0;
-
-    for _ in egraph.classes() {
-        count += 1;
-    }
-
-    let clen = cs.len();
-
-    assert_eq!(count, clen, "DIFFERS BY {}", clen - count);
-
-    for c in egraph.classes() {
-        let bqv = "bq".to_owned() + &c.id.to_string();
-        let bq = LpBinary::new(&bqv);
-        var_bqs.insert(c.id, SymVar(bq));
+        let bq = "bq".to_owned() + &c.id.to_string();
+        var_bqs.insert(c.id, SymVar::new(&bq));
 
         for e in c.nodes.iter() {
             let mut s = DefaultHasher::new();
             e.hash(&mut s);
-            let bnv = "bn".to_owned() + &s.finish().to_string();
-            let bn = LpBinary::new(&bnv);
-            var_bns.insert_no_overwrite(e, SymVar(bn)).expect("equal exprs not merged");
+            let bn = "bn".to_owned() + &s.finish().to_string();
+
+            var_bns
+                .insert_no_overwrite(e, SymVar::new(&bn))
+                .expect("equal exprs not merged");
         }
     };
 
+    // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(e, bin)| {
             let coef = cost(&egraph, e);
@@ -60,64 +44,56 @@ pub fn extract(egraph: EGraph, root: Id) {
         }).collect()
     };
 
-    println!("after cost");
-    println!("{:?}", obj_vec.len());
-
     problem += obj_vec.sum();
 
-    println!("after cost");
-
-    // Br: must pick root
+    // Constraint Br: must pick root
     problem += (0 + &var_bqs.get_by_left(&root).unwrap().0).equal(1);
 
-    println!("before gq");
-
+    // Constraints Gq & Fn
+    // Gq: Bq => OR Bn in q.nodes
+    // Fn: Bn => AND Bq in n.children
     for class in egraph.classes() {
-        // Gq: Bq => OR Bn in q.nodes
-        // (not Bq) or (OR Bn)
-        // (1-Bq) + (sum Bn) > 0
-        problem += ((1-&var_bqs.get_by_left(&class.id).unwrap().0) + sum(&class.nodes, |n| &var_bns.get_by_left(&n).unwrap().0)).ge(1);
+        // Gq <=> (1-Bq) + (sum Bn) > 0
+        let bq = &var_bqs.get_by_left(&class.id).unwrap().0;
+        let sum_bn = sum(&class.nodes, |n| {
+            let bn = &var_bns.get_by_left(&n).unwrap().0;
+            bn
+        });
+        problem += (1 - bq + sum_bn).ge(1);
 
+        // Fn <=> AND_Bq . (1-Bn) + Bq > 0
         for node in class.iter() {
-            // Fn: Bn => AND Bq in n.children
-            // (not Bn) or (AND Bq)
             let bn = &var_bns.get_by_left(&node).unwrap().0;
             for class in node.children.iter() {
-                // (1-Bn) + bq > 0
                 let bq = &var_bqs.get_by_left(&class).unwrap().0;
-                problem += ((1-bn) + bq).ge(1);
+                problem += ((1 - bn) + bq).ge(1);
             }
         }
     }
-
-    println!("after gq");
 
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
 
-    println!("{:?}", result);
-    assert!(result.is_ok(), result.unwrap_err());
-
     let (_solver_status, var_values) = result.unwrap();
 
+    // Lookup selected nodes and classes
     let mut selected = HashSet::new();
 
     for (var_name, var_value) in &var_values {
         let int_var_value = *var_value as u32;
-        if int_var_value == 1{
-            if let Some(&v) = var_bns.get_by_right(&SymVar(LpBinary::new(var_name))) {
-                //println!("{}", v.op);
+        if int_var_value == 1 {
+            if let Some(&v) = var_bns.get_by_right(&SymVar::new(var_name)) {
                 selected.insert(v);
+            } else {
+                panic!("solver selected nonexistent node")
             }
         }
     }
 
-    let best = best_expr(&egraph, root, &selected);
-    println!("{}", best.pretty(40));
+    find_expr(&egraph, root, &selected)
 }
 
-
-fn best_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) -> RecExpr<Math> {
+fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) -> RecExpr<Math> {
     let eclass = egraph.find(class);
     let best_node = egraph[eclass]
         .iter()
@@ -126,7 +102,7 @@ fn best_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
 
     best_node
         .clone()
-        .map_children(|child| best_expr(egraph, child, selected))
+        .map_children(|child| find_expr(egraph, child, selected))
         .into()
 }
 
@@ -138,6 +114,12 @@ impl Eq for SymVar {}
 impl Hash for SymVar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.name.hash(state);
+    }
+}
+
+impl SymVar {
+    fn new(s: &str) -> Self {
+        SymVar(LpBinary::new(s))
     }
 }
 
