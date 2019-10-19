@@ -18,8 +18,8 @@ smallvec = "0.6"
 
 pest = "2.0"
 pest_derive = "2.0"
-lp-modeler = { path = "../rust-lp-modeler" }
-# lp-modeler = "0.4"
+# lp-modeler = { path = "../rust-lp-modeler" }
+lp-modeler = "0.4"
 bimap = "0.4"
 
 [features]
