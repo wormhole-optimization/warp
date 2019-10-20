@@ -22,25 +22,17 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 
         rw("associate-+r+", "(+ ?a (+ ?b ?c))", "(+ (+ ?a ?b) ?c)"),
         rw("associate-+l+", "(+ (+ ?a ?b) ?c)", "(+ ?a (+ ?b ?c))"),
-        rw("associate-+r-", "(+ ?a (- ?b ?c))", "(- (+ ?a ?b) ?c)"),
-        rw("associate-+l-", "(+ (- ?a ?b) ?c)", "(- ?a (- ?b ?c))"),
-        rw("associate--r+", "(- ?a (+ ?b ?c))", "(- (- ?a ?b) ?c)"),
-        rw("associate--l+", "(- (+ ?a ?b) ?c)", "(+ ?a (- ?b ?c))"),
-        rw("associate--l-", "(- (- ?a ?b) ?c)", "(- ?a (+ ?b ?c))"),
-        rw("associate--r-", "(- ?a (- ?b ?c))", "(+ (- ?a ?b) ?c)"),
         rw("associate-*r*", "(* ?a (* ?b ?c))", "(* (* ?a ?b) ?c)"),
         rw("associate-*l*", "(* (* ?a ?b) ?c)", "(* ?a (* ?b ?c))"),
-        rw("associate-*r/", "(* ?a (/ ?b ?c))", "(/ (* ?a ?b) ?c)"),
-        rw("associate-*l/", "(* (/ ?a ?b) ?c)", "(/ (* ?a ?c) ?b)"),
-        rw("associate-/r*", "(/ ?a (* ?b ?c))", "(/ (/ ?a ?b) ?c)"),
-        rw("associate-/l*", "(/ (* ?b ?c) ?a)", "(/ ?b (/ ?a ?c))"),
-        rw("associate-/r/", "(/ ?a (/ ?b ?c))", "(* (/ ?a ?b) ?c)"),
-        rw("associate-/l/", "(/ (/ ?b ?c) ?a)", "(/ ?b (* ?a ?c))"),
 
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",     "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-*",      "(subst ?e ?v (* ?a ?b))",     "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
+
+        rw("add-2-mul", "(+ ?x ?x)", "(* (lit 2) ?x)"),
+
         rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j ?z))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j) ?z)"),
         rw("subst-lit",    "(subst ?e ?v (lit ?n))",      "(lit ?n)"),
+        rw("subst-var",    "(subst ?e ?v (var ?n))",      "(var ?n)"),
 
         rw("matrix-swap-dims", "(mat ?x ?i ?j ?z)", "(mat ?x ?j ?i ?z)"),
 
@@ -61,12 +53,12 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         //Rewrite::new(
         //    "foundit",
         //    Math::parse_pattern(
-        //        "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?z) (mat ?x ?i ?j ?z)) (+ \
-        //         (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))) \
-        //         (* (mat ?x ?i ?j ?z) (sum ?k (* (mat ?u ?i ?k ?z) (mat ?v ?k ?j ?z)))))))) \
+        //        "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
+        //         (* (mat ?x ?i ?j ?zc) (sum ?k (* (mat ?u ?i ?k ?zd) (mat ?v ?k ?j ?ze)))) \
+        //         (* (mat ?x ?i ?j ?zf) (sum ?k (* (mat ?u ?i ?k ?zg) (mat ?v ?k ?j ?zh)))))))) \
         //         (sum ?c (sum ?a (* \
-        //         (sum ?b (* (mat ?u ?a ?b ?z) (mat ?u ?b ?c ?z)))\
-        //         (sum ?d (* (mat ?v ?a ?d ?z) (mat ?v ?d ?c ?z)))))))",).unwrap(),
+        //         (sum ?b (* (mat ?u ?a ?b ?zi) (mat ?u ?b ?c ?zj)))\
+        //         (sum ?d (* (mat ?v ?a ?d ?zk) (mat ?v ?d ?c ?zl)))))))",).unwrap(),
         //    Foundit,
         //),
 
@@ -175,7 +167,7 @@ impl Applier<Math, Meta> for SubstAgg {
         let res = if v1 == v2 {
             egraph.add(Expr::new(Math::Agg, smallvec![v2, body]))
         } else {
-            let sub_body = egraph.add(Expr::new(Math::Subst, smallvec![e, v1, body]));
+            let sub_body = egraph.add(Expr::new(Math::Sub, smallvec![e, v1, body]));
             egraph.add(Expr::new(Math::Agg, smallvec![v2, sub_body.id]))
         };
 
@@ -193,7 +185,8 @@ impl Applier<Math, Meta> for SumIA {
 
         let mut res = Vec::new();
 
-        if let (Schema::Dims(k, n), Schema::Schema(body)) = (&i_m.schema, &a_m.schema) {
+        if let (Schema::Dims(k, n), Schema::Schm(body)) =
+            (&i_m.schema.unwrap(), &a_m.schema.unwrap()) {
             if !body.contains_key(k) {
                 let i_abs = egraph.add(Expr::new(Math::Num(*n as i32), smallvec![]));
                 let i_val = egraph.add(Expr::new(Math::Lit, smallvec![i_abs.id]));
@@ -201,7 +194,7 @@ impl Applier<Math, Meta> for SumIA {
                 res.push(mul);
             }
         } else {
-            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_m.schema, a_m.schema);
+            panic!("wrong schema in aggregate");
         }
 
         res
@@ -220,14 +213,15 @@ impl Applier<Math, Meta> for PullMul {
 
         let mut res = Vec::new();
 
-        if let (Schema::Dims(k, n), Schema::Schema(body)) = (&i_schema.schema, &a_schema.schema) {
+        if let (Schema::Dims(k, n), Schema::Schm(body)) =
+            (&i_schema.schema.unwrap(), &a_schema.schema.unwrap()) {
             if !body.contains_key(k) {
                 let agg = egraph.add(Expr::new(Math::Agg, smallvec![i, b]));
                 let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, agg.id]));
                 res.push(mul);
             }
         } else {
-            panic!("wrong schema in aggregate i:{:?} body:{:?}", i_schema, a_schema);
+            panic!("wrong schema in aggregate");
         }
 
         res
@@ -240,8 +234,9 @@ impl Applier<Math, Meta> for PushMul {
         let i = map[&self.i][0];
         let b = map[&self.b][0];
 
-        let ((i_i, i_n), a_schema) = if let (Schema::Dims(i, n) , Schema::Schema(a_s))
-            = (egraph[i].metadata.clone().schema, egraph[a].metadata.clone().schema) {
+        let ((i_i, i_n), a_schema) = if let (Schema::Dims(i, n) , Schema::Schm(a_s))
+            = (egraph[i].metadata.clone().schema.unwrap(),
+               egraph[a].metadata.clone().schema.unwrap()) {
                 ((i, n), a_s)
             } else {
                 panic!("wrong schema in push multiply");
@@ -258,11 +253,11 @@ impl Applier<Math, Meta> for PushMul {
             [i, a, b].hash(&mut s);
             let fresh_s = "v".to_owned() + &(s.finish() % 976521).to_string();
 
-            let fresh_v = egraph.add(Expr::new(Math::Var(fresh_s), smallvec![]));
+            let fresh_v = egraph.add(Expr::new(Math::Str(fresh_s), smallvec![]));
             let fresh_n = egraph.add(Expr::new(Math::Num(i_n as i32), smallvec![]));
             let fresh_dim = egraph.add(Expr::new(Math::Dim, smallvec![fresh_v.id, fresh_n.id]));
 
-            let b_subst = egraph.add(Expr::new(Math::Subst, smallvec![fresh_dim.id, i, b]));
+            let b_subst = egraph.add(Expr::new(Math::Sub, smallvec![fresh_dim.id, i, b]));
             let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b_subst.id]));
             let agg = egraph.add(Expr::new(Math::Agg, smallvec![fresh_dim.id, mul.id]));
             res.push(agg);
@@ -290,4 +285,3 @@ impl Applier<Math, Meta> for DimSubst {
         vec![res]
     }
 }
-

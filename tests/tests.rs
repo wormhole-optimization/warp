@@ -150,7 +150,8 @@ fn test_extract() {
         }
     }
 
-    extract(egraph, root)
+    let best = extract(egraph, root);
+    println!("{}", best.pretty(80));
 }
 
 //#[test]
@@ -166,9 +167,10 @@ fn parrot() {
 
 #[test]
 fn extract_parrot() {
+    let _ = env_logger::builder().is_test(true).try_init();
     let start = "(sum (dim j 1000000) (sum (dim k 500000) (* \
-     (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))) \
-     (+ (mat x (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat u (dim j 1000000) (dim i 10) (nnz 10000000)) (mat v (dim i 10) (dim k 500000) (nnz 5000000))))))))";
+     (+ (mat (var x) (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat (var u) (dim j 1000000) (dim i 10) (nnz 10000000)) (mat (var v) (dim i 10) (dim k 500000) (nnz 5000000))))) \
+     (+ (mat (var x) (dim j 1000000) (dim k 500000) (nnz 500)) (sum (dim i 10) (* (mat (var u) (dim j 1000000) (dim i 10) (nnz 10000000)) (mat (var v) (dim i 10) (dim k 500000) (nnz 5000000))))))))";
     println!("input: {:?}", start);
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
@@ -176,10 +178,12 @@ fn extract_parrot() {
     let rules = rules();
     for i in 1..50 {
         for rw in &rules {
+            println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
         }
         egraph.rebuild();
     }
 
-    extract(egraph, root)
+    let best = extract(egraph, root);
+    println!("{}", best.pretty(80));
 }
