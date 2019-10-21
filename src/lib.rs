@@ -341,7 +341,8 @@ impl egg::egraph::Metadata<Math> for Meta {
                     nnz: Some(1),
                     sparsity: Some(NotNan::from(1 as f64))
                 }
-            }
+            },
+            _ => Meta {schema: None, nnz: None, sparsity: None}
         };
         schema
     }
@@ -363,6 +364,18 @@ impl egg::egraph::Metadata<Math> for Meta {
 define_term! {
     #[derive(Debug, PartialEq, Eq, Hash, Clone)]
     pub enum Math {
+        LMat = "lmat",
+        LAdd = "l+",
+        LMin = "l-",
+        LMul = "l*",
+        MMul = "m*",
+        LTrs = "trans",
+        Srow = "srow",
+        Scol = "scol",
+        Sall = "sall",
+        Bind = "b+",
+        Ubnd = "b-",
+
         Add = "+",
         // schema: union
         // sparsity: sum
