@@ -18,7 +18,11 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     let rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
     vec![
         rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (lit -1) ?b))"),
-        rw("la-mul",   "(l* ?a ?b)", "(b- i j (l* (b+ i j ?a) (b+ i j ?b)))"),
+
+        rw("la-mul",
+           "(dim ?r ?c (l* (dim ?r ?c ?a) (dim ?r ?c ?b)))",
+           "(b- i j (* (b+ i j ?a) (b+ i j ?b)))"),
+
         rw("la-mmul",  "(m* ?a ?b)", "(b- i k (sum j (* (b+ i j ?a) (b+ j k ?b))))"),
         rw("la-trans", "(trans ?a)", "(b- j i (b+ i j ?a))"),
         rw("la-srow",  "(srow ?a)",  "(b- i (sum j (b+ i j ?a)))"),

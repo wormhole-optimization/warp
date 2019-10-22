@@ -33,6 +33,7 @@ pub enum Schema {
     Dims(String, usize),
     Name(String),
     Size(usize),
+    Mat(usize, usize),
 }
 
 impl Schema {
@@ -325,10 +326,16 @@ impl egg::egraph::Metadata<Math> for Meta {
                 //    schema: None
                 //    sparsity: None
                 //    nnz: nnz
-                let nnz = &expr.children[0].nnz;
+                let n = &expr.children[0].schema;
+
+                let nnz = if let Some(Schema::Size(nnz)) = n {
+                    Some(*nnz)
+                } else {
+                    panic!("wrong schema in nnz")
+                };
                 Meta {
                     schema: None,
-                    nnz: *nnz,
+                    nnz: nnz,
                     sparsity: None,
                 }
             },
@@ -342,24 +349,271 @@ impl egg::egraph::Metadata<Math> for Meta {
                     sparsity: Some(NotNan::from(1 as f64))
                 }
             },
-            _ => Meta {schema: None, nnz: None, sparsity: None}
+            // Schema rules for LA plans
+            Math::LMat => {
+                assert_eq!(expr.children.len(), 4, "wrong length in lmat");
+                let i_schema = &expr.children[1].schema;
+                let j_schema = &expr.children[2].schema;
+                let nnz = &expr.children[3].nnz;
+
+                let (row, col) = if let (Some(Schema::Size(r)), Some(Schema::Size(c)))
+                    = (i_schema, j_schema) {
+                        (r, c)
+                    } else {
+                        panic!("wrong schema in lmat")
+                    };
+
+                Meta {
+                    schema: Some(Schema::Mat(*row, *col)),
+                    nnz: *nnz,
+                    sparsity: None
+                }
+            },
+            Math::LMin => {
+                assert_eq!(expr.children.len(), 2, "wrong length in lmin");
+                let x_schema = &expr.children[0].schema;
+                let y_schema = &expr.children[1].schema;
+
+                let (x_i, x_j, y_i, y_j) =
+                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
+                    = (x_schema, y_schema) {
+                        (xrow, xcol, yrow, ycol)
+                    } else {
+                        panic!("wrong schema in lmin")
+                    };
+
+                assert!(
+                    (x_i == y_i && x_j == y_j)
+                        || (x_i == y_i && *y_i == 1)
+                        || (x_i == y_i && *x_i == 1)
+                        || (*x_i == 1 && x_j == y_j)
+                        || (*y_i == 1 && x_j == y_j)
+                        || (*x_i == 1 && *x_j == 1)
+                        || (*y_i == 1 && *y_j == 1)
+                );
+                let row = if *x_i == 1 { y_i } else { x_i };
+                let col = if *x_j == 1 { y_j } else { x_j };
+
+                Meta {
+                    schema: Some(Schema::Mat(*row, *col)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::LAdd => {
+                assert_eq!(expr.children.len(), 2, "wrong length in ladd");
+                let x_schema = &expr.children[0].schema;
+                let y_schema = &expr.children[1].schema;
+
+                let (x_i, x_j, y_i, y_j) =
+                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
+                    = (x_schema, y_schema) {
+                        (xrow, xcol, yrow, ycol)
+                    } else {
+                        panic!("wrong schema in ladd")
+                    };
+
+                assert!(
+                    (x_i == y_i && x_j == y_j)
+                        || (x_i == y_i && *y_i == 1)
+                        || (x_i == y_i && *x_i == 1)
+                        || (*x_i == 1 && x_j == y_j)
+                        || (*y_i == 1 && x_j == y_j)
+                        || (*x_i == 1 && *x_j == 1)
+                        || (*y_i == 1 && *y_j == 1)
+                );
+                let row = if *x_i == 1 { y_i } else { x_i };
+                let col = if *x_j == 1 { y_j } else { x_j };
+
+                Meta {
+                    schema: Some(Schema::Mat(*row, *col)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::LMul => {
+                assert_eq!(expr.children.len(), 2, "wrong length in lmul");
+                let x_schema = &expr.children[0].schema;
+                let y_schema = &expr.children[1].schema;
+
+                let (x_i, x_j, y_i, y_j) =
+                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
+                    = (x_schema, y_schema) {
+                        (xrow, xcol, yrow, ycol)
+                    } else {
+                        panic!("wrong schema in lmul")
+                    };
+
+                assert!(
+                    (x_i == y_i && x_j == y_j)
+                        || (x_i == y_i && *y_i == 1)
+                        || (x_i == y_i && *x_i == 1)
+                        || (*x_i == 1 && x_j == y_j)
+                        || (*y_i == 1 && x_j == y_j)
+                        || (*x_i == 1 && *x_j == 1)
+                        || (*y_i == 1 && *y_j == 1)
+                );
+                let row = if *x_i == 1 { y_i } else { x_i };
+                let col = if *x_j == 1 { y_j } else { x_j };
+
+                Meta {
+                    schema: Some(Schema::Mat(*row, *col)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::MMul => {
+                assert_eq!(expr.children.len(), 2, "wrong length in mmul");
+                let x_schema = &expr.children[0].schema;
+                let y_schema = &expr.children[1].schema;
+
+                let (x_i, x_j, y_i, y_j) =
+                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
+                    = (x_schema, y_schema) {
+                        (xrow, xcol, yrow, ycol)
+                    } else {
+                        panic!("wrong schema in lmul")
+                    };
+
+                assert_eq!(*x_j, *y_i, "wrong dimensions in mmul");
+
+                Meta {
+                    schema: Some(Schema::Mat(*x_i, *y_j)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::LTrs => {
+                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                let x_schema = &expr.children[0].schema;
+
+                let (x_i, x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
+                    (row, col)
+                } else {
+                    panic!("wrong schema in transpose")
+                };
+
+                Meta {
+                    schema: Some(Schema::Mat(*x_j , *x_i)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::Srow => {
+                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                let x_schema = &expr.children[0].schema;
+
+                let (x_i, _x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
+                    (row, col)
+                } else {
+                    panic!("wrong schema in transpose")
+                };
+
+                Meta {
+                    schema: Some(Schema::Mat(*x_i , 1)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::Scol => {
+                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                let x_schema = &expr.children[0].schema;
+
+                let (_x_i, x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
+                    (row, col)
+                } else {
+                    panic!("wrong schema in transpose")
+                };
+
+                Meta {
+                    schema: Some(Schema::Mat(1, *x_j)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::Sall => {
+                Meta {
+                    schema: Some(Schema::Mat(1, 1)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::Bind => {
+                assert_eq!(expr.children.len(), 3, "wrong length in lmat");
+                let i_schema = &expr.children[0].schema;
+                let j_schema = &expr.children[1].schema;
+                let x_schema = &expr.children[2].schema;
+
+                let (i, j) = if let (Some(Schema::Name(i)), Some(Schema::Name(j))) =
+                    (i_schema, j_schema) {
+                        (i, j)
+                    } else {
+                        panic!("wrong schema in bind")
+                    };
+
+                let (x_row, x_col) = if let Some(Schema::Mat(row, col)) = x_schema {
+                    (row, col)
+                } else {
+                    panic!("wrong schema in bind")
+                };
+
+                let mut schema = HashMap::new();
+
+                if *x_row != 1 {
+                    schema.insert(i.clone(), *x_row);
+                }
+
+                if *x_col != 1 {
+                    schema.insert(j.clone(), *x_col);
+                }
+
+                Meta {
+                    schema: Some(Schema::Schm(schema)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::Ubnd => {
+                assert_eq!(expr.children.len(), 3, "wrong length in lmat");
+                let i_schema = &expr.children[0].schema;
+                let j_schema = &expr.children[1].schema;
+                let x_schema = &expr.children[2].schema;
+
+                let (i, j) = if let (Some(Schema::Name(i)), Some(Schema::Name(j))) =
+                    (i_schema, j_schema) {
+                        (i, j)
+                    } else {
+                        panic!("wrong schema in bind")
+                    };
+
+                let x_s = if let Some(Schema::Schm(s)) = x_schema {
+                    s
+                } else {
+                    panic!("wrong schema in bind")
+                };
+
+                let row = if i == "_" {1} else {*x_s.get(i).unwrap()};
+                let col = if j == "_" {1} else {*x_s.get(j).unwrap()};
+
+                Meta {
+                    schema: Some(Schema::Mat(row, col)),
+                    nnz: None,
+                    sparsity: None
+                }
+            },
+            Math::LLit => {
+                assert_eq!(expr.children.len(), 1, "wrong length in lmat");
+
+                Meta {
+                    schema: Some(Schema::Mat(1, 1)),
+                    nnz: None,
+                    sparsity: None
+                }
+            }
         };
         schema
     }
-
 }
-
-//pub struct Meta {
-//}
-//
-//#[derive(Debug, Clone, PartialEq, Eq)]
-//pub enum Schema {
-//    Schema(HashMap<String, usize>),
-//    Dims(String, usize),
-//    Name(String),
-//    Size(usize),
-//    Unit
-//}
 
 define_term! {
     #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -375,6 +629,7 @@ define_term! {
         Sall = "sall",
         Bind = "b+",
         Ubnd = "b-",
+        LLit = "llit",
 
         Add = "+",
         // schema: union

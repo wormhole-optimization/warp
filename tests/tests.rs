@@ -118,7 +118,7 @@ fn pull_mul() {
 }
 
 
-#[test]
+//#[test]
 fn push_mul() {
     prove_something(
         5_000,
@@ -165,7 +165,7 @@ fn parrot() {
     );
 }
 
-#[test]
+//#[test]
 fn extract_parrot() {
     let _ = env_logger::builder().is_test(true).try_init();
     let start = "(sum (dim j 1000000) (sum (dim k 500000) (* \
@@ -186,4 +186,40 @@ fn extract_parrot() {
 
     let best = extract(egraph, root);
     println!("{}", best.pretty(80));
+}
+
+#[test]
+fn la_input() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    // "sum((x + 2uv)^2)"
+    let start = "(sall (l*\
+                       (l+ (lmat x 1000000 500000 500)\
+                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
+                                      (lmat v 1 500000 500000))))\
+                       (l+ (lmat x 1000000 500000 500)\
+                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
+                                      (lmat v 1 500000 500000))))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+}
+
+#[test]
+fn l_mul() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    // "sum((x + 2uv)^2)"
+    let start = "(l* (llit 2) (m* (lmat u 1000000 1 1000000)\
+                                      (lmat v 1 500000 500000)))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+}
+
+#[test]
+fn l_add() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    // "sum((x + 2uv)^2)"
+    let start = "(l+ (lmat x 1000000 500000 500)\
+                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
+                                      (lmat v 1 500000 500000))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
 }
