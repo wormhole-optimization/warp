@@ -422,7 +422,7 @@ impl Applier<Math, Meta> for LAMul {
 
         let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
         let b = egraph.add(Expr::new(Math::Bind, smallvec![b_i.id, b_j.id, y]));
-        let mul = egraph.add(Expr::new(Math::LMul, smallvec![a.id, b.id]));
+        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a.id, b.id]));
         let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_j.id, mul.id]));
 
         vec![ubd]
@@ -469,8 +469,8 @@ impl Applier<Math, Meta> for LAAdd {
 
         let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
         let b = egraph.add(Expr::new(Math::Bind, smallvec![b_i.id, b_j.id, y]));
-        let mul = egraph.add(Expr::new(Math::LAdd, smallvec![a.id, b.id]));
-        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_j.id, mul.id]));
+        let add = egraph.add(Expr::new(Math::Add, smallvec![a.id, b.id]));
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_j.id, add.id]));
 
         vec![ubd]
     }
@@ -520,19 +520,18 @@ impl Applier<Math, Meta> for LAMMul {
 
         let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
         let b = egraph.add(Expr::new(Math::Bind, smallvec![b_j.id, b_k.id, y]));
-        let mul = egraph.add(Expr::new(Math::LAdd, smallvec![a.id, b.id]));
+        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a.id, b.id]));
 
         let res = if agg_j == "_" {
             egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_k.id, mul.id]))
         } else {
             let j_dim = egraph.add(Expr::new(Math::Num(x_j as i32), smallvec![]));
             let agg_j_dim = egraph.add(Expr::new(Math::Dim, smallvec![a_j.id, j_dim.id]));
-            egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, mul.id]))
+            let agg = egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, mul.id]));
+            egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_k.id, agg.id]))
         };
 
-        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_k.id, res.id]));
-
-        vec![ubd]
+        vec![res]
     }
 }
 
@@ -668,9 +667,12 @@ impl Applier<Math, Meta> for LASall {
         let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
         let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
 
+        let bind_wild = "_";
+
         // (sum i (sum j [i,j] A))
         let ai = egraph.add(Expr::new(Math::Str(bind_ai.to_owned()), smallvec![]));
         let aj = egraph.add(Expr::new(Math::Str(bind_aj.to_owned()), smallvec![]));
+        let wild = egraph.add(Expr::new(Math::Str(bind_wild.to_owned()), smallvec![]));
 
         let a = egraph.add(Expr::new(Math::Bind, smallvec![ai.id, aj.id, a]));
 
@@ -683,6 +685,8 @@ impl Applier<Math, Meta> for LASall {
         let aggi = egraph.add(Expr::new(Math::Agg, smallvec![agg_i_dim.id, a.id]));
         let aggj = egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, aggi.id]));
 
-        vec![aggj]
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, wild.id, aggj.id]));
+
+        vec![ubd]
     }
 }

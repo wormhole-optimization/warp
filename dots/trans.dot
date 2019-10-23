@@ -2,7 +2,7 @@ digraph {
   compound=true
   subgraph cluster_0 {
     style=dotted
-    0.0[label = "j"]
+    0.0[label = "x"]
   }
   subgraph cluster_1 {
     style=dotted
@@ -10,150 +10,252 @@ digraph {
   }
   subgraph cluster_2 {
     style=dotted
-    2.0[label = "dim"]
+    2.0[label = "500000"]
   }
   subgraph cluster_3 {
     style=dotted
-    3.0[label = "k"]
+    3.0[label = "500"]
   }
   subgraph cluster_4 {
     style=dotted
-    4.0[label = "500000"]
+    4.0[label = "lmat"]
   }
   subgraph cluster_5 {
     style=dotted
-    5.0[label = "dim"]
+    5.0[label = "2"]
   }
   subgraph cluster_6 {
     style=dotted
-    6.0[label = "x"]
+    6.0[label = "llit"]
   }
   subgraph cluster_7 {
     style=dotted
-    7.0[label = "var"]
+    7.0[label = "u"]
   }
   subgraph cluster_8 {
     style=dotted
-    8.0[label = "500"]
+    8.0[label = "1"]
   }
   subgraph cluster_9 {
     style=dotted
-    9.0[label = "nnz"]
+    9.0[label = "lmat"]
   }
   subgraph cluster_10 {
     style=dotted
-    10.0[label = "mat"]
+    10.0[label = "v"]
   }
   subgraph cluster_11 {
     style=dotted
-    11.0[label = "i"]
+    11.0[label = "lmat"]
   }
   subgraph cluster_12 {
     style=dotted
-    12.0[label = "10"]
+    12.0[label = "b-"]
+    12.1[label = "m*"]
   }
   subgraph cluster_13 {
     style=dotted
-    13.0[label = "dim"]
+    13.0[label = "b-"]
+    13.1[label = "l*"]
   }
   subgraph cluster_14 {
     style=dotted
-    14.0[label = "u"]
+    14.0[label = "b-"]
+    14.1[label = "l+"]
   }
   subgraph cluster_15 {
     style=dotted
-    15.0[label = "var"]
+    15.0[label = "b-"]
+    15.1[label = "l*"]
   }
   subgraph cluster_16 {
     style=dotted
-    16.0[label = "10000000"]
+    16.0[label = "b-"]
+    16.1[label = "sall"]
   }
   subgraph cluster_17 {
     style=dotted
-    17.0[label = "nnz"]
+    17.0[label = "_"]
   }
   subgraph cluster_18 {
     style=dotted
-    18.0[label = "mat"]
+    18.0[label = "vmul_i29110"]
   }
   subgraph cluster_19 {
     style=dotted
-    19.0[label = "v"]
+    19.0[label = "vmul_j29110"]
   }
   subgraph cluster_20 {
     style=dotted
-    20.0[label = "var"]
+    20.0[label = "b+"]
   }
   subgraph cluster_21 {
     style=dotted
-    21.0[label = "5000000"]
+    21.0[label = "b+"]
   }
   subgraph cluster_22 {
     style=dotted
-    22.0[label = "nnz"]
-  }
-  subgraph cluster_23 {
-    style=dotted
-    23.0[label = "mat"]
+    22.0[label = "*"]
   }
   subgraph cluster_24 {
     style=dotted
-    24.0[label = "*"]
+    24.0[label = "vmul_i10454"]
   }
   subgraph cluster_25 {
     style=dotted
-    25.0[label = "sum"]
+    25.0[label = "vmul_j10454"]
   }
   subgraph cluster_26 {
     style=dotted
-    26.0[label = "+"]
+    26.0[label = "b+"]
   }
   subgraph cluster_27 {
     style=dotted
     27.0[label = "*"]
   }
-  subgraph cluster_28 {
-    style=dotted
-    28.0[label = "sum"]
-  }
   subgraph cluster_29 {
     style=dotted
-    29.0[label = "sum"]
+    29.0[label = "vadd_i136230"]
   }
-  2.0 -> 0.0 [lhead = cluster_0, label = 0]
-  2.0 -> 1.0 [lhead = cluster_1, label = 1]
-  5.0 -> 3.0 [lhead = cluster_3, label = 0]
-  5.0 -> 4.0 [lhead = cluster_4, label = 1]
-  7.0 -> 6.0 [lhead = cluster_6, label = 0]
-  9.0 -> 8.0 [lhead = cluster_8, label = 0]
-  10.0 -> 7.0 [lhead = cluster_7, label = 0]
-  10.0 -> 2.0 [lhead = cluster_2, label = 1]
-  10.0 -> 5.0 [lhead = cluster_5, label = 2]
-  10.0 -> 9.0 [lhead = cluster_9, label = 3]
-  13.0 -> 11.0 [lhead = cluster_11, label = 0]
-  13.0 -> 12.0 [lhead = cluster_12, label = 1]
-  15.0 -> 14.0 [lhead = cluster_14, label = 0]
-  17.0 -> 16.0 [lhead = cluster_16, label = 0]
-  18.0 -> 15.0 [lhead = cluster_15, label = 0]
-  18.0 -> 2.0 [lhead = cluster_2, label = 1]
-  18.0 -> 13.0 [lhead = cluster_13, label = 2]
-  18.0 -> 17.0 [lhead = cluster_17, label = 3]
-  20.0 -> 19.0 [lhead = cluster_19, label = 0]
-  22.0 -> 21.0 [lhead = cluster_21, label = 0]
-  23.0 -> 20.0 [lhead = cluster_20, label = 0]
-  23.0 -> 13.0 [lhead = cluster_13, label = 1]
-  23.0 -> 5.0 [lhead = cluster_5, label = 2]
-  23.0 -> 22.0 [lhead = cluster_22, label = 3]
-  24.0 -> 18.0 [lhead = cluster_18, label = 0]
-  24.0 -> 23.0 [lhead = cluster_23, label = 1]
-  25.0 -> 13.0 [lhead = cluster_13, label = 0]
-  25.0 -> 24.0 [lhead = cluster_24, label = 1]
-  26.0 -> 10.0 [lhead = cluster_10, label = 0]
+  subgraph cluster_30 {
+    style=dotted
+    30.0[label = "vadd_j136230"]
+  }
+  subgraph cluster_31 {
+    style=dotted
+    31.0[label = "b+"]
+  }
+  subgraph cluster_32 {
+    style=dotted
+    32.0[label = "b+"]
+  }
+  subgraph cluster_33 {
+    style=dotted
+    33.0[label = "+"]
+  }
+  subgraph cluster_35 {
+    style=dotted
+    35.0[label = "vmmul_i800721"]
+  }
+  subgraph cluster_36 {
+    style=dotted
+    36.0[label = "vmmul_k800721"]
+  }
+  subgraph cluster_37 {
+    style=dotted
+    37.0[label = "b+"]
+  }
+  subgraph cluster_38 {
+    style=dotted
+    38.0[label = "b+"]
+  }
+  subgraph cluster_39 {
+    style=dotted
+    39.0[label = "*"]
+  }
+  subgraph cluster_41 {
+    style=dotted
+    41.0[label = "vsall_i699052"]
+  }
+  subgraph cluster_42 {
+    style=dotted
+    42.0[label = "vsall_j699052"]
+  }
+  subgraph cluster_43 {
+    style=dotted
+    43.0[label = "b+"]
+  }
+  subgraph cluster_44 {
+    style=dotted
+    44.0[label = "dim"]
+  }
+  subgraph cluster_45 {
+    style=dotted
+    45.0[label = "dim"]
+  }
+  subgraph cluster_46 {
+    style=dotted
+    46.0[label = "sum"]
+  }
+  subgraph cluster_47 {
+    style=dotted
+    47.0[label = "sum"]
+  }
+  4.0 -> 0.0 [lhead = cluster_0, label = 0]
+  4.0 -> 1.0 [lhead = cluster_1, label = 1]
+  4.0 -> 2.0 [lhead = cluster_2, label = 2]
+  4.0 -> 3.0 [lhead = cluster_3, label = 3]
+  6.0 -> 5.0 [lhead = cluster_5, label = 0]
+  9.0 -> 7.0 [lhead = cluster_7, label = 0]
+  9.0 -> 1.0 [lhead = cluster_1, label = 1]
+  9.0 -> 8.0 [lhead = cluster_8, label = 2]
+  9.0 -> 1.0 [lhead = cluster_1, label = 3]
+  11.0 -> 10.0 [lhead = cluster_10, label = 0]
+  11.0 -> 8.0 [lhead = cluster_8, label = 1]
+  11.0 -> 2.0 [lhead = cluster_2, label = 2]
+  11.0 -> 2.0 [lhead = cluster_2, label = 3]
+  12.0 -> 35.0 [lhead = cluster_35, label = 0]
+  12.0 -> 36.0 [lhead = cluster_36, label = 1]
+  12.0 -> 39.0 [lhead = cluster_39, label = 2]
+  12.1 -> 9.0 [lhead = cluster_9, label = 0]
+  12.1 -> 11.0 [lhead = cluster_11, label = 1]
+  13.0 -> 18.0 [lhead = cluster_18, label = 0]
+  13.0 -> 19.0 [lhead = cluster_19, label = 1]
+  13.0 -> 22.0 [lhead = cluster_22, label = 2]
+  13.1 -> 6.0 [lhead = cluster_6, label = 0]
+  13.1 -> 12.0 [lhead = cluster_12, label = 1]
+  14.0 -> 29.0 [lhead = cluster_29, label = 0]
+  14.0 -> 30.0 [lhead = cluster_30, label = 1]
+  14.0 -> 33.0 [lhead = cluster_33, label = 2]
+  14.1 -> 4.0 [lhead = cluster_4, label = 0]
+  14.1 -> 13.0 [lhead = cluster_13, label = 1]
+  15.0 -> 24.0 [lhead = cluster_24, label = 0]
+  15.0 -> 25.0 [lhead = cluster_25, label = 1]
+  15.0 -> 27.0 [lhead = cluster_27, label = 2]
+  15.1 -> 14.0 [lhead = cluster_14, label = 0]
+  15.1 -> 14.0 [lhead = cluster_14, label = 1]
+  16.0 -> 17.0 [lhead = cluster_17, label = 0]
+  16.0 -> 17.0 [lhead = cluster_17, label = 1]
+  16.0 -> 47.0 [lhead = cluster_47, label = 2]
+  16.1 -> 15.0 [lhead = cluster_15, label = 0]
+  20.0 -> 17.0 [lhead = cluster_17, label = 0]
+  20.0 -> 17.0 [lhead = cluster_17, label = 1]
+  20.0 -> 6.0 [lhead = cluster_6, label = 2]
+  21.0 -> 18.0 [lhead = cluster_18, label = 0]
+  21.0 -> 19.0 [lhead = cluster_19, label = 1]
+  21.0 -> 12.0 [lhead = cluster_12, label = 2]
+  22.0 -> 20.0 [lhead = cluster_20, label = 0]
+  22.0 -> 21.0 [lhead = cluster_21, label = 1]
+  26.0 -> 24.0 [lhead = cluster_24, label = 0]
   26.0 -> 25.0 [lhead = cluster_25, label = 1]
+  26.0 -> 14.0 [lhead = cluster_14, label = 2]
   27.0 -> 26.0 [lhead = cluster_26, label = 0]
   27.0 -> 26.0 [lhead = cluster_26, label = 1]
-  28.0 -> 5.0 [lhead = cluster_5, label = 0]
-  28.0 -> 27.0 [lhead = cluster_27, label = 1]
-  29.0 -> 2.0 [lhead = cluster_2, label = 0]
-  29.0 -> 28.0 [lhead = cluster_28, label = 1]
+  31.0 -> 29.0 [lhead = cluster_29, label = 0]
+  31.0 -> 30.0 [lhead = cluster_30, label = 1]
+  31.0 -> 4.0 [lhead = cluster_4, label = 2]
+  32.0 -> 29.0 [lhead = cluster_29, label = 0]
+  32.0 -> 30.0 [lhead = cluster_30, label = 1]
+  32.0 -> 13.0 [lhead = cluster_13, label = 2]
+  33.0 -> 31.0 [lhead = cluster_31, label = 0]
+  33.0 -> 32.0 [lhead = cluster_32, label = 1]
+  37.0 -> 35.0 [lhead = cluster_35, label = 0]
+  37.0 -> 17.0 [lhead = cluster_17, label = 1]
+  37.0 -> 9.0 [lhead = cluster_9, label = 2]
+  38.0 -> 17.0 [lhead = cluster_17, label = 0]
+  38.0 -> 36.0 [lhead = cluster_36, label = 1]
+  38.0 -> 11.0 [lhead = cluster_11, label = 2]
+  39.0 -> 37.0 [lhead = cluster_37, label = 0]
+  39.0 -> 38.0 [lhead = cluster_38, label = 1]
+  43.0 -> 41.0 [lhead = cluster_41, label = 0]
+  43.0 -> 42.0 [lhead = cluster_42, label = 1]
+  43.0 -> 15.0 [lhead = cluster_15, label = 2]
+  44.0 -> 42.0 [lhead = cluster_42, label = 0]
+  44.0 -> 2.0 [lhead = cluster_2, label = 1]
+  45.0 -> 41.0 [lhead = cluster_41, label = 0]
+  45.0 -> 1.0 [lhead = cluster_1, label = 1]
+  46.0 -> 45.0 [lhead = cluster_45, label = 0]
+  46.0 -> 43.0 [lhead = cluster_43, label = 1]
+  47.0 -> 44.0 [lhead = cluster_44, label = 0]
+  47.0 -> 46.0 [lhead = cluster_46, label = 1]
 }

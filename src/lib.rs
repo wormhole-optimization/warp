@@ -110,22 +110,25 @@ impl egg::egraph::Metadata<Math> for Meta {
                     if let (Some(x_s), Some(y_s)) = (x.sparsity, y.sparsity) {
                         Some(std::cmp::min(NotNan::from(1 as f64), x_s + y_s))
                     } else {
-                        panic!("no sparsity in agument to add")
+                        //panic!("no sparsity in agument to add")
+                        None
                     };
 
                 let nnz = if let Some(Schema::Schm(sch)) = &schema {
                     let vol: usize = sch.values().product();
                     match sparsity {
                         Some(sp) => {
-                            NotNan::from(vol as f64) * sp
+                            let nnz = NotNan::from(vol as f64) * sp;
+                            Some(nnz.round() as usize)
                         },
-                        _ => panic!("impossible")
+                        //_ => panic!("impossible")
+                        _=>None
                     }
                 } else {
                     panic!("impossible")
                 };
 
-                Meta {schema, sparsity, nnz: Some(nnz.round() as usize)}
+                Meta {schema, sparsity, nnz}
             },
             Math::Mul => {
                 // schema: union
@@ -145,22 +148,25 @@ impl egg::egraph::Metadata<Math> for Meta {
                     if let (Some(x_s), Some(y_s)) = (x.sparsity, y.sparsity) {
                         Some(std::cmp::min(x_s, y_s))
                     } else {
-                        panic!("no sparsity in agument to mul")
+                        //panic!("no sparsity in agument to mul")
+                        None
                     };
 
                 let nnz = if let Some(Schema::Schm(sch)) = &schema {
                     let vol: usize = sch.values().product();
                     match sparsity {
                         Some(sp) => {
-                            NotNan::from(vol as f64) * sp
+                            let nnz = NotNan::from(vol as f64) * sp;
+                            Some(nnz.round() as usize)
                         },
-                        _ => panic!("impossible")
+                        //_ => panic!("impossible")
+                        _ => None
                     }
                 } else {
                     panic!("impossible")
                 };
 
-                Meta {schema, sparsity, nnz: Some(nnz.round() as usize) }
+                Meta {schema, sparsity, nnz}
             },
             Math::Agg => {
                 // schema: remove summed dim
@@ -182,12 +188,16 @@ impl egg::egraph::Metadata<Math> for Meta {
 
                 let sparsity = if let Schema::Schm(s) = &schema {
                     let vol: usize = s.values().product();
-                    Some(
-                        std::cmp::min(
-                            NotNan::from(1 as f64),
-                            NotNan::from(body.nnz.unwrap() as f64) / NotNan::from(vol as f64)
+                    if let Some(nnz) = body.nnz {
+                        Some(
+                            std::cmp::min(
+                                NotNan::from(1 as f64),
+                                NotNan::from(nnz as f64) / NotNan::from(vol as f64)
+                            )
                         )
-                    )
+                    } else {
+                        None
+                    }
                 } else {
                     panic!("impossible")
                 };
@@ -441,7 +451,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                     = (x_schema, y_schema) {
                         (xrow, xcol, yrow, ycol)
                     } else {
-                        panic!("wrong schema in lmul")
+                        panic!("wrong schema in lmul {:?} {:?}", x_schema, y_schema)
                     };
 
                 assert!(
@@ -472,7 +482,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                     = (x_schema, y_schema) {
                         (xrow, xcol, yrow, ycol)
                     } else {
-                        panic!("wrong schema in lmul")
+                        panic!("wrong schema in mmul")
                     };
 
                 assert_eq!(*x_j, *y_i, "wrong dimensions in mmul");
@@ -574,7 +584,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Math::Ubnd => {
-                assert_eq!(expr.children.len(), 3, "wrong length in lmat");
+                assert_eq!(expr.children.len(), 3, "wrong length in ubind");
                 let i_schema = &expr.children[0].schema;
                 let j_schema = &expr.children[1].schema;
                 let x_schema = &expr.children[2].schema;
@@ -583,13 +593,13 @@ impl egg::egraph::Metadata<Math> for Meta {
                     (i_schema, j_schema) {
                         (i, j)
                     } else {
-                        panic!("wrong schema in bind")
+                        panic!("wrong schema in unbind")
                     };
 
                 let x_s = if let Some(Schema::Schm(s)) = x_schema {
                     s
                 } else {
-                    panic!("wrong schema in bind")
+                    panic!("wrong schema in unbind x: {:?}", x_schema)
                 };
 
                 let row = if i == "_" {1} else {*x_s.get(i).unwrap()};
