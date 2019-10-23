@@ -240,7 +240,7 @@ fn test_translate() {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
         }
-        egraph.rebuild();
+        //egraph.rebuild();
     }
 
     egraph.dump_dot("trans.dot");
