@@ -2,9 +2,7 @@ use crate::{Math, Meta, EGraph, Schema};
 
 use egg::{
     egraph::{AddResult},
-    //expr::{Expr, Language, QuestionMarkName, Id, RecExpr},
     expr::{Expr, QuestionMarkName},
-    //extract::{calculate_cost, Extractor},
     parse::ParsableLanguage,
     pattern::{Applier, Rewrite, WildMap},
 };
@@ -18,16 +16,58 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     let rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
     vec![
         rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (lit -1) ?b))"),
-
-        rw("la-mul",
-           "(dim ?r ?c (l* (dim ?r ?c ?a) (dim ?r ?c ?b)))",
-           "(b- i j (* (b+ i j ?a) (b+ i j ?b)))"),
-
-        rw("la-mmul",  "(m* ?a ?b)", "(b- i k (sum j (* (b+ i j ?a) (b+ j k ?b))))"),
-        rw("la-trans", "(trans ?a)", "(b- j i (b+ i j ?a))"),
-        rw("la-srow",  "(srow ?a)",  "(b- i (sum j (b+ i j ?a)))"),
-        rw("la-scol",  "(scol ?a)",  "(b- j (sum i (b+ i j ?a)))"),
-        rw("la-sall",  "(sall ?a)",  "(sum i (sum j (b+ i j ?a)))")
+        Rewrite::new(
+            "la_mul",
+            Math::parse_pattern("(l* ?x ?y)").unwrap(),
+            LAMul {
+                x: "?x".parse().unwrap(),
+                y: "?y".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la_add",
+            Math::parse_pattern("(l+ ?x ?y)").unwrap(),
+            LAAdd {
+                x: "?x".parse().unwrap(),
+                y: "?y".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la_mmul",
+            Math::parse_pattern("(m* ?x ?y)").unwrap(),
+            LAMMul {
+                x: "?x".parse().unwrap(),
+                y: "?y".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la-trans",
+            Math::parse_pattern("(trans ?a)").unwrap(),
+            LATrans {
+                a: "?a".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la-srow",
+            Math::parse_pattern("(srow ?a)").unwrap(),
+            LASrow {
+                a: "?a".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la-scol",
+            Math::parse_pattern("(scol ?a)").unwrap(),
+            LAScol {
+                a: "?a".parse().unwrap(),
+            }
+        ),
+        Rewrite::new(
+            "la-sall",
+            Math::parse_pattern("(sall ?a)").unwrap(),
+            LASall {
+                a: "?a".parse().unwrap(),
+            }
+        ),
     ]
 }
 
@@ -132,6 +172,44 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 
 #[derive(Debug)]
 struct Foundit;
+
+#[derive(Debug)]
+struct LASall {
+    a: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LAScol {
+    a: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LASrow {
+    a: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LATrans {
+    a: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LAMMul {
+    x: QuestionMarkName,
+    y: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LAAdd {
+    x: QuestionMarkName,
+    y: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LAMul {
+    x: QuestionMarkName,
+    y: QuestionMarkName,
+}
 
 #[derive(Debug)]
 struct SubstAgg {
@@ -301,5 +379,310 @@ impl Applier<Math, Meta> for DimSubst {
         };
 
         vec![res]
+    }
+}
+
+impl Applier<Math, Meta> for LAMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let x = map[&self.x][0];
+        let y = map[&self.y][0];
+
+        let x_schema = egraph[x].metadata.clone().schema.unwrap();
+        let y_schema = egraph[y].metadata.clone().schema.unwrap();
+
+        let (x_i, x_j, y_i, y_j) =
+            if let (Schema::Mat(xrow, xcol), Schema::Mat(yrow, ycol))
+            = (x_schema, y_schema) {
+                (xrow, xcol, yrow, ycol)
+            } else {
+                panic!("wrong schema in lmul")
+            };
+
+        let mut s = DefaultHasher::new();
+        [x, y].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vmul_i".to_owned() + &fresh_s;
+        let fresh_j = "vmul_j".to_owned() + &fresh_s;
+
+        let bind_xi = if x_i == 1 {"_"} else { &fresh_i };
+        let bind_xj = if x_j == 1 {"_"} else { &fresh_j };
+        let bind_yi = if y_i == 1 {"_"} else { &fresh_i };
+        let bind_yj = if y_j == 1 {"_"} else { &fresh_j };
+
+        let ubnd_i = if x_i * y_i == 1 {"_"} else { &fresh_i };
+        let ubnd_j = if x_j * y_j == 1 {"_"} else { &fresh_j };
+
+        // [-i,j] (* [i,j]A [i,j]B)
+        let a_i = egraph.add(Expr::new(Math::Str(bind_xi.to_owned()), smallvec![]));
+        let a_j = egraph.add(Expr::new(Math::Str(bind_xj.to_owned()), smallvec![]));
+        let b_i = egraph.add(Expr::new(Math::Str(bind_yi.to_owned()), smallvec![]));
+        let b_j = egraph.add(Expr::new(Math::Str(bind_yj.to_owned()), smallvec![]));
+        let u_i = egraph.add(Expr::new(Math::Str(ubnd_i.to_owned()), smallvec![]));
+        let u_j = egraph.add(Expr::new(Math::Str(ubnd_j.to_owned()), smallvec![]));
+
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
+        let b = egraph.add(Expr::new(Math::Bind, smallvec![b_i.id, b_j.id, y]));
+        let mul = egraph.add(Expr::new(Math::LMul, smallvec![a.id, b.id]));
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_j.id, mul.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LAAdd {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let x = map[&self.x][0];
+        let y = map[&self.y][0];
+
+        let x_schema = egraph[x].metadata.clone().schema.unwrap();
+        let y_schema = egraph[y].metadata.clone().schema.unwrap();
+
+        let (x_i, x_j, y_i, y_j) =
+            if let (Schema::Mat(xrow, xcol), Schema::Mat(yrow, ycol))
+            = (x_schema, y_schema) {
+                (xrow, xcol, yrow, ycol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [x, y].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vadd_i".to_owned() + &fresh_s;
+        let fresh_j = "vadd_j".to_owned() + &fresh_s;
+
+        let bind_xi = if x_i == 1 {"_"} else { &fresh_i };
+        let bind_xj = if x_j == 1 {"_"} else { &fresh_j };
+        let bind_yi = if y_i == 1 {"_"} else { &fresh_i };
+        let bind_yj = if y_j == 1 {"_"} else { &fresh_j };
+
+        let ubnd_i = if x_i * y_i == 1 {"_"} else { &fresh_i };
+        let ubnd_j = if x_j * y_j == 1 {"_"} else { &fresh_j };
+
+        // [-i,j] (* [i,j]A [i,j]B)
+        let a_i = egraph.add(Expr::new(Math::Str(bind_xi.to_owned()), smallvec![]));
+        let a_j = egraph.add(Expr::new(Math::Str(bind_xj.to_owned()), smallvec![]));
+        let b_i = egraph.add(Expr::new(Math::Str(bind_yi.to_owned()), smallvec![]));
+        let b_j = egraph.add(Expr::new(Math::Str(bind_yj.to_owned()), smallvec![]));
+        let u_i = egraph.add(Expr::new(Math::Str(ubnd_i.to_owned()), smallvec![]));
+        let u_j = egraph.add(Expr::new(Math::Str(ubnd_j.to_owned()), smallvec![]));
+
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
+        let b = egraph.add(Expr::new(Math::Bind, smallvec![b_i.id, b_j.id, y]));
+        let mul = egraph.add(Expr::new(Math::LAdd, smallvec![a.id, b.id]));
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_j.id, mul.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LAMMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let x = map[&self.x][0];
+        let y = map[&self.y][0];
+
+        let x_schema = egraph[x].metadata.clone().schema.unwrap();
+        let y_schema = egraph[y].metadata.clone().schema.unwrap();
+
+        let (x_i, x_j, y_j, y_k) =
+            if let (Schema::Mat(xrow, xcol), Schema::Mat(yrow, ycol))
+            = (x_schema, y_schema) {
+                (xrow, xcol, yrow, ycol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [x, y].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vmmul_i".to_owned() + &fresh_s;
+        let fresh_j = "vmmul_j".to_owned() + &fresh_s;
+        let fresh_k = "vmmul_k".to_owned() + &fresh_s;
+
+        let bind_xi = if x_i == 1 {"_"} else { &fresh_i };
+        let bind_xj = if x_j == 1 {"_"} else { &fresh_j };
+        let bind_yj = if y_j == 1 {"_"} else { &fresh_j };
+        let bind_yk = if y_k == 1 {"_"} else { &fresh_k };
+
+        let ubnd_i = if x_i == 1 {"_"} else { &fresh_i };
+        let ubnd_k = if y_k == 1 {"_"} else { &fresh_k };
+
+        let agg_j = if x_j * y_j == 1 {"_"} else {&fresh_j};
+
+        // [-i,k] (sum j (* [i,j]A [j,k]B))
+        let a_i = egraph.add(Expr::new(Math::Str(bind_xi.to_owned()), smallvec![]));
+        let a_j = egraph.add(Expr::new(Math::Str(bind_xj.to_owned()), smallvec![]));
+        let b_j = egraph.add(Expr::new(Math::Str(bind_yj.to_owned()), smallvec![]));
+        let b_k = egraph.add(Expr::new(Math::Str(bind_yk.to_owned()), smallvec![]));
+
+        let u_i = egraph.add(Expr::new(Math::Str(ubnd_i.to_owned()), smallvec![]));
+        let u_k = egraph.add(Expr::new(Math::Str(ubnd_k.to_owned()), smallvec![]));
+
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, x]));
+        let b = egraph.add(Expr::new(Math::Bind, smallvec![b_j.id, b_k.id, y]));
+        let mul = egraph.add(Expr::new(Math::LAdd, smallvec![a.id, b.id]));
+
+        let res = if agg_j == "_" {
+            egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_k.id, mul.id]))
+        } else {
+            let j_dim = egraph.add(Expr::new(Math::Num(x_j as i32), smallvec![]));
+            let agg_j_dim = egraph.add(Expr::new(Math::Dim, smallvec![a_j.id, j_dim.id]));
+            egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, mul.id]))
+        };
+
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![u_i.id, u_k.id, res.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LATrans {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let a = map[&self.a][0];
+        let a_schema = egraph[a].metadata.clone().schema.unwrap();
+
+        let (a_i, a_j) =
+            if let Schema::Mat(arow, acol)
+            = a_schema {
+                (arow, acol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [a].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vtrans_i".to_owned() + &fresh_s;
+        let fresh_j = "vtrans_j".to_owned() + &fresh_s;
+
+        let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
+        let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
+
+        // [-i,j] [j,i] A
+        let a_i = egraph.add(Expr::new(Math::Str(bind_ai.to_owned()), smallvec![]));
+        let a_j = egraph.add(Expr::new(Math::Str(bind_aj.to_owned()), smallvec![]));
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![a_i.id, a_j.id, a]));
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![a_j.id, a_i.id, a.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LASrow {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let a = map[&self.a][0];
+        let a_schema = egraph[a].metadata.clone().schema.unwrap();
+
+        let (a_i, a_j) =
+            if let Schema::Mat(arow, acol)
+            = a_schema {
+                (arow, acol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [a].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vtrans_i".to_owned() + &fresh_s;
+        let fresh_j = "vtrans_j".to_owned() + &fresh_s;
+
+        let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
+        let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
+        let bind_wild = "_";
+
+        // [-i,_] (sum i [i,j] A)
+        let ai = egraph.add(Expr::new(Math::Str(bind_ai.to_owned()), smallvec![]));
+        let aj = egraph.add(Expr::new(Math::Str(bind_aj.to_owned()), smallvec![]));
+        let wild = egraph.add(Expr::new(Math::Str(bind_wild.to_owned()), smallvec![]));
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![ai.id, aj.id, a]));
+
+        let i_dim = egraph.add(Expr::new(Math::Num(a_i as i32), smallvec![]));
+        let agg_i_dim = egraph.add(Expr::new(Math::Dim, smallvec![ai.id, i_dim.id]));
+        let agg = egraph.add(Expr::new(Math::Agg, smallvec![agg_i_dim.id, a.id]));
+
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![ai.id, wild.id, agg.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LAScol {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let a = map[&self.a][0];
+        let a_schema = egraph[a].metadata.clone().schema.unwrap();
+
+        let (a_i, a_j) =
+            if let Schema::Mat(arow, acol)
+            = a_schema {
+                (arow, acol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [a].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vtrans_i".to_owned() + &fresh_s;
+        let fresh_j = "vtrans_j".to_owned() + &fresh_s;
+
+        let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
+        let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
+        let bind_wild = "_";
+
+        // [-_,j] (sum j [i,j] A)
+        let ai = egraph.add(Expr::new(Math::Str(bind_ai.to_owned()), smallvec![]));
+        let aj = egraph.add(Expr::new(Math::Str(bind_aj.to_owned()), smallvec![]));
+        let wild = egraph.add(Expr::new(Math::Str(bind_wild.to_owned()), smallvec![]));
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![ai.id, aj.id, a]));
+
+        let j_dim = egraph.add(Expr::new(Math::Num(a_j as i32), smallvec![]));
+        let agg_j_dim = egraph.add(Expr::new(Math::Dim, smallvec![aj.id, j_dim.id]));
+        let agg = egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, a.id]));
+
+        let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, aj.id, agg.id]));
+
+        vec![ubd]
+    }
+}
+
+impl Applier<Math, Meta> for LASall {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let a = map[&self.a][0];
+        let a_schema = egraph[a].metadata.clone().schema.unwrap();
+
+        let (a_i, a_j) =
+            if let Schema::Mat(arow, acol)
+            = a_schema {
+                (arow, acol)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let mut s = DefaultHasher::new();
+        [a].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = "vsall_i".to_owned() + &fresh_s;
+        let fresh_j = "vsall_j".to_owned() + &fresh_s;
+
+        let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
+        let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
+
+        // (sum i (sum j [i,j] A))
+        let ai = egraph.add(Expr::new(Math::Str(bind_ai.to_owned()), smallvec![]));
+        let aj = egraph.add(Expr::new(Math::Str(bind_aj.to_owned()), smallvec![]));
+
+        let a = egraph.add(Expr::new(Math::Bind, smallvec![ai.id, aj.id, a]));
+
+        let j_dim = egraph.add(Expr::new(Math::Num(a_j as i32), smallvec![]));
+        let agg_j_dim = egraph.add(Expr::new(Math::Dim, smallvec![aj.id, j_dim.id]));
+
+        let i_dim = egraph.add(Expr::new(Math::Num(a_i as i32), smallvec![]));
+        let agg_i_dim = egraph.add(Expr::new(Math::Dim, smallvec![ai.id, i_dim.id]));
+
+        let aggi = egraph.add(Expr::new(Math::Agg, smallvec![agg_i_dim.id, a.id]));
+        let aggj = egraph.add(Expr::new(Math::Agg, smallvec![agg_j_dim.id, aggi.id]));
+
+        vec![aggj]
     }
 }

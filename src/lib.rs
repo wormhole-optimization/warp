@@ -11,7 +11,7 @@ use std::hash::Hash;
 use ordered_float::NotNan;
 
 mod rules;
-pub use rules::rules;
+pub use rules::{rules, trans_rules};
 
 mod extract;
 pub use extract::*;
