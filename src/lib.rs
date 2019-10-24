@@ -689,8 +689,22 @@ define_term! {
 }
 
 impl Language for Math {
-    fn cost(&self, children: &[u64]) -> u64 {
-        let s:u64 = children.iter().sum();
-        1 + s
+    fn cost(&self, _children: &[u64]) -> u64 {
+        match self {
+            Math::LMat => 1,
+            Math::LAdd => 1,
+            Math::LMin => 1,
+            Math::LMul => 1,
+            Math::MMul => 1,
+            Math::LTrs => 1,
+            Math::Srow => 1,
+            Math::Scol => 1,
+            Math::Sall => 1,
+            Math::Bind => 1,
+            Math::Ubnd => 1,
+            Math::LLit => 1,
+            Math::Sub => 1,
+            _ => 0
+        }
     }
 }

@@ -246,8 +246,10 @@ fn test_translate() {
         egraph.rebuild();
     }
 
-    egraph.dump_dot("trans.dot");
-    //let best = extract(egraph, root);
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+
+    println!("best is {}",best.expr.pretty(100));
 }
 
 #[test]
