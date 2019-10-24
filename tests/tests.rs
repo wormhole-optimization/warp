@@ -194,11 +194,11 @@ fn la_input() {
     // "sum((x + 2uv)^2)"
     let start = "(sall (l*\
                        (l+ (lmat x 1000000 500000 500)\
-                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))))\
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))\
                        (l+ (lmat x 1000000 500000 500)\
-                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))))))";
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 }
@@ -207,8 +207,8 @@ fn la_input() {
 fn l_mul() {
     let _ = env_logger::builder().is_test(true).try_init();
     // "sum((x + 2uv)^2)"
-    let start = "(l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000)))";
+    let start = "(l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000)))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 }
@@ -218,8 +218,8 @@ fn l_add() {
     let _ = env_logger::builder().is_test(true).try_init();
     // "sum((x + 2uv)^2)"
     let start = "(l+ (lmat x 1000000 500000 500)\
-                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))))";
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 }
@@ -229,11 +229,11 @@ fn test_translate() {
     let _ = env_logger::builder().is_test(true).try_init();
     let start = "(sall (l*\
                        (l+ (lmat x 1000000 500000 500)\
-                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))))\
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))\
                        (l+ (lmat x 1000000 500000 500)\
-                        (l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))))))";
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
@@ -243,7 +243,29 @@ fn test_translate() {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
         }
-        //egraph.rebuild();
+        egraph.rebuild();
+    }
+
+    egraph.dump_dot("trans.dot");
+    //let best = extract(egraph, root);
+}
+
+#[test]
+fn translate_ladd() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(l+ (lmat x 1000000 500000 500)\
+                        (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = trans_rules();
+    for i in 1..50 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
     }
 
     egraph.dump_dot("trans.dot");
@@ -253,8 +275,29 @@ fn test_translate() {
 #[test]
 fn translate_lmul() {
     let _ = env_logger::builder().is_test(true).try_init();
-    let start = "(l* (llit 2) (m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000)))";
+    let start = "(l* (llit 2) (m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000)))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = trans_rules();
+    for i in 1..3 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    egraph.dump_dot("lmul.dot");
+    //let best = extract(egraph, root);
+}
+
+#[test]
+fn translate_mmul() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(m* (lmat u 1000000 10 1000000)\
+                                      (lmat v 10 500000 500000))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
@@ -264,7 +307,7 @@ fn translate_lmul() {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
         }
-        //egraph.rebuild();
+        egraph.rebuild();
     }
 
     egraph.dump_dot("trans.dot");
@@ -272,10 +315,29 @@ fn translate_lmul() {
 }
 
 #[test]
-fn translate_mmul() {
+fn test_bind() {
     let _ = env_logger::builder().is_test(true).try_init();
-    let start = "(m* (lmat u 1000000 1 1000000)\
-                                      (lmat v 1 500000 500000))";
+    let start = "(b+ i j (b- i j (b+ i j (lmat x 10 10 10))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = trans_rules();
+    for i in 1..50 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    egraph.dump_dot("bind.dot");
+    //let best = extract(egraph, root);
+}
+
+#[test]
+fn test_lmul_simp() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(l* (lmat x 20 10 20) (llit 2))";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
@@ -288,6 +350,6 @@ fn translate_mmul() {
         //egraph.rebuild();
     }
 
-    egraph.dump_dot("trans.dot");
+    egraph.dump_dot("lmul.dot");
     //let best = extract(egraph, root);
 }

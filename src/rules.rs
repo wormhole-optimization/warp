@@ -68,6 +68,56 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
                 a: "?a".parse().unwrap(),
             }
         ),
+        Rewrite::new(
+            "la-bind",
+            Math::parse_pattern("(b+ ?k ?l (b- ?i ?j ?x))").unwrap(),
+            LABind {
+                i: "?i".parse().unwrap(),
+                j: "?j".parse().unwrap(),
+                k: "?k".parse().unwrap(),
+                l: "?l".parse().unwrap(),
+                x: "?x".parse().unwrap(),
+            }
+        ),
+        rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) ?z)"),
+        //Rewrite::new(
+        //    "la-mat-bind",
+        //    Math::parse_pattern("(b+ ?k ?l (lmat ?x ?i ?j ?z))").unwrap(),
+        //    LAMatBind {
+        //        i: "?i".parse().unwrap(),
+        //        j: "?j".parse().unwrap(),
+        //        k: "?k".parse().unwrap(),
+        //        l: "?l".parse().unwrap(),
+        //        x: "?x".parse().unwrap(),
+        //        z: "?z".parse().unwrap(),
+        //    }
+        //),
+        rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),
+        rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",         "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
+        rw("subst-*",      "(subst ?e ?v (* ?a ?b))",         "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
+        rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j ?z))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j) ?z)"),
+        rw("subst-lit",    "(subst ?e ?v (lit ?n))",          "(lit ?n)"),
+        rw("subst-var",    "(subst ?e ?v (var ?n))",          "(var ?n)"),
+        Rewrite::new(
+            "agg-subst",
+            Math::parse_pattern("(subst ?e ?v1 (sum ?v2 ?body))",).unwrap(),
+            SubstAgg {
+                e: "?e".parse().unwrap(),
+                v1: "?v1".parse().unwrap(),
+                v2: "?v2".parse().unwrap(),
+                body: "?body".parse().unwrap(),
+            },
+        ),
+        Rewrite::new(
+            "dim_subst",
+            Math::parse_pattern("(subst ?e (dim ?v ?m) (dim ?i ?n))").unwrap(),
+            DimSubst {
+                e: "?e".parse().unwrap(),
+                v: "?v".parse().unwrap(),
+                i: "?i".parse().unwrap(),
+                n: "?n".parse().unwrap(),
+            }
+        ),
     ]
 }
 
@@ -174,6 +224,25 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 struct Foundit;
 
 #[derive(Debug)]
+struct LAMatBind {
+    i: QuestionMarkName,
+    j: QuestionMarkName,
+    k: QuestionMarkName,
+    l: QuestionMarkName,
+    x: QuestionMarkName,
+    z: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct LABind {
+    i: QuestionMarkName,
+    j: QuestionMarkName,
+    k: QuestionMarkName,
+    l: QuestionMarkName,
+    x: QuestionMarkName,
+}
+
+#[derive(Debug)]
 struct LASall {
     a: QuestionMarkName,
 }
@@ -240,6 +309,14 @@ struct PullMul {
 }
 
 #[derive(Debug)]
+struct LADimSubst {
+    e: QuestionMarkName,
+    v: QuestionMarkName,
+    i: QuestionMarkName,
+    n: QuestionMarkName,
+}
+
+#[derive(Debug)]
 struct DimSubst {
     e: QuestionMarkName,
     v: QuestionMarkName,
@@ -260,6 +337,10 @@ impl Applier<Math, Meta> for SubstAgg {
         let e = map[&self.e][0];
         let body = map[&self.body][0];
 
+        if e == v2 {
+            panic!("substituting ahhhh")
+        }
+        // TODO what if e is v1
         let res = if v1 == v2 {
             egraph.add(Expr::new(Math::Agg, smallvec![v2, body]))
         } else {
@@ -359,6 +440,26 @@ impl Applier<Math, Meta> for PushMul {
             res.push(agg);
         }
         res
+    }
+}
+
+impl Applier<Math, Meta> for LADimSubst {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let e = map[&self.e][0];
+        let v = map[&self.v][0];
+        let i = map[&self.i][0];
+        let n = map[&self.n][0];
+
+        let res = if i == v {
+            AddResult {
+                was_there: true,
+                id: e
+            }
+        } else {
+            egraph.add(Expr::new(Math::Dim, smallvec![i, n]))
+        };
+
+        vec![res]
     }
 }
 
@@ -583,8 +684,8 @@ impl Applier<Math, Meta> for LASrow {
         let mut s = DefaultHasher::new();
         [a].hash(&mut s);
         let fresh_s = (s.finish() % 976521).to_string();
-        let fresh_i = "vtrans_i".to_owned() + &fresh_s;
-        let fresh_j = "vtrans_j".to_owned() + &fresh_s;
+        let fresh_i = "vsrow_i".to_owned() + &fresh_s;
+        let fresh_j = "vsrow_j".to_owned() + &fresh_s;
 
         let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
         let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
@@ -622,8 +723,8 @@ impl Applier<Math, Meta> for LAScol {
         let mut s = DefaultHasher::new();
         [a].hash(&mut s);
         let fresh_s = (s.finish() % 976521).to_string();
-        let fresh_i = "vtrans_i".to_owned() + &fresh_s;
-        let fresh_j = "vtrans_j".to_owned() + &fresh_s;
+        let fresh_i = "vscol_i".to_owned() + &fresh_s;
+        let fresh_j = "vscol_j".to_owned() + &fresh_s;
 
         let bind_ai = if a_i == 1 {"_"} else { &fresh_i };
         let bind_aj = if a_j == 1 {"_"} else { &fresh_j };
@@ -688,5 +789,97 @@ impl Applier<Math, Meta> for LASall {
         let ubd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, wild.id, aggj.id]));
 
         vec![ubd]
+    }
+}
+
+//Math::parse_pattern("(b+ ?k ?l (b- ?i ?j ?x))").unwrap(),
+impl Applier<Math, Meta> for LABind {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&self.i][0];
+        let j = map[&self.j][0];
+        let k = map[&self.k][0];
+        let l = map[&self.l][0];
+        let x = map[&self.x][0];
+
+        let i_schema = egraph[i].metadata.clone().schema.unwrap();
+        let j_schema = egraph[j].metadata.clone().schema.unwrap();
+        let k_schema = egraph[k].metadata.clone().schema.unwrap();
+        let l_schema = egraph[l].metadata.clone().schema.unwrap();
+        let x_schema = egraph[x].metadata.clone().schema.unwrap();
+
+        let (i_s, j_s, k_s, l_s) =
+            if let (Schema::Name(i), Schema::Name(j), Schema::Name(k), Schema::Name(l))
+            = (i_schema, j_schema, k_schema, l_schema) {
+                (i, j, k, l)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        let (x_i, x_j) =
+            if let Schema::Schm(schema) = x_schema {
+                (*schema.get(&i_s).unwrap(), *schema.get(&j_s).unwrap())
+            } else {
+                panic!("wrong schema in labind")
+            };
+
+        if l_s == "_" {
+            assert_eq!(j_s, "_", "unbinding wildcard");
+        }
+        if k_s == "_" {
+            assert_eq!(i_s, "_", "unbinding wildcard");
+        }
+
+        // (subst l j (subst k i x))
+
+        let i_n = egraph.add(Expr::new(Math::Num(x_i as i32), smallvec![]));
+        let j_n = egraph.add(Expr::new(Math::Num(x_j as i32), smallvec![]));
+
+        let i_dim = egraph.add(Expr::new(Math::Dim, smallvec![i, i_n.id]));
+        let j_dim = egraph.add(Expr::new(Math::Dim, smallvec![j, j_n.id]));
+        let k_dim = egraph.add(Expr::new(Math::Dim, smallvec![k, i_n.id]));
+        let l_dim = egraph.add(Expr::new(Math::Dim, smallvec![l, j_n.id]));
+
+        let sub_k_i_x = egraph.add(Expr::new(Math::Sub, smallvec![k_dim.id, i_dim.id, x]));
+        let sub_l_j = egraph.add(Expr::new(Math::Sub, smallvec![l_dim.id, j_dim.id, sub_k_i_x.id]));
+
+        vec![sub_l_j]
+    }
+}
+
+impl Applier<Math, Meta> for LAMatBind {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&self.i][0];
+        let j = map[&self.j][0];
+        let k = map[&self.k][0];
+        let l = map[&self.l][0];
+        let x = map[&self.x][0];
+        let z = map[&self.z][0];
+
+        let i_schema = egraph[i].metadata.clone().schema.unwrap();
+        let j_schema = egraph[j].metadata.clone().schema.unwrap();
+        let k_schema = egraph[k].metadata.clone().schema.unwrap();
+        let l_schema = egraph[l].metadata.clone().schema.unwrap();
+
+        let (i_s, j_s, k_s, l_s) =
+            if let (Schema::Size(i), Schema::Size(j), Schema::Name(k), Schema::Name(l))
+            = (i_schema, j_schema, k_schema, l_schema) {
+                (i, j, k, l)
+            } else {
+                panic!("wrong schema in ladd")
+            };
+
+        if l_s == "_" {
+            assert_eq!(j_s, 1, "unbinding wildcard");
+        }
+        if k_s == "_" {
+            assert_eq!(i_s, 1, "unbinding wildcard");
+        }
+
+        // (mat x k l nnz)
+        let k_dim = egraph.add(Expr::new(Math::Dim, smallvec![k, i]));
+        let l_dim = egraph.add(Expr::new(Math::Dim, smallvec![l, j]));
+        let res = egraph.add(Expr::new(Math::Mat, smallvec![x, k_dim.id, l_dim.id, z]));
+
+        vec![res]
     }
 }
