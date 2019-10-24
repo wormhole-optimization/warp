@@ -250,6 +250,8 @@ fn test_translate() {
     let best = ext.find_best(root);
 
     println!("best is {}",best.expr.pretty(100));
+    let (mut eg, r) = EGraph::from_expr(&best.expr);
+    eg.dump_dot("extrans");
 }
 
 #[test]
@@ -354,4 +356,26 @@ fn test_lmul_simp() {
 
     egraph.dump_dot("lmul.dot");
     //let best = extract(egraph, root);
+}
+
+#[test]
+fn test_transpose() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(m* (lmat x 10 10 20) (trans (lmat x 10 10 20)))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = trans_rules();
+    for i in 1..50 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    //egraph.dump_dot("transpose.dot");
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+    println!("{}", best.expr.pretty(80));
 }

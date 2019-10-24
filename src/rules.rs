@@ -12,6 +12,22 @@ use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 
 #[rustfmt::skip]
+pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
+    let rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
+    vec![
+        rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
+        Rewrite::new(
+            "ra-mul",
+            Math::parse_pattern("(* ?a ?b)").unwrap(),
+            RAMul {
+                a: "?a".parse().unwrap(),
+                b: "?b".parse().unwrap(),
+            }
+        )
+    ]
+}
+
+#[rustfmt::skip]
 pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     let rw = |name, l, r| Math::parse_rewrite::<Meta>(name, l, r).unwrap();
     vec![
@@ -80,18 +96,6 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
             }
         ),
         rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) ?z)"),
-        //Rewrite::new(
-        //    "la-mat-bind",
-        //    Math::parse_pattern("(b+ ?k ?l (lmat ?x ?i ?j ?z))").unwrap(),
-        //    LAMatBind {
-        //        i: "?i".parse().unwrap(),
-        //        j: "?j".parse().unwrap(),
-        //        k: "?k".parse().unwrap(),
-        //        l: "?l".parse().unwrap(),
-        //        x: "?x".parse().unwrap(),
-        //        z: "?z".parse().unwrap(),
-        //    }
-        //),
         rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",         "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-*",      "(subst ?e ?v (* ?a ?b))",         "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
@@ -224,22 +228,18 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
 struct Foundit;
 
 #[derive(Debug)]
-struct LAMatBind {
-    i: QuestionMarkName,
-    j: QuestionMarkName,
-    k: QuestionMarkName,
-    l: QuestionMarkName,
-    x: QuestionMarkName,
-    z: QuestionMarkName,
-}
-
-#[derive(Debug)]
 struct LABind {
     i: QuestionMarkName,
     j: QuestionMarkName,
     k: QuestionMarkName,
     l: QuestionMarkName,
     x: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct RAMul {
+    a: QuestionMarkName,
+    b: QuestionMarkName,
 }
 
 #[derive(Debug)]
@@ -846,40 +846,23 @@ impl Applier<Math, Meta> for LABind {
     }
 }
 
-impl Applier<Math, Meta> for LAMatBind {
+impl Applier<Math, Meta> for RAMul {
     fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
-        let i = map[&self.i][0];
-        let j = map[&self.j][0];
-        let k = map[&self.k][0];
-        let l = map[&self.l][0];
-        let x = map[&self.x][0];
-        let z = map[&self.z][0];
+        let a = map[&self.a][0];
+        let b = map[&self.b][0];
+        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
 
-        let i_schema = egraph[i].metadata.clone().schema.unwrap();
-        let j_schema = egraph[j].metadata.clone().schema.unwrap();
-        let k_schema = egraph[k].metadata.clone().schema.unwrap();
-        let l_schema = egraph[l].metadata.clone().schema.unwrap();
+        let a_schema = egraph[a].metadata.schema.as_ref().unwrap();
+        let b_schema = egraph[b].metadata.schema.as_ref().unwrap();
+        let mul_schema = egraph[mul.id].metadata.schema.as_ref().unwrap();
 
-        let (i_s, j_s, k_s, l_s) =
-            if let (Schema::Size(i), Schema::Size(j), Schema::Name(k), Schema::Name(l))
-            = (i_schema, j_schema, k_schema, l_schema) {
-                (i, j, k, l)
-            } else {
-                panic!("wrong schema in ladd")
-            };
+        let m_s = if let Schema::Schm(m_s) = mul_schema {
+            m_s
+        } else {
+            panic!("wrong schema in mul")
+        };
 
-        if l_s == "_" {
-            assert_eq!(j_s, 1, "unbinding wildcard");
-        }
-        if k_s == "_" {
-            assert_eq!(i_s, 1, "unbinding wildcard");
-        }
-
-        // (mat x k l nnz)
-        let k_dim = egraph.add(Expr::new(Math::Dim, smallvec![k, i]));
-        let l_dim = egraph.add(Expr::new(Math::Dim, smallvec![l, j]));
-        let res = egraph.add(Expr::new(Math::Mat, smallvec![x, k_dim.id, l_dim.id, z]));
-
-        vec![res]
+        // A * B => bind i j (ubnd i j A * ubnd i j B)
+        unimplemented!()
     }
 }
