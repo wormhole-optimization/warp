@@ -12,7 +12,7 @@ use std::cmp::min;
 use ordered_float::NotNan;
 
 mod rules;
-pub use rules::{rules, trans_rules};
+pub use rules::{rules, trans_rules, untrans_rules};
 
 mod extract;
 pub use extract::*;

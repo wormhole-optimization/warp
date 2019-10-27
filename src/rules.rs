@@ -17,13 +17,20 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
         rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
         Rewrite::new(
-            "ra-mul",
-            Math::parse_pattern("(* ?a ?b)").unwrap(),
-            RAMul {
-                a: "?a".parse().unwrap(),
-                b: "?b".parse().unwrap(),
+            "ra-bind",
+            Math::parse_pattern("?e").unwrap(),
+            RABind {
+                e: "?e".parse().unwrap()
             }
-        )
+        ),
+        //Rewrite::new(
+        //    "ra-mul",
+        //    Math::parse_pattern("(* ?a ?b)").unwrap(),
+        //    RAMul {
+        //        a: "?a".parse().unwrap(),
+        //        b: "?b".parse().unwrap(),
+        //    }
+        //)
     ]
 }
 
@@ -234,6 +241,11 @@ struct LABind {
     k: QuestionMarkName,
     l: QuestionMarkName,
     x: QuestionMarkName,
+}
+
+#[derive(Debug)]
+struct RABind {
+    e: QuestionMarkName,
 }
 
 #[derive(Debug)]
@@ -862,7 +874,73 @@ impl Applier<Math, Meta> for RAMul {
             panic!("wrong schema in mul")
         };
 
+        // A * B => A * B
+        // A * Bi => A * B[-i]
+        // A_,_ * Bi,_ => (A * B[-i,_])[i,_]
+        // A_,_ * B_,j => (A * B[-_,j])[_,j]
+        // A_,_ * Bi,j => (A * B[-i,j])[i,j]
+
         // A * B => bind i j (ubnd i j A * ubnd i j B)
         unimplemented!()
+    }
+}
+
+impl Applier<Math, Meta> for RABind {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+
+        let e = map[&self.e][0];
+
+        let mut res = Vec::new();
+
+        if let Some(Schema::Schm(schema)) = egraph[e].metadata.schema.as_ref() {
+            match schema.len() {
+                0 => {
+                    // bind ubind __
+                    let wild = egraph.add(Expr::new(Math::Str("_".to_owned()), smallvec![]));
+                    let ubnd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, wild.id, e]));
+                    let bind = egraph.add(Expr::new(Math::Bind, smallvec![wild.id, wild.id, ubnd.id]));
+
+                    res.push(bind);
+                },
+                1 => {
+                    // bind ubnd i_, j_
+                    let ks: Vec<_> = schema.keys().collect();
+                    let k = ks[0].clone();
+                    let i = egraph.add(Expr::new(Math::Str(k), smallvec![]));
+                    let wild = egraph.add(Expr::new(Math::Str("_".to_owned()), smallvec![]));
+
+                    let ubnd_i = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, wild.id, e ]));
+                    let bind_i = egraph.add(Expr::new(Math::Bind, smallvec![i.id, wild.id, ubnd_i.id]));
+
+                    let ubnd_j = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, i.id, e]));
+                    let bind_j = egraph.add(Expr::new(Math::Bind, smallvec![wild.id, i.id, ubnd_j.id]));
+
+                    res.push(bind_i);
+                    res.push(bind_j);
+                },
+                2 => {
+                    // bind ubnd i,j j,i
+                    let ks: Vec<_> = schema.keys().collect();
+                    let (i, j) = (ks[0].clone(), ks[1].clone());
+
+                    let i = egraph.add(Expr::new(Math::Str(i), smallvec![]));
+                    let j = egraph.add(Expr::new(Math::Str(j), smallvec![]));
+
+                    let ubnd_ij = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, j.id, e]));
+                    let bind_ij = egraph.add(Expr::new(Math::Bind, smallvec![i.id, j.id, ubnd_ij.id]));
+
+                    let ubnd_ji = egraph.add(Expr::new(Math::Ubnd, smallvec![j.id, i.id, e]));
+                    let bind_ji = egraph.add(Expr::new(Math::Bind, smallvec![j.id, i.id, ubnd_ji.id]));
+
+                    res.push(bind_ji);
+                    res.push(bind_ij);
+                },
+                _ => {
+                    // do nothing
+                }
+            }
+        }
+
+        res
     }
 }

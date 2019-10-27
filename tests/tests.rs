@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, trans_rules, extract};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract};
 use egg::{
     define_term,
     egraph::{AddResult, EClass, Metadata},
@@ -378,4 +378,23 @@ fn test_transpose() {
     let ext = Extractor::new(&egraph);
     let best = ext.find_best(root);
     println!("{}", best.expr.pretty(80));
+}
+
+#[test]
+fn test_ra_bind() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(* (mat a (dim i 10) (dim j 10) (nnz 10)) (mat b (dim i 10) (dim j 10) (nnz 10)))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = untrans_rules();
+    for i in 1..13 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    egraph.dump_dot("rabind.dot");
 }
