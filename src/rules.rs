@@ -23,14 +23,15 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
                 e: "?e".parse().unwrap()
             }
         ),
-        //Rewrite::new(
-        //    "ra-mul",
-        //    Math::parse_pattern("(* ?a ?b)").unwrap(),
-        //    RAMul {
-        //        a: "?a".parse().unwrap(),
-        //        b: "?b".parse().unwrap(),
-        //    }
-        //)
+        rw("ra-elim-bind", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
+        Rewrite::new(
+            "ra-mul",
+            Math::parse_pattern("(* ?a ?b)").unwrap(),
+            RAMul {
+                a: "?a".parse().unwrap(),
+                b: "?b".parse().unwrap(),
+            }
+        ),
     ]
 }
 
@@ -874,14 +875,72 @@ impl Applier<Math, Meta> for RAMul {
             panic!("wrong schema in mul")
         };
 
-        // A * B => A * B
-        // A * Bi => A * B[-i]
-        // A_,_ * Bi,_ => (A * B[-i,_])[i,_]
-        // A_,_ * B_,j => (A * B[-_,j])[_,j]
-        // A_,_ * Bi,j => (A * B[-i,j])[i,j]
+        let mut res = vec![];
 
-        // A * B => bind i j (ubnd i j A * ubnd i j B)
-        unimplemented!()
+        match m_s.len() {
+            0 => {
+                // bind ubind __
+                let wild = egraph.add(Expr::new(Math::Str("_".to_owned()), smallvec![]));
+
+                let b_ubnd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, wild.id, a]));
+                let a_ubnd = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, wild.id, b]));
+
+                let mul = egraph.add(Expr::new(Math::LMul, smallvec![a_ubnd.id, b_ubnd.id]));
+                let bind = egraph.add(Expr::new(Math::Bind, smallvec![wild.id, wild.id, mul.id]));
+
+                res.push(bind);
+            },
+            1 => {
+                // (A[-i,_] * B[-i,_])[i,_]
+                // (A[-_,j] * B[-_,j])[_,j]
+                let ks: Vec<_> = m_s.keys().collect();
+                let k = ks[0].clone();
+                let i = egraph.add(Expr::new(Math::Str(k), smallvec![]));
+                let wild = egraph.add(Expr::new(Math::Str("_".to_owned()), smallvec![]));
+
+                let a_ubnd_i = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, wild.id, a]));
+                let b_ubbd_i = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, wild.id, b]));
+
+                let mul_i = egraph.add(Expr::new(Math::LMul, smallvec![a_ubnd_i.id, b_ubbd_i.id]));
+                let bind_i = egraph.add(Expr::new(Math::Bind, smallvec![i.id, mul_i.id]));
+
+                let a_ubnd_j = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, i.id, a]));
+                let b_ubnd_j = egraph.add(Expr::new(Math::Ubnd, smallvec![wild.id, i.id, b]));
+
+                let mul_j = egraph.add(Expr::new(Math::LMul, smallvec![a_ubnd_j.id, b_ubnd_j.id]));
+                let bind_j = egraph.add(Expr::new(Math::Bind, smallvec![i.id, mul_j.id]));
+
+                res.push(bind_i);
+                res.push(bind_j)
+            },
+            2 => {
+                // (A[-i,j] * B[-i,j])[i,j]
+                // (A[-j,i] * B[-j,i])[j,i]
+                let ks: Vec<_> = m_s.keys().collect();
+                let (i, j) = (ks[0].clone(), ks[1].clone());
+
+                let i = egraph.add(Expr::new(Math::Str(i), smallvec![]));
+                let j = egraph.add(Expr::new(Math::Str(j), smallvec![]));
+
+                let a_ubnd_ij = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, j.id, a]));
+                let b_ubnd_ij = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, j.id, b]));
+                let mul_ij = egraph.add(Expr::new(Math::LMul, smallvec![a_ubnd_ij.id, b_ubnd_ij.id]));
+                let bind_ij = egraph.add(Expr::new(Math::Bind, smallvec![i.id, j.id, mul_ij.id]));
+
+                let a_ubnd_ji = egraph.add(Expr::new(Math::Ubnd, smallvec![j.id, i.id, a]));
+                let b_ubnd_ji = egraph.add(Expr::new(Math::Ubnd, smallvec![j.id, i.id, b]));
+                let mul_ji = egraph.add(Expr::new(Math::LMul, smallvec![a_ubnd_ji.id, b_ubnd_ji.id]));
+                let bind_ji = egraph.add(Expr::new(Math::Bind, smallvec![j.id, i.id, mul_ji.id]));
+
+                res.push(bind_ij);
+                res.push(bind_ji);
+            }
+            _ => {
+                // do nothing
+            }
+        }
+
+        res
     }
 }
 
