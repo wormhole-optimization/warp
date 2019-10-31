@@ -451,6 +451,26 @@ fn als_cg() {
                     ) \
                  ) \
               )";
+    let start = "(* (mat (var normr2) (dim i 1) (dim j 1) (nnz 1) )
+                    (sum (dim i 5000) (sum (dim j 10) (* (mat (var s) (dim i 5000) (dim j 10) (nnz 50))
+(+ (sum (dim k 10000) \
+(* (* (mat (var w) (dim i 5000) (dim k 10000) (nnz 50)) \
+(sum (dim l 10) \
+(* (mat (var s) (dim i 5000) (dim l 10) (nnz 50)) \
+(mat (var v) (dim l 10) (dim k 10000) (nnz 50)) \
+) \
+) \
+) \
+(mat (var v) (dim k 10000) (dim j 10) (nnz 50)) \
+) \
+) \
+(* (mat (var lambda) (dim i 1) (dim j 1) (nnz 1)) \
+(* (mat (var s) (dim i 5000) (dim j 10) (nnz 50)) \
+(mat (var rownzs) (dim i 5000) (dim j 1) (nnz 50)) \
+) \
+) \
+)
+))))";
     println!("input: {:?}", start);
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
