@@ -421,3 +421,51 @@ fn test_ra_unbind() {
 
     egraph.dump_dot("raunbind.dot");
 }
+
+// W: 5000 10000
+// S: 5000 10
+// V: 10000 10
+// U: 5000 10
+// rownzs: 5000 1
+// HS = (W * (S %*% t(V))) %*% V + lambda * S * row_nonzeros;
+// alpha = norm_R2 / sum (S * HS);
+// U = U + alpha * S;
+
+#[test]
+fn als_cg() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(+ (sum (dim k 10000) \\
+                      (* (* (mat (var w) (dim i 5000) (dim k 10000) (nnz 50)) \\
+                            (sum (dim l 10) \\
+                                 (* (mat (var s) (dim i 5000) (dim l 10) (nnz 50)) \\
+                                    (mat (var v) (dim l 10) (dim k 10000) (nnz 50)) \\
+                                 ) \\
+                            ) \\
+                         ) \\
+                         (mat (var v) (dim k 10000) (dim i 10) (nnz 50)) \\
+                      ) \\
+                 ) \\
+                 (* (mat (var lambda) (dim i 1) (dim j 1) (nnz 1)) \\
+                    (* (mat (var s) (dim i 5000) (dim j 10) (nnz 50)) \\
+                       (mat (var rownzs) (i 5000) (j 1) (nnz 50))\\
+                    )\\
+                 ) \\
+              )";
+    println!("input: {:?}", start);
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let rules = rules();
+    for _i in 1..50 {
+        for rw in &rules {
+            println!("APPLYING {}", rw.name);
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    let best = extract(egraph, &[root]);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
+}
