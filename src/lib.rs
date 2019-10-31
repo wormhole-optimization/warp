@@ -227,8 +227,13 @@ impl egg::egraph::Metadata<Math> for Meta {
                 let (schema, n, m) =
                     if let (Some(Schema::Dims(i, n)), Some(Schema::Dims(j, m))) =
                     (&i_schema.schema, &j_schema.schema) {
-                    let res: HashMap<_,_> = vec![(i.clone(), *n), (j.clone(), *m)]
-                        .into_iter().collect();
+                        let mut res = HashMap::new();
+                        if *n != 1 {
+                            res.insert(i.clone(), *n);
+                        }
+                        if *m != 1 {
+                            res.insert(j.clone(), *m);
+                        };
                     (Schema::Schm(res), n, m)
                 } else {
                     panic!("wrong schema in matrix")
