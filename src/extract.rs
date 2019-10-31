@@ -14,7 +14,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-pub fn extract(egraph: EGraph, root: Id) -> RecExpr<Math> {
+pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
 
     // Create symbolic variables Bn (for each node) & Bq (each class)
@@ -47,9 +47,12 @@ pub fn extract(egraph: EGraph, root: Id) -> RecExpr<Math> {
 
     problem += obj_vec.sum();
 
-    // Constraint Br: must pick root
-    let br = LpBinary::new(&var_bqs.get_by_left(&root).unwrap());
-    problem += (0 + &br).equal(1);
+    // Constraint Br: must pick roots
+
+    for root in roots {
+        let br = LpBinary::new(&var_bqs.get_by_left(&root).unwrap());
+        problem += (0 + &br).equal(1);
+    }
 
     // Constraints Gq & Fn
     // Gq: Bq => OR Bn in q.nodes
@@ -94,7 +97,7 @@ pub fn extract(egraph: EGraph, root: Id) -> RecExpr<Math> {
         }
     }
 
-    find_expr(&egraph, root, &selected)
+    roots.iter().map(|root| find_expr(&egraph, *root, &selected)).collect()
 }
 
 fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) -> RecExpr<Math> {

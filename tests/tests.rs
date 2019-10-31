@@ -1,11 +1,11 @@
 use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract};
 use egg::{
-    define_term,
-    egraph::{AddResult, EClass, Metadata},
-    expr::{Expr, Language, QuestionMarkName},
+    //define_term,
+    //egraph::{AddResult, EClass, Metadata},
+    //expr::{Expr, Language, QuestionMarkName},
     extract::{calculate_cost, Extractor},
     parse::ParsableLanguage,
-    pattern::{Applier, Rewrite, WildMap},
+    //pattern::{Applier, Rewrite, WildMap},
 };
 use log::*;
 
@@ -144,14 +144,16 @@ fn test_extract() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for i in 1..50 {
+    for _i in 1..50 {
         for rw in &rules {
             rw.run(&mut egraph);
         }
     }
 
-    let best = extract(egraph, root);
-    println!("{}", best.pretty(80));
+    let best = extract(egraph, &[root]);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
 }
 
 //#[test]
@@ -165,7 +167,7 @@ fn parrot() {
     );
 }
 
-//#[test]
+#[test]
 fn extract_parrot() {
     let _ = env_logger::builder().is_test(true).try_init();
     let start = "(sum (dim j 1000000) (sum (dim k 500000) (* \
@@ -176,7 +178,7 @@ fn extract_parrot() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for i in 1..50 {
+    for _i in 1..50 {
         for rw in &rules {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
@@ -184,8 +186,10 @@ fn extract_parrot() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, root);
-    println!("{}", best.pretty(80));
+    let best = extract(egraph, &[root]);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
 }
 
 #[test]
@@ -200,7 +204,7 @@ fn la_input() {
                         (l* (llit 2) (m* (lmat u 1000000 10 1000000)\
                                       (lmat v 10 500000 500000))))))";
     let start_expr = Math::parse_expr(start).unwrap();
-    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+    EGraph::from_expr(&start_expr);
 }
 
 #[test]
@@ -238,7 +242,7 @@ fn test_translate() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = trans_rules();
-    for i in 1..50 {
+    for _i in 1..50 {
         for rw in &rules {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
