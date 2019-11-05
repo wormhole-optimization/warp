@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::i32;
 use std::hash::Hash;
 use std::cmp::min;
+use std::iter::*;
 
 use ordered_float::NotNan;
 
@@ -38,6 +39,46 @@ pub enum Schema {
 }
 
 impl Schema {
+    pub fn get_schm(&self) -> &HashMap<String, usize> {
+        if let Self::Schm(s) = self {
+            s
+        } else {
+            panic!("cannot get schm")
+        }
+    }
+
+    pub fn get_dims(&self) -> (&String, &usize) {
+        if let Self::Dims(i, n) = self {
+            (i, n)
+        } else {
+            panic!("cannot get dims")
+        }
+    }
+
+    pub fn get_name(&self) -> &String {
+        if let Self::Name(n) = self {
+            n
+        } else {
+            panic!("cannot get name")
+        }
+    }
+
+    pub fn get_size(&self) -> &usize {
+        if let Self::Size(s) = self {
+            s
+        } else {
+            panic!("cannot get size")
+        }
+    }
+
+    pub fn get_mat(&self) -> (&usize, &usize) {
+        if let Self::Mat(i, j) = self {
+            (i, j)
+        } else {
+            panic!("cannot get mat")
+        }
+    }
+
     pub fn union(&self, other: &Self) -> Self {
         if let (Self::Schm(s1), Self::Schm(s2)) = (self, other) {
             let mut res = s1.clone();
@@ -76,13 +117,13 @@ impl egg::egraph::Metadata<Math> for Meta {
                 if *f == NotNan::from(0 as f64) {
                     Some(Schema::Schm(HashMap::new()))
                 } else  {
-                    assert_eq!(&self.schema, &other.schema,
+                    debug_assert_eq!(&self.schema, &other.schema,
                                "merging expressions with different schema");
                     self.schema.clone()
                 }
             },
             _ => {
-                assert_eq!(&self.schema, &other.schema,
+                debug_assert_eq!(&self.schema, &other.schema,
                            "merging expressions with different schema");
                 self.schema.clone()
             }
@@ -95,119 +136,72 @@ impl egg::egraph::Metadata<Math> for Meta {
         use Math::*;
         let schema = match expr.op {
             Add => {
-                // schema: union
-                // sparsity: sum
-                // nnz: calculate from sparsity
-                assert_eq!(expr.children.len(), 2, "wrong length in add");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in add");
                 let x = &expr.children[0];
                 let y = &expr.children[1];
 
-                let x_schema = x.schema.as_ref()
-                    .expect("wrong schema in argument to add");
-                let y_schema = y.schema.as_ref()
-                    .expect("wrong schema in argument to add");
+                let mut schema = x.schema.as_ref().unwrap().get_schm().clone();
+                let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
+                schema.extend(y_schema);
 
-                let schema = Some(x_schema.union(&y_schema));
+                let sparsity = x.sparsity.and_then(|x| y.sparsity.map(|y| {
+                        min(1.0.into(), x + y)
+                }));
 
-                let sparsity =
-                    if let (Some(x_s), Some(y_s)) = (x.sparsity, y.sparsity) {
-                        Some(min(NotNan::from(1 as f64), x_s + y_s))
-                    } else {
-                        //panic!("no sparsity in agument to add")
-                        None
-                    };
+                let nnz = sparsity.map(|sp| {
+                    let vol: usize = schema.values().product();
+                    let nnz = NotNan::from(vol as f64) * sp;
+                    nnz.round() as usize
+                });
 
-                let nnz = if let Some(Schema::Schm(sch)) = &schema {
-                    let vol: usize = sch.values().product();
-                    match sparsity {
-                        Some(sp) => {
-                            let nnz = NotNan::from(vol as f64) * sp;
-                            Some(nnz.round() as usize)
-                        },
-                        //_ => panic!("impossible")
-                        _=>None
-                    }
-                } else {
-                    unreachable!()
-                };
+                let schema = Some(Schema::Schm(schema));
 
                 Meta {schema, sparsity, nnz}
             },
             Mul => {
-                // schema: union
-                // sparsity: min
-                // nnz: calculate from sparsity
-                assert_eq!(expr.children.len(), 2, "wrong length in mul");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in mul");
                 let x = &expr.children[0];
                 let y = &expr.children[1];
 
-                let x_schema = x.schema.as_ref()
-                    .expect("wrong schema in argument to mul");
-                let y_schema = y.schema.as_ref()
-                    .expect("wrong schema in argument to mul");
+                let mut schema = x.schema.as_ref().unwrap().get_schm().clone();
+                let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
+                schema.extend(y_schema);
 
-                let schema = Some(x_schema.union(&y_schema));
+                let sparsity = x.sparsity.and_then(|x| y.sparsity.map(|y| {
+                    min(x, y)
+                }));
 
-                let sparsity =
-                    if let (Some(x_s), Some(y_s)) = (x.sparsity, y.sparsity) {
-                        Some(min(x_s, y_s))
-                    } else {
-                        //panic!("no sparsity in agument to mul")
-                        None
-                    };
+                let nnz = sparsity.map(|sp| {
+                    let vol: usize = schema.values().product();
+                    let nnz = NotNan::from(vol as f64) * sp;
+                    nnz.round() as usize
+                });
 
-                let nnz = if let Some(Schema::Schm(sch)) = &schema {
-                    let vol: usize = sch.values().product();
-                    match sparsity {
-                        Some(sp) => {
-                            let nnz = NotNan::from(vol as f64) * sp;
-                            Some(nnz.round() as usize)
-                        },
-                        //_ => panic!("impossible")
-                        _ => None
-                    }
-                } else {
-                    unreachable!()
-                };
+                let schema = Some(Schema::Schm(schema));
 
                 Meta {schema, sparsity, nnz}
             },
             Agg => {
-                // schema: remove summed dim
-                // sparsity: calculate
-                // nnz: calculate from sparsity
-                assert_eq!(expr.children.len(), 2, "wrong length in sum");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in sum");
                 let dim = &expr.children[0];
                 let body = &expr.children[1];
 
-                let (k, mut body_schema) =
-                    if let (Schema::Dims(i,n), Schema::Schm(schema)) =
-                    (&dim.schema.as_ref().unwrap(), &body.schema.as_ref().unwrap()) {
-                        (i, schema.clone())
-                    } else {
-                        panic!("wrong schema in aggregate")
-                    };
-
+                let k = dim.schema.as_ref().unwrap().get_dims().0;
+                let mut body_schema = body.schema.as_ref().unwrap().get_schm().clone();
                 body_schema.remove(k);
 
                 let vol = body_schema.values().product();
+                let sparsity = body.nnz.map(|nnz| { min(
+                    1.0.into(),
+                    NotNan::from(nnz as f64 / vol as f64)
+                )});
+                let nnz = body.nnz.map(|z| min(vol, z));
+
                 let schema = Some(Schema::Schm(body_schema));
-                let sparsity = body.nnz.map(|nnz| {
-                    min(
-                        NotNan::from(1 as f64),
-                        NotNan::from(nnz as f64) / NotNan::from(vol as f64)
-                    )
-                });
-                let nnz = body.nnz.map(|z| {
-                    min(vol, z)
-                });
 
                 Meta {schema, sparsity, nnz}
             },
             Lit => {
-                //    schema: empty
-                //    sparsity: 1/0
-                //    nnz: 1/0
                 let num = &expr.children[0];
                 Meta {
                     schema: Some(Schema::Schm(HashMap::default())),
@@ -216,49 +210,37 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Mat => {
-                //    schema: schema
-                //    sparsity: sparsity
-                //    nnz: nnz
-                assert_eq!(expr.children.len(), 4, "wrong length in matrix");
-                let i_schema = &expr.children[1];
-                let j_schema = &expr.children[2];
+                debug_assert_eq!(expr.children.len(), 4, "wrong length in matrix");
+                let i = &expr.children[1];
+                let j = &expr.children[2];
                 let nnz = &expr.children[3].nnz;
 
-                let (schema, n, m) =
-                    if let (Some(Schema::Dims(i, n)), Some(Schema::Dims(j, m))) =
-                    (&i_schema.schema, &j_schema.schema) {
-                        let mut res = HashMap::new();
-                        if *n != 1 {
-                            res.insert(i.clone(), *n);
-                        }
-                        if *m != 1 {
-                            res.insert(j.clone(), *m);
-                        };
-                    (Schema::Schm(res), n, m)
-                } else {
-                    panic!("wrong schema in matrix")
+                let (i, n) = i.schema.as_ref().unwrap().get_dims();
+                let (j, m) = j.schema.as_ref().unwrap().get_dims();
+
+                let mut schema = HashMap::new();
+                if *n != 1 {
+                    schema.insert(i.clone(), *n);
+                }
+                if *m != 1 {
+                    schema.insert(j.clone(), *m);
                 };
 
                 Meta {
-                    schema: Some(schema),
+                    schema: Some(Schema::Schm(schema)),
                     nnz: *nnz,
                     sparsity: Some(NotNan::from(nnz.unwrap() as f64 / (n * m) as f64))
                 }
             },
             Dim => {
-                //    schema: dims
-                //    sparsity: None
-                //    nnz: none
-                assert_eq!(expr.children.len(), 2, "wrong length in dim");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in dim");
                 let i = &expr.children[0];
                 let n = &expr.children[1];
-                let schema =
-                    if let (Some(Schema::Name(i)), Some(Schema::Size(n))) =
-                    (&i.schema, &n.schema) {
-                    Schema::Dims(i.clone(), *n)
-                } else {
-                    panic!("wrong schema in dim {:?}", (i, n))
-                };
+
+                let schema = Schema::Dims(
+                    i.schema.as_ref().unwrap().get_name().clone(),
+                    *n.schema.as_ref().unwrap().get_size(),
+                );
 
                 Meta {
                     schema: Some(schema),
@@ -267,25 +249,14 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Sub => {
-                //    schema: substitute
-                //    sparsity: same
-                //    nnz: same
-                assert_eq!(expr.children.len(), 3, "wrong length in subst");
+                debug_assert_eq!(expr.children.len(), 3, "wrong length in subst");
                 let e = &expr.children[0];
                 let v = &expr.children[1];
                 let body = &expr.children[2];
 
-                let (e_i, e_n) = if let Some(Schema::Dims(i, n)) = &e.schema {
-                    (i, n)
-                } else {
-                    panic!("wrong schema in subst e")
-                };
-
-                let (v_i, v_n) = if let Some(Schema::Dims(i, n)) = &v.schema {
-                    (i, n)
-                } else {
-                    panic!("wrong schema in subst v")
-                };
+                let (e_i, e_n) = e.schema.as_ref().unwrap().get_dims();
+                let (v_i, v_n) = v.schema.as_ref().unwrap().get_dims();
+                debug_assert_eq!(e_n, v_n, "substituting for different size");
 
                 let schema = match &body.schema.as_ref().unwrap() {
                     Schema::Schm(schema) => {
@@ -312,19 +283,13 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Var => {
-                //    schema: empty
-                //    sparsity: 0
-                //    nnz: 1
                 Meta {
                     schema: Some(Schema::Schm(HashMap::default())),
                     nnz: Some(1),
-                    sparsity: Some(NotNan::from(0 as f64))
+                    sparsity: Some(1.0.into())
                 }
             },
             Num(n) => {
-                //    schema: Size
-                //    sparsity: 0/1
-                //    nnz: 0/1
                 Meta {
                     schema: Some(Schema::Size(n as usize)),
                     nnz: Some(if n == 0 { 0 } else { 1 }),
@@ -338,16 +303,8 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Nnz => {
-                //    schema: None
-                //    sparsity: None
-                //    nnz: nnz
                 let n = &expr.children[0].schema;
-
-                let nnz = if let Some(Schema::Size(nnz)) = n {
-                    Some(*nnz)
-                } else {
-                    panic!("wrong schema in nnz")
-                };
+                let nnz = Some(*n.as_ref().unwrap().get_size());
                 Meta {
                     schema: None,
                     nnz: nnz,
@@ -355,9 +312,6 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Str(s) => {
-                //    schema: Some(Name)
-                //    sparsity: 0
-                //    nnz: 1
                 Meta {
                     schema: Some(Schema::Name(s)),
                     nnz: Some(1),
@@ -366,17 +320,13 @@ impl egg::egraph::Metadata<Math> for Meta {
             },
             // Schema rules for LA plans
             LMat => {
-                assert_eq!(expr.children.len(), 4, "wrong length in lmat");
+                debug_assert_eq!(expr.children.len(), 4, "wrong length in lmat");
                 let i_schema = &expr.children[1].schema;
                 let j_schema = &expr.children[2].schema;
                 let nnz = &expr.children[3].nnz;
 
-                let (row, col) = if let (Some(Schema::Size(r)), Some(Schema::Size(c)))
-                    = (i_schema, j_schema) {
-                        (r, c)
-                    } else {
-                        panic!("wrong schema in lmat")
-                    };
+                let row = i_schema.as_ref().unwrap().get_size();
+                let col = j_schema.as_ref().unwrap().get_size();
 
                 Meta {
                     schema: Some(Schema::Mat(*row, *col)),
@@ -385,27 +335,15 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             LMin => {
-                assert_eq!(expr.children.len(), 2, "wrong length in lmin");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in lmin");
                 let x_schema = &expr.children[0].schema;
                 let y_schema = &expr.children[1].schema;
 
-                let (x_i, x_j, y_i, y_j) =
-                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
-                    = (x_schema, y_schema) {
-                        (xrow, xcol, yrow, ycol)
-                    } else {
-                        panic!("wrong schema in lmin")
-                    };
+                let (x_i, x_j) = x_schema.as_ref().unwrap().get_mat();
+                let (y_i, y_j) = y_schema.as_ref().unwrap().get_mat();
 
-                assert!(
-                    (x_i == y_i && x_j == y_j)
-                        || (x_i == y_i && *y_i == 1)
-                        || (x_i == y_i && *x_i == 1)
-                        || (*x_i == 1 && x_j == y_j)
-                        || (*y_i == 1 && x_j == y_j)
-                        || (*x_i == 1 && *x_j == 1)
-                        || (*y_i == 1 && *y_j == 1)
-                );
+                dims_ok(*x_i, *x_j, *y_i, *y_j);
+
                 let row = if *x_i == 1 { y_i } else { x_i };
                 let col = if *x_j == 1 { y_j } else { x_j };
 
@@ -416,27 +354,15 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             LAdd => {
-                assert_eq!(expr.children.len(), 2, "wrong length in ladd");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in ladd");
                 let x_schema = &expr.children[0].schema;
                 let y_schema = &expr.children[1].schema;
 
-                let (x_i, x_j, y_i, y_j) =
-                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
-                    = (x_schema, y_schema) {
-                        (xrow, xcol, yrow, ycol)
-                    } else {
-                        panic!("wrong schema in ladd")
-                    };
+                let (x_i, x_j) = x_schema.as_ref().unwrap().get_mat();
+                let (y_i, y_j) = y_schema.as_ref().unwrap().get_mat();
 
-                assert!(
-                    (x_i == y_i && x_j == y_j)
-                        || (x_i == y_i && *y_i == 1)
-                        || (x_i == y_i && *x_i == 1)
-                        || (*x_i == 1 && x_j == y_j)
-                        || (*y_i == 1 && x_j == y_j)
-                        || (*x_i == 1 && *x_j == 1)
-                        || (*y_i == 1 && *y_j == 1)
-                );
+                dims_ok(*x_i, *x_j, *y_i, *y_j);
+
                 let row = if *x_i == 1 { y_i } else { x_i };
                 let col = if *x_j == 1 { y_j } else { x_j };
 
@@ -447,27 +373,15 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             LMul => {
-                assert_eq!(expr.children.len(), 2, "wrong length in lmul");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in lmul");
                 let x_schema = &expr.children[0].schema;
                 let y_schema = &expr.children[1].schema;
 
-                let (x_i, x_j, y_i, y_j) =
-                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
-                    = (x_schema, y_schema) {
-                        (xrow, xcol, yrow, ycol)
-                    } else {
-                        panic!("wrong schema in lmul {:?} {:?}", x_schema, y_schema)
-                    };
+                let (x_i, x_j) = x_schema.as_ref().unwrap().get_mat();
+                let (y_i, y_j) = y_schema.as_ref().unwrap().get_mat();
 
-                assert!(
-                    (x_i == y_i && x_j == y_j)
-                        || (x_i == y_i && *y_i == 1)
-                        || (x_i == y_i && *x_i == 1)
-                        || (*x_i == 1 && x_j == y_j)
-                        || (*y_i == 1 && x_j == y_j)
-                        || (*x_i == 1 && *x_j == 1)
-                        || (*y_i == 1 && *y_j == 1)
-                );
+                dims_ok(*x_i, *x_j, *y_i, *y_j);
+
                 let row = if *x_i == 1 { y_i } else { x_i };
                 let col = if *x_j == 1 { y_j } else { x_j };
 
@@ -478,19 +392,14 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             MMul => {
-                assert_eq!(expr.children.len(), 2, "wrong length in mmul");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in mmul");
                 let x_schema = &expr.children[0].schema;
                 let y_schema = &expr.children[1].schema;
 
-                let (x_i, x_j, y_i, y_j) =
-                    if let (Some(Schema::Mat(xrow, xcol)), Some(Schema::Mat(yrow, ycol)))
-                    = (x_schema, y_schema) {
-                        (xrow, xcol, yrow, ycol)
-                    } else {
-                        panic!("wrong schema in mmul")
-                    };
+                let (x_i, x_j) = x_schema.as_ref().unwrap().get_mat();
+                let (y_i, y_j) = y_schema.as_ref().unwrap().get_mat();
 
-                assert_eq!(*x_j, *y_i, "wrong dimensions in mmul");
+                debug_assert_eq!(*x_j, *y_i, "wrong dimensions in mmul");
 
                 Meta {
                     schema: Some(Schema::Mat(*x_i, *y_j)),
@@ -499,14 +408,9 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             LTrs => {
-                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                debug_assert_eq!(expr.children.len(), 1, "wrong length in transpose");
                 let x_schema = &expr.children[0].schema;
-
-                let (x_i, x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
-                    (row, col)
-                } else {
-                    panic!("wrong schema in transpose")
-                };
+                let (x_i, x_j) = x_schema.as_ref().unwrap().get_mat();
 
                 Meta {
                     schema: Some(Schema::Mat(*x_j , *x_i)),
@@ -515,14 +419,9 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Srow => {
-                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                debug_assert_eq!(expr.children.len(), 1, "wrong length in transpose");
                 let x_schema = &expr.children[0].schema;
-
-                let (x_i, _x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
-                    (row, col)
-                } else {
-                    panic!("wrong schema in transpose")
-                };
+                let x_i = x_schema.as_ref().unwrap().get_mat().0;
 
                 Meta {
                     schema: Some(Schema::Mat(*x_i , 1)),
@@ -531,14 +430,9 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Scol => {
-                assert_eq!(expr.children.len(), 1, "wrong length in transpose");
+                debug_assert_eq!(expr.children.len(), 1, "wrong length in transpose");
                 let x_schema = &expr.children[0].schema;
-
-                let (_x_i, x_j) = if let Some(Schema::Mat(row, col)) = x_schema {
-                    (row, col)
-                } else {
-                    panic!("wrong schema in transpose")
-                };
+                let x_j = x_schema.as_ref().unwrap().get_mat().1;
 
                 Meta {
                     schema: Some(Schema::Mat(1, *x_j)),
@@ -554,30 +448,19 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Bind => {
-                assert_eq!(expr.children.len(), 3, "wrong length in lmat");
+                debug_assert_eq!(expr.children.len(), 3, "wrong length in lmat");
                 let i_schema = &expr.children[0].schema;
                 let j_schema = &expr.children[1].schema;
                 let x_schema = &expr.children[2].schema;
 
-                let (i, j) = if let (Some(Schema::Name(i)), Some(Schema::Name(j))) =
-                    (i_schema, j_schema) {
-                        (i, j)
-                    } else {
-                        panic!("wrong schema in bind")
-                    };
-
-                let (x_row, x_col) = if let Some(Schema::Mat(row, col)) = x_schema {
-                    (row, col)
-                } else {
-                    panic!("wrong schema in bind")
-                };
+                let i = i_schema.as_ref().unwrap().get_name();
+                let j = j_schema.as_ref().unwrap().get_name();
+                let (x_row, x_col) = x_schema.as_ref().unwrap().get_mat();
 
                 let mut schema = HashMap::new();
-
                 if *x_row != 1 {
                     schema.insert(i.clone(), *x_row);
                 }
-
                 if *x_col != 1 {
                     schema.insert(j.clone(), *x_col);
                 }
@@ -589,24 +472,15 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             Ubnd => {
-                assert_eq!(expr.children.len(), 3, "wrong length in ubind");
+                debug_assert_eq!(expr.children.len(), 3, "wrong length in ubind");
                 let i_schema = &expr.children[0].schema;
                 let j_schema = &expr.children[1].schema;
                 let x_schema = &expr.children[2].schema;
 
-                let (i, j) = if let (Some(Schema::Name(i)), Some(Schema::Name(j))) =
-                    (i_schema, j_schema) {
-                        (i, j)
-                    } else {
-                        panic!("wrong schema in unbind")
-                    };
+                let i = i_schema.as_ref().unwrap().get_name();
+                let j = j_schema.as_ref().unwrap().get_name();
 
-                let x_s = if let Some(Schema::Schm(s)) = x_schema {
-                    s
-                } else {
-                    panic!("wrong schema in unbind x: {:?}", x_schema)
-                };
-
+                let x_s = x_schema.as_ref().unwrap().get_schm();
                 let row = if i == "_" {1} else {*x_s.get(i).unwrap()};
                 let col = if j == "_" {1} else {*x_s.get(j).unwrap()};
 
@@ -617,8 +491,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             LLit => {
-                assert_eq!(expr.children.len(), 1, "wrong length in lmat");
-
+                debug_assert_eq!(expr.children.len(), 1, "wrong length in lmat");
                 Meta {
                     schema: Some(Schema::Mat(1, 1)),
                     nnz: None,
@@ -630,9 +503,22 @@ impl egg::egraph::Metadata<Math> for Meta {
     }
 }
 
+fn dims_ok(x_i: usize, x_j: usize, y_i: usize, y_j: usize) {
+    debug_assert!(
+        (x_i == y_i && x_j == y_j)
+            || (x_i == y_i && y_i == 1)
+            || (x_i == y_i && x_i == 1)
+            || (x_i == 1 && x_j == y_j)
+            || (y_i == 1 && x_j == y_j)
+            || (x_i == 1 && x_j == 1)
+            || (y_i == 1 && y_j == 1)
+    );
+}
+
 define_term! {
     #[derive(Debug, PartialEq, Eq, Hash, Clone)]
     pub enum Math {
+        // LA
         LMat = "lmat",
         LAdd = "l+",
         LMin = "l-",
@@ -645,51 +531,18 @@ define_term! {
         Bind = "b+",
         Ubnd = "b-",
         LLit = "llit",
-
+        // RA
         Add = "+",
-        // schema: union
-        // sparsity: sum
-        // nnz: calculate from sparsity
         Mul = "*",
-        // schema: union
-        // sparsity: min
-        // nnz: calculate from sparsity
         Agg = "sum",
-        // schema: remove summed dim
-        // sparsity: calculate
-        // nnz: calculate from sparsity
         Lit = "lit",
-        //    schema: empty
-        //    sparsity: 1/0
-        //    nnz: 1/0
         Var = "var",
-        //    schema: empty
-        //    sparsity: 0
-        //    nnz: 1
         Mat = "mat",
-        //    schema: schema
-        //    sparsity: sparsity
-        //    nnz: nnz
         Dim = "dim",
-        //    schema: dims
-        //    sparsity: None
-        //    nnz: none
         Nnz = "nnz",
-        //    schema: None
-        //    sparsity: None
-        //    nnz: nnz
         Sub = "subst",
-        //    schema: substitute
-        //    sparsity: same
-        //    nnz: same
         Num(Number),
-        //    schema: Size
-        //    sparsity: 0/1
-        //    nnz: 0/1
         Str(String),
-        //    schema: Some(Name)
-        //    sparsity: 0
-        //    nnz: 1
     }
 }
 
