@@ -1275,32 +1275,27 @@ impl Applier<Math, Meta> for RASum {
                 res.push(bindrow);
             },
             1 => {
-                // scol x[-i,j]
+                // [+_, j]scol x[-i,j]
                 // srow x[-i,j]
                 // TODO make sure row col match up
                 let js: Vec<_> = schema.keys().collect();
                 let j = js[0].clone();
-                let wild = egraph.add(Expr::new(Math::Str("_".to_owned()), smallvec![]));
 
-                let i = egraph.add(Expr::new(Math::Str(i_s), smallvec![]));
+                let mut p1 = Math::parse_pattern(
+                    &format!("(b+ _ {j} (scol (b- {i} {j} ?x)))", j=&j, i=&i_s)
+                ).unwrap().apply(egraph, map);
+                let mut p2 = Math::parse_pattern(
+                    &format!("(b+ {i} _ (srow (b- {j} {i} ?x)))", j=&j, i=&i_s)
+                ).unwrap().apply(egraph, map);
+                p1.append(&mut p2);
 
-                let j = egraph.add(Expr::new(Math::Str(j), smallvec![]));
-                let ubnd_ij = egraph.add(Expr::new(Math::Ubnd, smallvec![i.id, j.id, x]));
-                let scol = egraph.add(Expr::new(Math::Scol, smallvec![ubnd_ij.id]));
-                let bind_ij = egraph.add(Expr::new(Math::Bind, smallvec![wild.id, j.id, scol.id]));
-
-                let ubnd_ji = egraph.add(Expr::new(Math::Ubnd, smallvec![j.id, i.id, x]));
-                let srow = egraph.add(Expr::new(Math::Srow, smallvec![ubnd_ji.id]));
-                let bind_ji = egraph.add(Expr::new(Math::Bind, smallvec![j.id, wild.id, srow.id]));
-
-                res.push(bind_ij);
-                res.push(bind_ji);
+                res = p1
             }
             _ => {
                 // do nothing
             }
         }
 
-        unimplemented!()
+        res
     }
 }
