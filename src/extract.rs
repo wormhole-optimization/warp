@@ -1,4 +1,4 @@
-use crate::{EGraph, Math, Schema};
+use crate::{EGraph, Math};
 
 use egg::expr::{Expr, Id, RecExpr};
 
@@ -116,87 +116,48 @@ fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
 fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
     match expr.op {
         Math::Add => {
-            assert_eq!(expr.children.len(), 2);
+            debug_assert_eq!(expr.children.len(), 2);
             let x = expr.children[0];
             let y = expr.children[1];
 
-            let x_schema = egraph[x].metadata.schema.as_ref()
-                .expect("wrong schema in argument to add");
-            let y_schema = egraph[y].metadata.schema.as_ref()
-                .expect("wrong schema in argument to add");
-            let schema = Some(x_schema.union(&y_schema));
+            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
+            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
+            schema.extend(y_schema);
 
-            let x_sparsity = egraph[x].metadata.sparsity;
-            let y_sparsity = egraph[y].metadata.sparsity;
+            let x_sparsity = egraph[x].metadata.sparsity.unwrap();
+            let y_sparsity = egraph[y].metadata.sparsity.unwrap();
 
-            let sparsity =
-                if let (Some(x_s), Some(y_s)) = (x_sparsity, y_sparsity) {
-                    Some(std::cmp::min(NotNan::from(1 as f64), x_s + y_s))
-                } else {
-                    panic!("no sparsity in agument to add")
-                };
+            let sparsity = std::cmp::min(1.0.into(), x_sparsity + y_sparsity);
 
-            let nnz = if let Some(Schema::Schm(sch)) = &schema {
-                let vol: usize = sch.values().product();
-                match sparsity {
-                    Some(sp) => {
-                        NotNan::from(vol as f64) * sp
-                    },
-                    _ => panic!("impossible")
-                }
-            } else {
-                panic!("impossible")
-            };
+            let vol: usize = schema.values().product();
+            let nnz = NotNan::from(vol as f64) * sparsity;
             nnz.round() as usize
         },
         Math::Mul => {
-            assert_eq!(expr.children.len(), 2);
+            debug_assert_eq!(expr.children.len(), 2);
             let x = expr.children[0];
             let y = expr.children[1];
 
-            let x_schema = egraph[x].metadata.schema.as_ref()
-                .expect("wrong schema in argument to mul");
-            let y_schema = egraph[y].metadata.schema.as_ref()
-                .expect("wrong schema in argument to mul");
-            let schema = Some(x_schema.union(&y_schema));
+            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
+            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
+            schema.extend(y_schema);
 
-            let x_sparsity = egraph[x].metadata.sparsity;
-            let y_sparsity = egraph[y].metadata.sparsity;
+            let x_sparsity = egraph[x].metadata.sparsity.unwrap();
+            let y_sparsity = egraph[y].metadata.sparsity.unwrap();
 
-            let sparsity =
-                if let (Some(x_s), Some(y_s)) = (x_sparsity, y_sparsity) {
-                    Some(std::cmp::min(x_s, y_s))
-                } else {
-                    panic!("no sparsity in agument to mul")
-                };
+            let sparsity = std::cmp::min(x_sparsity, y_sparsity);
 
-            let nnz = if let Some(Schema::Schm(sch)) = &schema {
-                let vol: usize = sch.values().product();
-                match sparsity {
-                    Some(sp) => {
-                        NotNan::from(vol as f64) * sp
-                    },
-                    _ => panic!("impossible")
-                }
-            } else {
-                panic!("impossible")
-            };
+            let vol: usize = schema.values().product();
+            let nnz = NotNan::from(vol as f64) * sparsity;
             nnz.round() as usize
         },
         Math::Agg => {
-            assert_eq!(expr.children.len(), 2, "wrong length in agg");
+            debug_assert_eq!(expr.children.len(), 2, "wrong length in agg");
             let i = expr.children[0];
             let body = expr.children[1];
 
-            let sparsity = egraph[body].metadata.sparsity
-                .expect("no sparsity in aggregate body");
-
-            let len = if let Schema::Dims(k, v)
-                = egraph[i].metadata.schema.as_ref().unwrap() {
-                    v
-                } else {
-                    panic!("wrong dimension in aggregate")
-                };
+            let sparsity = egraph[body].metadata.sparsity.unwrap();
+            let len = egraph[i].metadata.schema.as_ref().unwrap().get_dims().1;
 
             (NotNan::from(*len as f64) * sparsity).round() as usize
         },
