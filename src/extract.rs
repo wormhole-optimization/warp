@@ -20,6 +20,7 @@ pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
     // Create symbolic variables Bn (for each node) & Bq (each class)
     let mut var_bns = BiMap::<&Expr<Math, Id>, String>::new();
     let mut var_bqs = BiMap::<Id, String>::new();
+    //let mut var_bij = HashMap::<(String, String), String>::new();
 
     for c in egraph.classes() {
         let bq = "bq".to_owned() + &c.id.to_string();
@@ -39,7 +40,7 @@ pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
     // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(e, var)| {
-            let coef = cost(&egraph, e);
+            let coef = untrans_cost(&egraph, e);
             let bn = LpBinary::new(&var);
             coef as f32 * &bn
         }).collect()
@@ -90,12 +91,14 @@ pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
             if let Some(&v) = var_bns.get_by_right(&var_name) {
                 selected.insert(v);
             } else {
-                if let None = var_bqs.get_by_right(&var_name) {
-                    panic!("solver selected nonexistent node")
+                if let Some(&v) = var_bqs.get_by_right(&var_name) {
+                    println!("{:?}", v)
                 }
             }
         }
     }
+
+    //println!("{:?}", selected);
 
     roots.iter().map(|root| find_expr(&egraph, *root, &selected)).collect()
 }
@@ -107,10 +110,22 @@ fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
         .find(|n| selected.contains(n))
         .expect("no node selected in class");
 
+    println!("{:?}", (class, best_node.clone()));
+
     best_node
         .clone()
         .map_children(|child| find_expr(egraph, child, selected))
         .into()
+}
+
+fn untrans_cost(_egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+    use Math::*;
+    match expr.op {
+        LMat | LAdd | LMin | LMul |
+        MMul | Srow | Scol |
+        Sall | LLit | LTrs => 1,
+        _ => 1000
+    }
 }
 
 fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {

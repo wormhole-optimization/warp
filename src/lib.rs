@@ -452,14 +452,28 @@ define_term! {
 }
 
 impl Language for Math {
-    fn cost(&self, _children: &[u64]) -> u64 {
+    fn cost(&self, children: &[u64]) -> u64 {
         use Math::*;
-        match self {
+        println!("{:?}", self);
+        let cost = match self {
             LMat | LAdd | LMin | LMul |
             MMul | LTrs | Srow | Scol |
-            Sall | Bind | Ubnd | LLit |
-            Sub => 1,
-            _ => 0
-        }
+            Sall | LLit |
+            Num(_) | Str(_)=> 1,
+            _ => 100
+        };
+        cost + children.iter().sum::<u64>()
+        //cost
     }
+    //
+ //   fn cost(&self, _children: &[u64]) -> u64 {
+ //       use Math::*;
+ //       match self {
+ //           LMat | LAdd | LMin | LMul |
+ //           MMul | LTrs | Srow | Scol |
+ //           Sall | Bind | Ubnd | LLit |
+ //           Sub => 1,
+ //           _ => 0
+ //       }
+ //   }
 }

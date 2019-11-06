@@ -10,6 +10,7 @@ use egg::{
 use smallvec::smallvec;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashSet;
 
 fn rw(name: &str, l: &str, r: &str) -> Rewrite<Math, Meta> {
     Math::parse_rewrite::<Meta>(name, l, r).unwrap()
@@ -29,14 +30,17 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
         rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
         rw("ra-elim-bind", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
-        rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
         rw("ra_sall", "(srow (scol ?x))", "(sall ?x)"),
         rw("ra_sall2", "(scol (srow ?x))", "(sall ?x)"),
+        rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
+        rw("ra_mat2", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?j ?i (lmat ?x ?m ?n ?z))"),
         drw("ra-bind", "?e", RABind),
         drw("ra-add", "(+ ?a ?b)", RAAdd),
         drw("ra-mul", "(* ?a ?b)", RAMul),
         drw("ra-sum", "(sum ?i ?x)", RASum),
         drw("ra-mmul", "(sum ?j (* ?a ?b))", RAMMul),
+        rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
+        //drw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", RATrans),
     ]
 }
 
@@ -541,54 +545,47 @@ struct RAMul;
 impl Applier<Math, Meta> for RAMul {
     fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
         let a = map[&"?a".parse().unwrap()][0];
-        let mut a_schema = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys();
         let b = map[&"?b".parse().unwrap()][0];
-        let mut b_schema = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys();
         let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
         let mut mul_schema = egraph[mul.id].metadata.schema.as_ref().unwrap().get_schm().keys();
+        let a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys()
+            .filter(|&k| k != "_").collect();
+        let b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys()
+            .filter(|&k| k != "_").collect();
 
         let mut res = vec![];
         if mul_schema.len() <= 2 {
-            // TODO check if a schema contains the other
             let wc = "_".to_owned();
             let i = mul_schema.next().unwrap_or(&wc).clone();
             let j = mul_schema.next().unwrap_or(&wc).clone();
-            let ai = a_schema.next().unwrap_or(&wc).clone();
-            let aj = a_schema.next().unwrap_or(&wc).clone();
-            let bi = b_schema.next().unwrap_or(&wc).clone();
-            let bj = b_schema.next().unwrap_or(&wc).clone();
 
-            let mut bind_ij = Math::parse_pattern(
-                &format!(
-                    "(b+ {i} {j} (l* (b- {i} {j} ?a) (b- {i} {j} ?b)))",
-                    i=&i, j=&j
-                )
-            ).unwrap().apply(egraph, map);
-            res.append(&mut bind_ij);
+            if a_schema.is_subset(&b_schema) || b_schema.is_subset(&a_schema) {
+                let mut bind_ij = Math::parse_pattern(
+                    &format!(
+                        "(b+ {i} {j} (l* (b- {i} {j} ?a) (b- {i} {j} ?b)))",
+                        i=&i, j=&j
+                    )
+                ).unwrap().apply(egraph, map);
+                res.append(&mut bind_ij);
 
-            let mut bind_ji = Math::parse_pattern(
-                &format!(
-                    "(b+ {j} {i} (l* (b- {j} {i} ?a) (b- {j} {i} ?b)))",
-                    i=&i, j=&j
-                )
-            ).unwrap().apply(egraph, map);
-            res.append(&mut bind_ji);
-
-            let mut mmul_ij = Math::parse_pattern(
-                &format!(
-                    "(b+ {i} {j} (m* (b- {i} _ ?a) (b- _ {j} ?b)))",
-                    i=&i, j=&j
-                )
-            ).unwrap().apply(egraph, map);
-            res.append(&mut mmul_ij);
-
-            let mut mmul_ji = Math::parse_pattern(
-                &format!(
-                    "(b+ {j} {i} (m* (b- {j} _ ?a) (b- _ {i} ?b)))",
-                    i=&i, j=&j
-                )
-            ).unwrap().apply(egraph, map);
-            res.append(&mut mmul_ji);
+                let mut bind_ji = Math::parse_pattern(
+                    &format!(
+                        "(b+ {j} {i} (l* (b- {j} {i} ?a) (b- {j} {i} ?b)))",
+                        i=&i, j=&j
+                    )
+                ).unwrap().apply(egraph, map);
+                res.append(&mut bind_ji);
+            } else {
+                let i = a_schema.into_iter().next().unwrap_or(&wc).clone();
+                let j = b_schema.into_iter().next().unwrap_or(&wc).clone();
+                let mut mmul_ij = Math::parse_pattern(
+                    &format!(
+                        "(b+ {i} {j} (m* (b- {i} _ ?a) (b- _ {j} ?b)))",
+                        i=&i, j=&j
+                    )
+                ).unwrap().apply(egraph, map);
+                res.append(&mut mmul_ij);
+            }
         }
         res
     }
@@ -658,6 +655,24 @@ impl Applier<Math, Meta> for RAMMul {
 }
 
 #[derive(Debug)]
+struct RATrans;
+
+//drw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", RATrans),
+
+impl Applier<Math, Meta> for RATrans {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&"?i".parse().unwrap()][0];
+        let j = map[&"?j".parse().unwrap()][0];
+
+        if i != j {
+            Math::parse_pattern("(trans ?x)").unwrap().apply(egraph, map)
+        } else {
+            vec![]
+        }
+    }
+}
+
+#[derive(Debug)]
 struct RASum;
 
 impl Applier<Math, Meta> for RASum {
@@ -679,7 +694,7 @@ impl Applier<Math, Meta> for RASum {
             res.append(&mut scol);
 
             let mut srow = Math::parse_pattern(
-                &format!("(b+ {i} _ (srow (b- {j} {i} ?x)))", j=&j, i=&i_s)
+                &format!("(b+ {j} _ (srow (b- {j} {i} ?x)))", j=&j, i=&i_s)
             ).unwrap().apply(egraph, map);
             res.append(&mut srow);
         }

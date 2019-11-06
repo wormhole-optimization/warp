@@ -21,7 +21,7 @@ fn prove_something(size_limit: usize, start: &str, goals: &[&str]) {
 
     let rules = rules();
     let mut egraph_size = 0;
-    for i in 0..500 {
+    for i in 0..10 {
         println!("\nIteration {}:", i);
         println!(
             "Size n={}, e={}",
@@ -183,7 +183,38 @@ fn la_parrot() {
 }
 
 #[test]
+fn ra_trans() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start ="(b- i j (mat x (dim i 1000) (dim j 500) (nnz 500)))";
+
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let tr = untrans_rules();
+    for _i in 1..30 {
+        for rw in &tr {
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+    egraph.dump_dot("ratrans");
+
+    //let best = extract(egraph, &[root]);
+    //for e in best {
+    //    println!("{}", e.pretty(80));
+    //}
+
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+
+    println!("best is {}",best.expr.pretty(100));
+    let (eg, r) = EGraph::from_expr(&best.expr);
+    eg.dump_dot("la_parrot");
+}
+
+#[test]
 fn ra_parrot() {
+    let _ = env_logger::builder().is_test(true).try_init();
     let start ="(b-
   _
   _
@@ -193,23 +224,34 @@ fn ra_parrot() {
       (dim vsall_j260437 500)
       (*
         (*
-          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) 500)
-          (* (mat u (dim vsall_i260437 1000) (dim _ 1) 1000) (mat v (dim vsall_j260437 500) (dim _ 1) 500)))
+          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) (nnz 500))
+          (* (mat u (dim vsall_i260437 1000) (dim _ 1) (nnz 1000)) (mat v (dim vsall_j260437 500) (dim _ 1) (nnz 500))))
         (*
-          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) 500)
-          (* (mat u (dim vsall_i260437 1000) (dim _ 1) 1000) (mat v (dim vsall_j260437 500) (dim _ 1) 500)))))))";
+          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) (nnz 500))
+          (* (mat u (dim vsall_i260437 1000) (dim _ 1) (nnz 1000)) (mat v (dim vsall_j260437 500) (dim _ 1) (nnz 500))))))))";
 
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let tr = untrans_rules();
-    for _i in 1..10 {
+    for _i in 1..50 {
         for rw in &tr {
             rw.run(&mut egraph);
         }
         egraph.rebuild();
     }
 
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+
+    println!("best is {}",best.expr.pretty(100));
+    let (eg, r) = EGraph::from_expr(&best.expr);
+    eg.dump_dot("la_parrot");
+
+    //let best = extract(egraph, &[root]);
+    //for e in best {
+    //    println!("{}", e.pretty(80));
+    //}
 }
 
 #[test]
@@ -488,7 +530,7 @@ fn test_ra_unbind() {
 // alpha = norm_R2 / sum (S * HS);
 // U = U + alpha * S;
 
-#[test]
+//#[test]
 fn als_cg() {
     let _ = env_logger::builder().is_test(true).try_init();
     let start = "(+ (sum (dim k 10000) \

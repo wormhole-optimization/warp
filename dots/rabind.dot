@@ -33,14 +33,19 @@ digraph {
     7.0[label = "b+"]
     7.1[label = "mat"]
     7.2[label = "b+"]
+    7.3[label = "b+"]
+    7.4[label = "b+"]
   }
   subgraph cluster_8 {
     style=dotted
-    8.0[label = "b-"]
+    8.0[label = "lmat"]
   }
-  subgraph cluster_10 {
+  subgraph cluster_11 {
     style=dotted
-    10.0[label = "b-"]
+    11.0[label = "trans"]
+    11.1[label = "b-"]
+    11.2[label = "trans"]
+    11.3[label = "b-"]
   }
   3.0 -> 1.0 [lhead = cluster_1, label = 0]
   3.0 -> 2.0 [lhead = cluster_2, label = 1]
@@ -56,11 +61,23 @@ digraph {
   7.1 -> 6.0 [lhead = cluster_6, label = 3]
   7.2 -> 4.0 [lhead = cluster_4, label = 0]
   7.2 -> 1.0 [lhead = cluster_1, label = 1]
-  7.2 -> 10.0 [lhead = cluster_10, label = 2]
-  8.0 -> 1.0 [lhead = cluster_1, label = 0]
-  8.0 -> 4.0 [lhead = cluster_4, label = 1]
-  8.0 -> 7.0 [lhead = cluster_7, label = 2]
-  10.0 -> 4.0 [lhead = cluster_4, label = 0]
-  10.0 -> 1.0 [lhead = cluster_1, label = 1]
-  10.0 -> 7.0 [lhead = cluster_7, label = 2]
+  7.2 -> 8.0 [lhead = cluster_8, label = 2]
+  7.3 -> 4.0 [lhead = cluster_4, label = 0]
+  7.3 -> 1.0 [lhead = cluster_1, label = 1]
+  7.3 -> 11.0 [lhead = cluster_11, label = 2]
+  7.4 -> 1.0 [lhead = cluster_1, label = 0]
+  7.4 -> 4.0 [lhead = cluster_4, label = 1]
+  7.4 -> 11.0 [lhead = cluster_11, label = 2]
+  8.0 -> 0.0 [lhead = cluster_0, label = 0]
+  8.0 -> 2.0 [lhead = cluster_2, label = 1]
+  8.0 -> 2.0 [lhead = cluster_2, label = 2]
+  8.0 -> 2.0 [lhead = cluster_2, label = 3]
+  11.0 -> 8.0 [lhead = cluster_8, label = 0]
+  11.1 -> 4.0 [lhead = cluster_4, label = 0]
+  11.1 -> 1.0 [lhead = cluster_1, label = 1]
+  11.1 -> 7.0 [lhead = cluster_7, label = 2]
+  11.2 -> 11.0 [lhead = cluster_11, label = 0]
+  11.3 -> 1.0 [lhead = cluster_1, label = 0]
+  11.3 -> 4.0 [lhead = cluster_4, label = 1]
+  11.3 -> 7.0 [lhead = cluster_7, label = 2]
 }
