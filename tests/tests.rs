@@ -157,6 +157,62 @@ fn test_extract() {
 }
 
 //#[test]
+//fn sall()
+
+#[test]
+fn la_parrot() {
+    let start = "(sall (l* (l+ (lmat x 1000 500 500) (m* (lmat u 1000 1 1000) (trans (lmat v 500 1 500)))) \
+                 (l+ (lmat x 1000 500 500) (m* (lmat u 1000 1 1000) (trans (lmat v 500 1 500))))))";
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let tr = trans_rules();
+    for _i in 1..10 {
+        for rw in &tr {
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+
+    println!("best is {}",best.expr.pretty(100));
+    let (eg, r) = EGraph::from_expr(&best.expr);
+    eg.dump_dot("la_parrot");
+}
+
+#[test]
+fn ra_parrot() {
+    let start ="(b-
+  _
+  _
+  (sum
+    (dim vsall_i260437 1000)
+    (sum
+      (dim vsall_j260437 500)
+      (*
+        (*
+          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) 500)
+          (* (mat u (dim vsall_i260437 1000) (dim _ 1) 1000) (mat v (dim vsall_j260437 500) (dim _ 1) 500)))
+        (*
+          (mat x (dim vsall_i260437 1000) (dim vsall_j260437 500) 500)
+          (* (mat u (dim vsall_i260437 1000) (dim _ 1) 1000) (mat v (dim vsall_j260437 500) (dim _ 1) 500)))))))";
+
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let tr = untrans_rules();
+    for _i in 1..10 {
+        for rw in &tr {
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+}
+
+#[test]
 fn parrot() {
     prove_something(
         5_000,
@@ -167,7 +223,7 @@ fn parrot() {
     );
 }
 
-#[test]
+//#[test]
 fn extract_parrot() {
     let _ = env_logger::builder().is_test(true).try_init();
     let start = "(sum (dim j 1000000) (sum (dim k 500000) (* \
@@ -178,7 +234,7 @@ fn extract_parrot() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for _i in 1..50 {
+    for _i in 1..5 {
         for rw in &rules {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
@@ -387,18 +443,19 @@ fn test_transpose() {
 #[test]
 fn test_ra_bind() {
     let _ = env_logger::builder().is_test(true).try_init();
-    let start = "(* (mat a (dim i 10) (dim j 10) (nnz 10)) (mat b (dim i 10) (dim j 10) (nnz 10)))";
+    let start = "(mat a (dim i 10) (dim j 10) (nnz 10))";
+    //let start = "(dim i 10)";
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = untrans_rules();
-    for i in 1..13 {
+    //for i in 1..13 {
         for rw in &rules {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);
         }
         egraph.rebuild();
-    }
+    //}
 
     egraph.dump_dot("rabind.dot");
 }
@@ -476,7 +533,7 @@ fn als_cg() {
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
 
     let rules = rules();
-    for _i in 1..35 {
+    for _i in 1..5 {
         for rw in &rules {
             println!("APPLYING {}", rw.name);
             rw.run(&mut egraph);

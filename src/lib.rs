@@ -397,8 +397,8 @@ impl egg::egraph::Metadata<Math> for Meta {
                 let i = expr_schema(&expr, 0).get_name();
                 let j = expr_schema(&expr, 1).get_name();
                 let x = expr_schema(&expr, 2).get_schm();
-                let row = if i == "_" {1} else {*x.get(i).unwrap()};
-                let col = if j == "_" {1} else {*x.get(j).unwrap()};
+                let row = *x.get(i).unwrap_or(&1);
+                let col = *x.get(j).unwrap_or(&1);
                 Meta {
                     schema: Some(Schema::Mat(row, col)),
                     nnz: None,
@@ -430,7 +430,8 @@ fn dims_ok(x_i: usize, x_j: usize, y_i: usize, y_j: usize) {
             || (x_i == 1 && x_j == y_j)
             || (y_i == 1 && x_j == y_j)
             || (x_i == 1 && x_j == 1)
-            || (y_i == 1 && y_j == 1)
+            || (y_i == 1 && y_j == 1),
+        format!("{:?}", (x_i, x_j, y_i, y_j))
     );
 }
 
