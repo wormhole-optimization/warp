@@ -34,13 +34,13 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
         rw("ra_sall2", "(scol (srow ?x))", "(sall ?x)"),
         rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
         rw("ra_mat2", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?j ?i (lmat ?x ?m ?n ?z))"),
+        rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
         drw("ra-bind", "?e", RABind),
         drw("ra-add", "(+ ?a ?b)", RAAdd),
         drw("ra-mul", "(* ?a ?b)", RAMul),
         drw("ra-sum", "(sum ?i ?x)", RASum),
-        drw("ra-mmul", "(sum ?j (* ?a ?b))", RAMMul),
-        rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
-        //drw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", RATrans),
+        drw("ra-mmul2", "(rm* ?a ?b)", RARMMul),
+        //drw("ra-mmul1", "(sum ?j (* ?a ?b))", RAMMul),
     ]
 }
 
@@ -100,6 +100,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("pushdown_mul", "(* ?a (sum ?i ?b))", PushMul),
         drw("agg-subst", "(subst ?e ?v1 (sum ?v2 ?body))", SubstAgg),
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
+        drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
         drw("foundit",
             "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
              (* (mat ?x ?i ?j ?zc) (sum ?k (* (mat ?u ?i ?k ?zd) (mat ?v ?k ?j ?ze)))) \
@@ -111,6 +112,31 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         )
     ]
 }
+
+#[derive(Debug)]
+struct AggMMul;
+
+impl Applier<Math, Meta> for AggMMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let j = map[&"?j".parse().unwrap()][0];
+        let a = map[&"?a".parse().unwrap()][0];
+        let b = map[&"?b".parse().unwrap()][0];
+
+        let a_schema = &egraph[a].metadata.schema.as_ref().unwrap().get_schm().clone();
+        let b_schema = &egraph[b].metadata.schema.as_ref().unwrap().get_schm().clone();
+        let j_schema = &egraph[j].metadata.schema.as_ref().unwrap().get_dims().0.clone();
+
+        if a_schema.len() <= 2 && a_schema.contains_key(j_schema) &&
+            b_schema.len() <= 2 && b_schema.contains_key(j_schema)
+        {
+            Math::parse_pattern(&format!("(rm* ?a ?b)"))
+                .unwrap().apply(egraph, map)
+        } else {
+            vec![]
+        }
+    }
+}
+
 
 #[derive(Debug)]
 struct Foundit;
@@ -622,55 +648,75 @@ impl Applier<Math, Meta> for RABind {
 }
 
 #[derive(Debug)]
-struct RAMMul;
+struct RARMMul;
 
-impl Applier<Math, Meta> for RAMMul {
+impl Applier<Math, Meta> for RARMMul {
     fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
         let a = map[&"?a".parse().unwrap()][0];
         let b = map[&"?b".parse().unwrap()][0];
-        let j = map[&"?j".parse().unwrap()][0];
-        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
-        let sum = egraph.add(Expr::new(Math::Agg, smallvec![j, mul.id]));
-        let j_schema = egraph[j].metadata.schema.as_ref().unwrap().get_dims().0.clone();
-        let mut sum_schema = egraph[sum.id].metadata.schema.as_ref().unwrap().get_schm().keys();
+        let mul = egraph.add(Expr::new(Math::RMMul, smallvec![a, b]));
+        let mul_schema: HashSet<_> = egraph[mul.id].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
+        let a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
+        let b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
+
+        let wc = "_".to_owned();
+        let i = a_schema.difference(&mul_schema).cloned().next().unwrap_or(&wc).clone();
+        let k = a_schema.difference(&mul_schema).cloned().next().unwrap_or(&wc).clone();
+        let j = mul_schema.difference(&a_schema.union(&b_schema).cloned().collect()).cloned().next().unwrap_or(&wc).clone();
 
         let mut res = vec![];
-        if sum_schema.len() <= 2 {
-            let wc = "_".to_owned();
-            let i = sum_schema.next().unwrap_or(&wc).clone();
-            let k = sum_schema.next().unwrap_or(&wc).clone();
+        let mut bind_ik = Math::parse_pattern(
+            &format!("(b+ {i} {k} (m* (b- {i} {j} ?a) (b- {j} {k} ?b)))", i=&i, j=&j, k=&k)
+        ).unwrap().apply(egraph, map);
+        res.append(&mut bind_ik);
 
-            let mut bind_ik = Math::parse_pattern(
-                &format!("(b+ {i} {k} (m* (b- {i} {j} ?a) (b- {j} {k} ?b)))", i=&i, j=&j_schema, k=&k)
-            ).unwrap().apply(egraph, map);
-            res.append(&mut bind_ik);
+        let mut res = vec![];
+        let mut bind_ik = Math::parse_pattern(
+            &format!("(b+ {k} {i} (m* (b- {k} {j} ?b) (b- {j} {i} ?a)))", i=&i, j=&j, k=&k)
+        ).unwrap().apply(egraph, map);
+        res.append(&mut bind_ik);
 
-            let mut bind_ki = Math::parse_pattern(
-                &format!("(b+ {k} {i} (m* (b- {k} {j} ?a) (b- {j} {i} ?b)))", i=&i, j=&j_schema, k=&k)
-            ).unwrap().apply(egraph, map);
-            res.append(&mut bind_ki);
-        }
         res
     }
 }
 
-#[derive(Debug)]
-struct RATrans;
-
-//drw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", RATrans),
-
-impl Applier<Math, Meta> for RATrans {
-    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
-        let i = map[&"?i".parse().unwrap()][0];
-        let j = map[&"?j".parse().unwrap()][0];
-
-        if i != j {
-            Math::parse_pattern("(trans ?x)").unwrap().apply(egraph, map)
-        } else {
-            vec![]
-        }
-    }
-}
+//#[derive(Debug)]
+//struct RAMMul;
+//
+//impl Applier<Math, Meta> for RAMMul {
+//    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+//        let a = map[&"?a".parse().unwrap()][0];
+//        let b = map[&"?b".parse().unwrap()][0];
+//        let j = map[&"?j".parse().unwrap()][0];
+//        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
+//        let sum = egraph.add(Expr::new(Math::Agg, smallvec![j, mul.id]));
+//        let j_schema = egraph[j].metadata.schema.as_ref().unwrap().get_dims().0.clone();
+//        let sum_schema = egraph[sum.id].metadata.schema.as_ref().unwrap().get_schm().keys();
+//        let mut a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
+//        let mut b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
+//
+//        let mut res = vec![];
+//        if sum_schema.len() <= 2 {
+//            a_schema.remove(&j_schema);
+//            b_schema.remove(&j_schema);
+//            let wc = "_".to_owned();
+//            let i = a_schema.into_iter().next().unwrap_or(&wc).clone();
+//            let k = b_schema.into_iter().next().unwrap_or(&wc).clone();
+//
+//            let mut bind_ik = Math::parse_pattern(
+//                &format!("(b+ {i} {k} (m* (b- {i} {j} ?a) (b- {j} {k} ?b)))", i=&i, j=&j_schema, k=&k)
+//            ).unwrap().apply(egraph, map);
+//            res.append(&mut bind_ik);
+//
+//            let mut res = vec![];
+//            let mut bind_ik = Math::parse_pattern(
+//                &format!("(b+ {k} {i} (m* (b- {k} {j} ?b) (b- {j} {i} ?a)))", i=&i, j=&j, k=&k)
+//            ).unwrap().apply(egraph, map);
+//            res.append(&mut bind_ik);
+//        }
+//        res
+//    }
+//}
 
 #[derive(Debug)]
 struct RASum;

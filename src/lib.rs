@@ -6,7 +6,7 @@ use egg::{
     extract::Extractor,
 };
 
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 use std::i32;
 use std::hash::Hash;
 use std::cmp::min;
@@ -209,6 +209,29 @@ impl egg::egraph::Metadata<Math> for Meta {
 
                 Meta {schema, sparsity, nnz}
             },
+            RMMul => {
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in rmmul");
+                let x = &expr.children[0];
+                let y = &expr.children[1];
+
+                let mut x_schema = x.schema.as_ref().unwrap().get_schm().clone();
+                let x_keys: HashSet<_> = x_schema.keys().cloned().collect();
+                let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
+                let y_keys: HashSet<_> = y_schema.keys().cloned().collect();
+
+                let j = x_keys.intersection(&y_keys).next().unwrap();
+
+                x_schema.extend(y_schema);
+                x_schema.remove(j);
+
+                let vol: usize = x_schema.values().product();
+                let sparsity = Some(1.0.into());
+                let nnz = Some(vol);
+
+                let schema = Some(Schema::Schm(x_schema));
+
+                Meta {schema, sparsity, nnz}
+            }
             Lit => {
                 let num = &expr.children[0];
                 Meta {
@@ -476,7 +499,7 @@ define_term! {
         Srow = "srow", Scol = "scol", Sall = "sall",
         Bind = "b+", Ubnd = "b-", LLit = "llit",
         // RA
-        Add = "+", Mul = "*", Agg = "sum",
+        Add = "+", Mul = "*", Agg = "sum", RMMul = "rm*",
         Lit = "lit", Var = "var", Mat = "mat",
         Dim = "dim", Nnz = "nnz", Sub = "subst",
         Num(Number), Str(String),
