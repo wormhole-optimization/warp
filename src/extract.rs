@@ -31,6 +31,7 @@ pub fn extract(egraph: EGraph,
         var_bqs.insert(c.id, bq);
 
         for e in c.nodes.iter() {
+
             let mut s = DefaultHasher::new();
             e.hash(&mut s);
             let bn = "bn".to_owned() + &s.finish().to_string();
@@ -131,16 +132,26 @@ pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
 
             let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
             let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
-            schema.extend(y_schema);
 
-            let x_sparsity = egraph[x].metadata.sparsity.unwrap();
-            let y_sparsity = egraph[y].metadata.sparsity.unwrap();
+            let xs: HashSet<_> = schema.keys().collect();
+            let ys: HashSet<_> = schema.keys().collect();
 
-            let sparsity = std::cmp::min(1.0.into(), x_sparsity + y_sparsity);
+            let j: HashSet<_> = xs.intersection(&ys).collect();
 
-            let vol: usize = schema.values().product();
-            let nnz = NotNan::from(vol as f64) * sparsity;
-            nnz.round() as usize
+            if j.is_empty() {
+                10000000
+            } else {
+                schema.extend(y_schema);
+
+                let x_sparsity = egraph[x].metadata.sparsity.unwrap();
+                let y_sparsity = egraph[y].metadata.sparsity.unwrap();
+
+                let sparsity = std::cmp::min(1.0.into(), x_sparsity + y_sparsity);
+
+                let vol: usize = schema.values().product();
+                let nnz = NotNan::from(vol as f64) * sparsity;
+                nnz.round() as usize
+            }
         },
         Math::Mul => {
             debug_assert_eq!(expr.children.len(), 2);
@@ -164,11 +175,18 @@ pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
             debug_assert_eq!(expr.children.len(), 2, "wrong length in agg");
             let i = expr.children[0];
             let body = expr.children[1];
+            let body_schm = egraph[body].metadata.schema.as_ref().unwrap().get_schm();
+            if body_schm.len() > 2 {
+                10000000
+            } else {
+                let sparsity = egraph[body].metadata.sparsity.unwrap();
+                let vol: usize = body_schm.values().product();
+                let len = egraph[i].metadata.schema.as_ref().unwrap().get_dims().1;
 
-            let sparsity = egraph[body].metadata.sparsity.unwrap();
-            let len = egraph[i].metadata.schema.as_ref().unwrap().get_dims().1;
-
-            (NotNan::from(*len as f64) * sparsity).round() as usize
+                // sparsity * vol / (vol / len)
+                let nnz = (NotNan::from(*len as f64) * sparsity).round() as usize;
+                std::cmp::min(nnz, vol / len)
+            }
         },
         _ => 0
     }
