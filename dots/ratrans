@@ -44,11 +44,11 @@ digraph {
     9.1[label = "b-"]
     9.2[label = "lmat"]
   }
-  subgraph cluster_15 {
+  subgraph cluster_14 {
     style=dotted
-    15.0[label = "trans"]
-    15.1[label = "b-"]
-    15.2[label = "lmat"]
+    14.0[label = "trans"]
+    14.1[label = "b-"]
+    14.2[label = "lmat"]
   }
   4.0 -> 0.0 [lhead = cluster_0, label = 0]
   4.0 -> 3.0 [lhead = cluster_3, label = 1]
@@ -64,8 +64,8 @@ digraph {
   8.1 -> 7.0 [lhead = cluster_7, label = 3]
   8.2 -> 1.0 [lhead = cluster_1, label = 0]
   8.2 -> 0.0 [lhead = cluster_0, label = 1]
-  8.2 -> 15.0 [lhead = cluster_15, label = 2]
-  9.0 -> 15.0 [lhead = cluster_15, label = 0]
+  8.2 -> 14.0 [lhead = cluster_14, label = 2]
+  9.0 -> 14.0 [lhead = cluster_14, label = 0]
   9.1 -> 0.0 [lhead = cluster_0, label = 0]
   9.1 -> 1.0 [lhead = cluster_1, label = 1]
   9.1 -> 8.0 [lhead = cluster_8, label = 2]
@@ -73,12 +73,12 @@ digraph {
   9.2 -> 3.0 [lhead = cluster_3, label = 1]
   9.2 -> 5.0 [lhead = cluster_5, label = 2]
   9.2 -> 5.0 [lhead = cluster_5, label = 3]
-  15.0 -> 9.0 [lhead = cluster_9, label = 0]
-  15.1 -> 1.0 [lhead = cluster_1, label = 0]
-  15.1 -> 0.0 [lhead = cluster_0, label = 1]
-  15.1 -> 8.0 [lhead = cluster_8, label = 2]
-  15.2 -> 2.0 [lhead = cluster_2, label = 0]
-  15.2 -> 5.0 [lhead = cluster_5, label = 1]
-  15.2 -> 3.0 [lhead = cluster_3, label = 2]
-  15.2 -> 5.0 [lhead = cluster_5, label = 3]
+  14.0 -> 9.0 [lhead = cluster_9, label = 0]
+  14.1 -> 1.0 [lhead = cluster_1, label = 0]
+  14.1 -> 0.0 [lhead = cluster_0, label = 1]
+  14.1 -> 8.0 [lhead = cluster_8, label = 2]
+  14.2 -> 2.0 [lhead = cluster_2, label = 0]
+  14.2 -> 5.0 [lhead = cluster_5, label = 1]
+  14.2 -> 3.0 [lhead = cluster_3, label = 2]
+  14.2 -> 5.0 [lhead = cluster_5, label = 3]
 }

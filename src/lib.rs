@@ -1,7 +1,9 @@
 use egg::{
     define_term,
     egraph::EClass,
-    expr::{Expr, Language},
+    expr::{Expr, RecExpr, Language},
+    pattern::Rewrite,
+    extract::Extractor,
 };
 
 use std::collections::HashMap;
@@ -39,6 +41,33 @@ pub enum Schema {
     Name(String),
     Size(usize),
     Mat(usize, usize),
+}
+
+fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
+    for _i in 1..iters {
+        for rw in rws {
+            rw.run(egraph);
+        }
+        egraph.rebuild();
+    }
+}
+
+pub fn optimize(lplan: &RecExpr<Math>) -> RecExpr<Math> {
+    // Translate LA plan to RA
+    let (mut trans_graph, root) = EGraph::from_expr(&lplan);
+    saturate(&mut trans_graph, &trans_rules(), 30);
+    let rplan = extract(trans_graph, &[root], trans_cost);
+
+    // Optimize RA plan
+    let (mut opt_graph, root) = EGraph::from_expr(&rplan[0]);
+    saturate(&mut opt_graph, &rules(), 15);
+    let best = extract(opt_graph, &[root], cost);
+
+    // Translate RA plan to LA
+    let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
+    saturate(&mut untrans_graph, &untrans_rules(), 30);
+    let ext = Extractor::new(&untrans_graph);
+    ext.find_best(root).expr
 }
 
 impl Schema {
