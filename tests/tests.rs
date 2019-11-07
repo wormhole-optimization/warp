@@ -14,7 +14,7 @@ use std::fs;
 
 #[test]
 fn dag() {
-    let contents = fs::read_to_string("/home/wopt/wormhole/warp/tests/dag.hops")
+    let contents = fs::read_to_string("dag.hops")
         .expect("Something went wrong reading the file");
 
     let mut egraph = EGraph::default();
