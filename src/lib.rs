@@ -12,6 +12,9 @@ use std::iter::*;
 
 use ordered_float::NotNan;
 
+mod hop;
+pub use hop::*;
+
 mod rules;
 pub use rules::{rules, trans_rules, untrans_rules};
 

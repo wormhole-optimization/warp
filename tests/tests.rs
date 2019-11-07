@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -8,6 +8,28 @@ use egg::{
     //pattern::{Applier, Rewrite, WildMap},
 };
 use log::*;
+
+use std::env;
+use std::fs;
+
+#[test]
+fn dag() {
+    let contents = fs::read_to_string("/home/wopt/wormhole/warp/tests/dag.hops")
+        .expect("Something went wrong reading the file");
+
+    let mut egraph = EGraph::default();
+    load_dag(&mut egraph, &contents);
+
+    egraph.dump_dot("dag.dot");
+}
+
+static HOP: &str = "9,29;82;b(*);83,84;0,0,-1,-1,-1;S;D;0,0,0,0;;CP;";
+
+#[test]
+fn phop() {
+    let hop = parse_hop(HOP);
+    println!("{:?}", hop);
+}
 
 fn prove_something(size_limit: usize, start: &str, goals: &[&str]) {
     let _ = env_logger::builder().is_test(true).try_init();
