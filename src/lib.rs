@@ -466,9 +466,8 @@ impl Language for Math {
             _ => 100
         };
         cost + children.iter().sum::<u64>()
-        //cost
     }
-    //
+
  //   fn cost(&self, _children: &[u64]) -> u64 {
  //       use Math::*;
  //       match self {
