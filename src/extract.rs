@@ -14,7 +14,11 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
+pub fn extract(egraph: EGraph,
+               roots: &[Id],
+               cost: fn(&EGraph, &Expr<Math, Id>) -> usize)
+               -> Vec<RecExpr<Math>>
+{
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
 
     // Create symbolic variables Bn (for each node) & Bq (each class)
@@ -40,7 +44,7 @@ pub fn extract(egraph: EGraph, roots: &[Id]) -> Vec<RecExpr<Math>> {
     // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
         var_bns.iter().map(|(e, var)| {
-            let coef = untrans_cost(&egraph, e);
+            let coef = cost(&egraph, e);
             let bn = LpBinary::new(&var);
             coef as f32 * &bn
         }).collect()
@@ -118,17 +122,7 @@ fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
         .into()
 }
 
-fn untrans_cost(_egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
-    use Math::*;
-    match expr.op {
-        LMat | LAdd | LMin | LMul |
-        MMul | Srow | Scol |
-        Sall | LLit | LTrs => 1,
-        _ => 1000
-    }
-}
-
-fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
     match expr.op {
         Math::Add => {
             debug_assert_eq!(expr.children.len(), 2);
@@ -176,6 +170,17 @@ fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
 
             (NotNan::from(*len as f64) * sparsity).round() as usize
         },
+        _ => 0
+    }
+}
+
+pub fn trans_cost(_egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+    use Math::*;
+    match expr.op {
+        LMat | LAdd | LMin | LMul |
+        MMul | LTrs | Srow | Scol |
+        Sall | Bind | Ubnd | LLit |
+        Sub => 1,
         _ => 0
     }
 }

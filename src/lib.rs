@@ -467,15 +467,4 @@ impl Language for Math {
         };
         cost + children.iter().sum::<u64>()
     }
-
- //   fn cost(&self, _children: &[u64]) -> u64 {
- //       use Math::*;
- //       match self {
- //           LMat | LAdd | LMin | LMul |
- //           MMul | LTrs | Srow | Scol |
- //           Sall | Bind | Ubnd | LLit |
- //           Sub => 1,
- //           _ => 0
- //       }
- //   }
 }

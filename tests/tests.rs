@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -9,7 +9,7 @@ use egg::{
 };
 use log::*;
 
-use std::env;
+//use std::env;
 use std::fs;
 
 #[test]
@@ -172,7 +172,7 @@ fn test_extract() {
         }
     }
 
-    let best = extract(egraph, &[root]);
+    let best = extract(egraph, &[root], cost);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -196,12 +196,10 @@ fn la_parrot() {
         egraph.rebuild();
     }
 
-    let ext = Extractor::new(&egraph);
-    let best = ext.find_best(root);
-
-    println!("best is {}",best.expr.pretty(100));
-    let (eg, r) = EGraph::from_expr(&best.expr);
-    eg.dump_dot("la_parrot");
+    let best = extract(egraph, &[root], trans_cost);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
 }
 
 #[test]
@@ -220,11 +218,6 @@ fn ra_trans() {
         egraph.rebuild();
     }
     egraph.dump_dot("ratrans");
-
-    //let best = extract(egraph, &[root]);
-    //for e in best {
-    //    println!("{}", e.pretty(80));
-    //}
 
     let ext = Extractor::new(&egraph);
     let best = ext.find_best(root);
@@ -269,14 +262,8 @@ fn ra_parrot() {
     println!("best is {}",best.expr.pretty(100));
     let (eg, r) = EGraph::from_expr(&best.expr);
     eg.dump_dot("la_parrot");
-
-    //let best = extract(egraph, &[root]);
-    //for e in best {
-    //    println!("{}", e.pretty(80));
-    //}
 }
 
-#[test]
 fn parrot() {
     prove_something(
         5_000,
@@ -306,7 +293,7 @@ fn extract_parrot() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root]);
+    let best = extract(egraph, &[root], cost);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -370,12 +357,10 @@ fn test_translate() {
         egraph.rebuild();
     }
 
-    let ext = Extractor::new(&egraph);
-    let best = ext.find_best(root);
-
-    println!("best is {}",best.expr.pretty(100));
-    let (mut eg, r) = EGraph::from_expr(&best.expr);
-    eg.dump_dot("extrans");
+    let best = extract(egraph, &[root], trans_cost);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
 }
 
 #[test]
@@ -498,10 +483,10 @@ fn test_transpose() {
         egraph.rebuild();
     }
 
-    //egraph.dump_dot("transpose.dot");
-    let ext = Extractor::new(&egraph);
-    let best = ext.find_best(root);
-    println!("{}", best.expr.pretty(80));
+    let best = extract(egraph, &[root], trans_cost);
+    for e in best {
+        println!("{}", e.pretty(80));
+    }
 }
 
 #[test]
@@ -605,7 +590,7 @@ fn als_cg() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root]);
+    let best = extract(egraph, &[root], cost);
     for e in best {
         println!("{}", e.pretty(80));
     }
