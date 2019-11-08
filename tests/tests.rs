@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost, optimize};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -11,6 +11,20 @@ use log::*;
 
 //use std::env;
 use std::fs;
+
+#[test]
+fn opt() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let contents = fs::read_to_string("dag.hops")
+        .expect("Something went wrong reading the file");
+
+    let mut egraph = EGraph::default();
+    let root = load_dag(&mut egraph, &contents);
+    let sol = optimize(egraph, root);
+
+    let sol_s = sol.pretty(80);
+    println!("{}", sol_s);
+}
 
 #[test]
 fn dag() {

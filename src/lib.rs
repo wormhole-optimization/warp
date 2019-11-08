@@ -47,22 +47,28 @@ fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
     for _i in 1..iters {
         for rw in rws {
             rw.run(egraph);
+            egraph.rebuild();
         }
-        egraph.rebuild();
     }
 }
 
-pub fn optimize(lplan: &RecExpr<Math>) -> RecExpr<Math> {
+pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
+
+    println!("Translate LA plan to RA");
     // Translate LA plan to RA
-    let (mut trans_graph, root) = EGraph::from_expr(&lplan);
-    saturate(&mut trans_graph, &trans_rules(), 30);
+    let (mut trans_graph, root) = (lgraph, root);
+    saturate(&mut trans_graph, &trans_rules(), 20);
     let rplan = extract(trans_graph, &[root], trans_cost);
 
+    println!("{}", rplan[0].pretty(80));
+    println!("Optimize RA plan");
     // Optimize RA plan
     let (mut opt_graph, root) = EGraph::from_expr(&rplan[0]);
-    saturate(&mut opt_graph, &rules(), 15);
+    saturate(&mut opt_graph, &rules(), 3);
     let best = extract(opt_graph, &[root], cost);
+    println!("{}", best[0].pretty(80));
 
+    println!("Translate RA plan to LA");
     // Translate RA plan to LA
     let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
     saturate(&mut untrans_graph, &untrans_rules(), 30);
@@ -509,7 +515,7 @@ define_term! {
 impl Language for Math {
     fn cost(&self, children: &[u64]) -> u64 {
         use Math::*;
-        println!("{:?}", self);
+        println!("asdf ;lkj{:?}", self);
         let cost = match self {
             LMat | LAdd | LMin | LMul |
             MMul | LTrs | Srow | Scol |

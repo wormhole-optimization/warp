@@ -1,4 +1,4 @@
-use crate::{Math, Meta, EGraph, Schema, Expr};
+use crate::{Math, EGraph, Expr};
 use egg::parse::ParsableLanguage;
 use std::collections::HashMap;
 
@@ -64,10 +64,11 @@ pub fn parse_hop(s: &str) -> Hop {
     Hop{id, op, children, row, col, nnz}
 }
 
-pub fn load_dag(egraph: &mut EGraph, s: &str) {
+pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
     use Math::*;
     let mut id_map = HashMap::new();
     let hops = s.lines();
+    let mut root = 0;
     for h in hops {
         let hop = parse_hop(h);
         // TODO special case for literal, string
@@ -77,18 +78,22 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) {
                 let exp = Math::parse_expr(&s).unwrap();
                 let lit = egraph.add_expr(&exp);
                 id_map.insert(hop.id, lit);
+                root = lit;
             },
             Str(x) => {
                 let m = format!("(lmat {x} {i} {j} {z})", x=x, i=hop.row, j=hop.col, z=hop.nnz.unwrap());
                 let exp = Math::parse_expr(&m).unwrap();
                 let mat = egraph.add_expr(&exp);
                 id_map.insert(hop.id, mat);
+                root = mat;
             }
             op => {
                 let children: Vec<_> = hop.children.iter().map(|c| id_map[c]).collect();
                 let id = egraph.add(Expr::new(op, children.into())).id;
                 id_map.insert(hop.id, id);
+                root = id;
             }
         }
     }
+    root
 }

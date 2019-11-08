@@ -35,6 +35,7 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
         rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
         rw("ra_mat2", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?j ?i (lmat ?x ?m ?n ?z))"),
         rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
+        //rw("ra_lit", "(b- _ _ (lit ?n))", "(llit ?n)"),
         drw("ra-bind", "?e", RABind),
         drw("ra-add", "(+ ?a ?b)", RAAdd),
         drw("ra-mul", "(* ?a ?b)", RAMul),
@@ -123,11 +124,14 @@ impl Applier<Math, Meta> for AggMMul {
         let b = map[&"?b".parse().unwrap()][0];
 
         let a_schema = &egraph[a].metadata.schema.as_ref().unwrap().get_schm().clone();
+        let a_s: HashSet<_> = a_schema.keys().cloned().collect();
         let b_schema = &egraph[b].metadata.schema.as_ref().unwrap().get_schm().clone();
+        let b_s: HashSet<_> = b_schema.keys().cloned().collect();
+        let i:Vec<_> = a_s.intersection(&b_s).collect();
         let j_schema = &egraph[j].metadata.schema.as_ref().unwrap().get_dims().0.clone();
 
-        if a_schema.len() <= 2 && a_schema.contains_key(j_schema) &&
-            b_schema.len() <= 2 && b_schema.contains_key(j_schema)
+        if a_schema.len() <= 2 && b_schema.len() <= 2 &&
+            i.len() == 1 && i[0] == j_schema
         {
             Math::parse_pattern(&format!("(rm* ?a ?b)"))
                 .unwrap().apply(egraph, map)
@@ -329,7 +333,7 @@ impl Applier<Math, Meta> for LAAdd {
         // [-i,j] (* [i,j]A [i,j]B)
         Math::parse_pattern(
             &format!(
-                "(b- {i} {j} (* (b+ {xi} {xj} ?x) (b+ {yi} {yj} ?y)))",
+                "(b- {i} {j} (+ (b+ {xi} {xj} ?x) (b+ {yi} {yj} ?y)))",
                 i=&ubnd_i, j=&ubnd_j, xi=&bind_xi, xj=&bind_xj, yi=&bind_yi, yj=&bind_yj
             )
         ).unwrap().apply(egraph, map)
@@ -433,8 +437,8 @@ impl Applier<Math, Meta> for LASrow {
 
         Math::parse_pattern(
             &format!(
-                "(b- _ {j} (sum (dim {i} {in}) (b+ {i} {j} ?a)))",
-                i=&bind_ai, in=*a_i as i32, j=&bind_aj
+                "(b- {i} _ (sum (dim {j} {jn}) (b+ {i} {j} ?a)))",
+                i=&bind_ai, jn=*a_j as i32, j=&bind_aj
             )
         ).unwrap().apply(egraph, map)
     }
@@ -460,8 +464,8 @@ impl Applier<Math, Meta> for LAScol {
 
         Math::parse_pattern(
             &format!(
-                "(b- {i} _ (sum (dim {j} {jn}) (b+ {i} {j} ?a)))",
-                i=&bind_ai, jn=*a_j as i32, j=&bind_aj
+                "(b- _ {j} (sum (dim {i} {in}) (b+ {i} {j} ?a)))",
+                i=&bind_ai, in=*a_i as i32, j=&bind_aj
             )
         ).unwrap().apply(egraph, map)
     }
@@ -547,7 +551,7 @@ impl Applier<Math, Meta> for RAAdd {
 
             let mut bind_ij = Math::parse_pattern(
                 &format!(
-                    "(b+ {i} {j} (+ (b- {i} {j} ?a) (b- {i} {j} b)))",
+                    "(b+ {i} {j} (l+ (b- {i} {j} ?a) (b- {i} {j} ?b)))",
                     i=&i, j=&j
                 )
             ).unwrap().apply(egraph, map);
@@ -555,7 +559,7 @@ impl Applier<Math, Meta> for RAAdd {
 
             let mut bind_ji = Math::parse_pattern(
                 &format!(
-                    "(b+ {j} {i} (+ (b- {j} {i} ?a) (b- {j} {i} b)))",
+                    "(b+ {j} {i} (l+ (b- {j} {i} ?a) (b- {j} {i} ?b)))",
                     i=&i, j=&j
                 )
             ).unwrap().apply(egraph, map);
