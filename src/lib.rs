@@ -47,8 +47,8 @@ fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
     for _i in 1..iters {
         for rw in rws {
             rw.run(egraph);
-            egraph.rebuild();
         }
+        egraph.rebuild();
     }
 }
 
@@ -71,9 +71,11 @@ pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
     println!("Translate RA plan to LA");
     // Translate RA plan to LA
     let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
-    saturate(&mut untrans_graph, &untrans_rules(), 40);
+    saturate(&mut untrans_graph, &untrans_rules(), 50);
     let ext = Extractor::new(&untrans_graph);
-    ext.find_best(root).expr
+    let best = ext.find_best(root);
+    println!("{:?}", best.cost);
+    best.expr
 }
 
 impl Schema {

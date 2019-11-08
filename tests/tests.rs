@@ -13,6 +13,36 @@ use log::*;
 use std::fs;
 
 #[test]
+fn opt_untrans() {
+    let _ = env_logger::builder().is_test(true).try_init();
+    let start = "(b-
+        vsrow_j699052
+        _
+        (*
+          (b+ _ _ (l* (llit 0) (llit 1)))
+          (b+
+            _
+            vsrow_j699052
+            (l* (llit 2) (m* (lmat C 1 500000 500000) (lmat B 500000 10 5000000))))))";
+
+    let start_expr = Math::parse_expr(start).unwrap();
+    let (mut egraph, root) = EGraph::from_expr(&start_expr);
+
+    let tr = untrans_rules();
+    for _i in 1..50 {
+        for rw in &tr {
+            rw.run(&mut egraph);
+        }
+        egraph.rebuild();
+    }
+
+    let ext = Extractor::new(&egraph);
+    let best = ext.find_best(root);
+
+    println!("best is {}",best.expr.pretty(100));
+}
+
+#[test]
 fn opt() {
     let _ = env_logger::builder().is_test(true).try_init();
     let contents = fs::read_to_string("dag.hops")

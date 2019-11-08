@@ -30,9 +30,6 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
         rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
         rw("ra-elim-bind0", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
-        //rw("ra-elim-bind1", "(b- ?i ?j (b+ _ ?j ?x))", "?x"),
-        //rw("ra-elim-bind2", "(b- ?i ?j (b+ ?i _ ?x))", "?x"),
-        //rw("ra-elim-bind3", "(b- ?i ?j (b+ _ _ ?x))", "?x"),
         rw("ra_sall", "(srow (scol ?x))", "(sall ?x)"),
         rw("ra_sall2", "(scol (srow ?x))", "(sall ?x)"),
         rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
@@ -45,7 +42,6 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
         drw("ra-mul", "(* ?a ?b)", RAMul),
         drw("ra-sum", "(sum ?i ?x)", RASum),
         drw("ra-mmul2", "(rm* ?a ?b)", RARMMul),
-        //drw("ra-mmul1", "(sum ?j (* ?a ?b))", RAMMul),
     ]
 }
 
