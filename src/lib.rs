@@ -71,7 +71,7 @@ pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
     println!("Translate RA plan to LA");
     // Translate RA plan to LA
     let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
-    saturate(&mut untrans_graph, &untrans_rules(), 30);
+    saturate(&mut untrans_graph, &untrans_rules(), 40);
     let ext = Extractor::new(&untrans_graph);
     ext.find_best(root).expr
 }
@@ -515,7 +515,6 @@ define_term! {
 impl Language for Math {
     fn cost(&self, children: &[u64]) -> u64 {
         use Math::*;
-        println!("asdf ;lkj{:?}", self);
         let cost = match self {
             LMat | LAdd | LMin | LMul |
             MMul | LTrs | Srow | Scol |

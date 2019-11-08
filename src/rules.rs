@@ -29,13 +29,17 @@ fn drw(name: &str, l: &str, r: impl Applier<Math, Meta> + 'static) -> Rewrite<Ma
 pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
         rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
-        rw("ra-elim-bind", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
+        rw("ra-elim-bind0", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
+        //rw("ra-elim-bind1", "(b- ?i ?j (b+ _ ?j ?x))", "?x"),
+        //rw("ra-elim-bind2", "(b- ?i ?j (b+ ?i _ ?x))", "?x"),
+        //rw("ra-elim-bind3", "(b- ?i ?j (b+ _ _ ?x))", "?x"),
         rw("ra_sall", "(srow (scol ?x))", "(sall ?x)"),
         rw("ra_sall2", "(scol (srow ?x))", "(sall ?x)"),
         rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
         rw("ra_mat2", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?j ?i (lmat ?x ?m ?n ?z))"),
         rw("ra_transpose", "(b- ?j ?i (b+ ?i ?j ?x))", "(trans ?x)"),
-        //rw("ra_lit", "(b- _ _ (lit ?n))", "(llit ?n)"),
+        rw("ra_lit", "(lit ?n)", "(b+ _ _ (llit ?n))"),
+        rw("sum_d1", "(sum (dim _ 1) ?x)", "?x"),
         drw("ra-bind", "?e", RABind),
         drw("ra-add", "(+ ?a ?b)", RAAdd),
         drw("ra-mul", "(* ?a ?b)", RAMul),
@@ -49,7 +53,7 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
 pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
         rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (lit -1) ?b))"),
-        rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) ?z)"),
+        rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) (nnz ?z))"),
         rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",         "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-*",      "(subst ?e ?v (* ?a ?b))",         "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
@@ -102,15 +106,16 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("agg-subst", "(subst ?e ?v1 (sum ?v2 ?body))", SubstAgg),
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
         drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
-        drw("foundit",
-            "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
-             (* (mat ?x ?i ?j ?zc) (sum ?k (* (mat ?u ?i ?k ?zd) (mat ?v ?k ?j ?ze)))) \
-             (* (mat ?x ?i ?j ?zf) (sum ?k (* (mat ?u ?i ?k ?zg) (mat ?v ?k ?j ?zh)))))))) \
-             (sum ?c (sum ?a (* \
-             (sum ?b (* (mat ?u ?a ?b ?zi) (mat ?u ?b ?c ?zj)))\
-             (sum ?d (* (mat ?v ?a ?d ?zk) (mat ?v ?d ?c ?zl)))))))",
-            Foundit
-        )
+        rw("sum_", "(sum (dim _ 1) ?x)", "(* (lit 1) ?x)"),
+        //drw("foundit",
+        //    "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
+        //     (* (mat ?x ?i ?j ?zc) (sum ?k (* (mat ?u ?i ?k ?zd) (mat ?v ?k ?j ?ze)))) \
+        //     (* (mat ?x ?i ?j ?zf) (sum ?k (* (mat ?u ?i ?k ?zg) (mat ?v ?k ?j ?zh)))))))) \
+        //     (sum ?c (sum ?a (* \
+        //     (sum ?b (* (mat ?u ?a ?b ?zi) (mat ?u ?b ?c ?zj)))\
+        //     (sum ?d (* (mat ?v ?a ?d ?zk) (mat ?v ?d ?c ?zl)))))))",
+        //    Foundit
+        //)
     ]
 }
 
@@ -548,6 +553,7 @@ impl Applier<Math, Meta> for RAAdd {
             let wc = "_".to_owned();
             let i = add_schema.next().unwrap_or(&wc).clone();
             let j = add_schema.next().unwrap_or(&wc).clone();
+            // TODO change this as mul
 
             let mut bind_ij = Math::parse_pattern(
                 &format!(
@@ -588,21 +594,29 @@ impl Applier<Math, Meta> for RAMul {
             let wc = "_".to_owned();
             let i = mul_schema.next().unwrap_or(&wc).clone();
             let j = mul_schema.next().unwrap_or(&wc).clone();
+            let ai = if let None = a_schema.get(&i) { &wc } else { &i };
+            let aj = if let None = a_schema.get(&j) { &wc } else { &j };
+            let bi = if let None = b_schema.get(&i) { &wc } else { &i };
+            let bj = if let None = b_schema.get(&j) { &wc } else { &j };
 
             if a_schema.is_subset(&b_schema) || b_schema.is_subset(&a_schema) {
+                let bij = format!(
+                    "(b+ {i} {j} (l* (b- {ai} {aj} ?a) (b- {bi} {bj} ?b)))",
+                    i=&i, j=&j, ai=&ai, aj=&aj, bi=&bi, bj=&bj
+                );
+                println!("bijJJJ {:?}", &bij);
                 let mut bind_ij = Math::parse_pattern(
-                    &format!(
-                        "(b+ {i} {j} (l* (b- {i} {j} ?a) (b- {i} {j} ?b)))",
-                        i=&i, j=&j
-                    )
+                    &bij
                 ).unwrap().apply(egraph, map);
                 res.append(&mut bind_ij);
 
+                let bji = format!(
+                    "(b+ {j} {i} (l* (b- {aj} {ai} ?a) (b- {bj} {bi} ?b)))",
+                    i=&i, j=&j, ai=&ai, aj=&aj, bi=&bi, bj=&bj
+                );
+                println!("bjiIIII {:?}", &bji);
                 let mut bind_ji = Math::parse_pattern(
-                    &format!(
-                        "(b+ {j} {i} (l* (b- {j} {i} ?a) (b- {j} {i} ?b)))",
-                        i=&i, j=&j
-                    )
+                    &bji
                 ).unwrap().apply(egraph, map);
                 res.append(&mut bind_ji);
             } else {
@@ -664,9 +678,9 @@ impl Applier<Math, Meta> for RARMMul {
         let b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
 
         let wc = "_".to_owned();
-        let i = a_schema.difference(&mul_schema).cloned().next().unwrap_or(&wc).clone();
-        let k = a_schema.difference(&mul_schema).cloned().next().unwrap_or(&wc).clone();
-        let j = mul_schema.difference(&a_schema.union(&b_schema).cloned().collect()).cloned().next().unwrap_or(&wc).clone();
+        let i = a_schema.difference(&b_schema).cloned().next().unwrap_or(&wc).clone();
+        let k = b_schema.difference(&a_schema).cloned().next().unwrap_or(&wc).clone();
+        let j = a_schema.difference(&mul_schema).cloned().next().unwrap_or(&wc).clone();
 
         let mut res = vec![];
         let mut bind_ik = Math::parse_pattern(
