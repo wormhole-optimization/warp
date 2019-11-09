@@ -15,15 +15,20 @@ use std::fs;
 #[test]
 fn opt_untrans() {
     let _ = env_logger::builder().is_test(true).try_init();
-    let start = "(b-
-        vsrow_j699052
-        _
-        (*
-          (b+ _ _ (l* (llit 0) (llit 1)))
-          (b+
-            _
-            vsrow_j699052
-            (l* (llit 2) (m* (lmat C 1 500000 500000) (lmat B 500000 10 5000000))))))";
+    let start = "(b- j _
+        (* (* (lit 3) (lit 1))
+           (mat B (dim j 10) (dim _ 1) (nnz 5))))";
+    //let start = "(b- _ _
+    //  (sum
+    //    (dim vsrow_j699052 10)
+    //    (*
+    //      (sum (dim _ 1) (* (lit 0) (lit 1)))
+    //      (*
+    //        (lit 2)
+    //        (rm*
+    //          (mat B (dim vsrow_j699052 10) (dim vmmul_j72386 500000) (nnz 5000000))
+    //          (mat C (dim _ 1) (dim vmmul_j72386 500000) (nnz 500000))))))
+    //  )";
 
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);

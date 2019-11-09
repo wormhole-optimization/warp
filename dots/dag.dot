@@ -10,7 +10,7 @@ digraph {
   }
   subgraph cluster_2 {
     style=dotted
-    2.0[label = "0"]
+    2.0[label = "2"]
   }
   subgraph cluster_3 {
     style=dotted
@@ -54,39 +54,39 @@ digraph {
   }
   subgraph cluster_13 {
     style=dotted
-    13.0[label = "2"]
+    13.0[label = "l*"]
   }
   subgraph cluster_14 {
     style=dotted
-    14.0[label = "llit"]
+    14.0[label = "srow"]
   }
   subgraph cluster_15 {
     style=dotted
-    15.0[label = "l*"]
+    15.0[label = "m*"]
   }
   subgraph cluster_16 {
     style=dotted
-    16.0[label = "srow"]
+    16.0[label = "sall"]
   }
   subgraph cluster_17 {
     style=dotted
-    17.0[label = "m*"]
+    17.0[label = "l*"]
   }
   subgraph cluster_18 {
     style=dotted
-    18.0[label = "sall"]
+    18.0[label = "D"]
   }
   subgraph cluster_19 {
     style=dotted
-    19.0[label = "l*"]
+    19.0[label = "250009808"]
   }
   subgraph cluster_20 {
     style=dotted
-    20.0[label = "D"]
+    20.0[label = "lmat"]
   }
   subgraph cluster_21 {
     style=dotted
-    21.0[label = "250009808"]
+    21.0[label = "A"]
   }
   subgraph cluster_22 {
     style=dotted
@@ -94,15 +94,15 @@ digraph {
   }
   subgraph cluster_23 {
     style=dotted
-    23.0[label = "A"]
+    23.0[label = "trans"]
   }
   subgraph cluster_24 {
     style=dotted
-    24.0[label = "lmat"]
+    24.0[label = "m*"]
   }
   subgraph cluster_25 {
     style=dotted
-    25.0[label = "trans"]
+    25.0[label = "l*"]
   }
   subgraph cluster_26 {
     style=dotted
@@ -114,23 +114,15 @@ digraph {
   }
   subgraph cluster_28 {
     style=dotted
-    28.0[label = "m*"]
+    28.0[label = "sall"]
   }
   subgraph cluster_29 {
     style=dotted
-    29.0[label = "l*"]
+    29.0[label = "l+"]
   }
   subgraph cluster_30 {
     style=dotted
-    30.0[label = "sall"]
-  }
-  subgraph cluster_31 {
-    style=dotted
-    31.0[label = "l+"]
-  }
-  subgraph cluster_32 {
-    style=dotted
-    32.0[label = "l*"]
+    30.0[label = "l*"]
   }
   1.0 -> 0.0 [lhead = cluster_0, label = 0]
   3.0 -> 2.0 [lhead = cluster_2, label = 0]
@@ -143,35 +135,34 @@ digraph {
   12.0 -> 5.0 [lhead = cluster_5, label = 1]
   12.0 -> 10.0 [lhead = cluster_10, label = 2]
   12.0 -> 11.0 [lhead = cluster_11, label = 3]
+  13.0 -> 12.0 [lhead = cluster_12, label = 0]
+  13.0 -> 3.0 [lhead = cluster_3, label = 1]
   14.0 -> 13.0 [lhead = cluster_13, label = 0]
-  15.0 -> 12.0 [lhead = cluster_12, label = 0]
+  15.0 -> 8.0 [lhead = cluster_8, label = 0]
   15.0 -> 14.0 [lhead = cluster_14, label = 1]
   16.0 -> 15.0 [lhead = cluster_15, label = 0]
-  17.0 -> 8.0 [lhead = cluster_8, label = 0]
+  17.0 -> 3.0 [lhead = cluster_3, label = 0]
   17.0 -> 16.0 [lhead = cluster_16, label = 1]
-  18.0 -> 17.0 [lhead = cluster_17, label = 0]
-  19.0 -> 3.0 [lhead = cluster_3, label = 0]
-  19.0 -> 18.0 [lhead = cluster_18, label = 1]
-  22.0 -> 20.0 [lhead = cluster_20, label = 0]
+  20.0 -> 18.0 [lhead = cluster_18, label = 0]
+  20.0 -> 5.0 [lhead = cluster_5, label = 1]
+  20.0 -> 5.0 [lhead = cluster_5, label = 2]
+  20.0 -> 19.0 [lhead = cluster_19, label = 3]
+  22.0 -> 21.0 [lhead = cluster_21, label = 0]
   22.0 -> 5.0 [lhead = cluster_5, label = 1]
-  22.0 -> 5.0 [lhead = cluster_5, label = 2]
-  22.0 -> 21.0 [lhead = cluster_21, label = 3]
-  24.0 -> 23.0 [lhead = cluster_23, label = 0]
-  24.0 -> 5.0 [lhead = cluster_5, label = 1]
-  24.0 -> 10.0 [lhead = cluster_10, label = 2]
-  24.0 -> 11.0 [lhead = cluster_11, label = 3]
-  25.0 -> 24.0 [lhead = cluster_24, label = 0]
-  26.0 -> 12.0 [lhead = cluster_12, label = 0]
-  26.0 -> 25.0 [lhead = cluster_25, label = 1]
-  27.0 -> 22.0 [lhead = cluster_22, label = 0]
+  22.0 -> 10.0 [lhead = cluster_10, label = 2]
+  22.0 -> 11.0 [lhead = cluster_11, label = 3]
+  23.0 -> 22.0 [lhead = cluster_22, label = 0]
+  24.0 -> 12.0 [lhead = cluster_12, label = 0]
+  24.0 -> 23.0 [lhead = cluster_23, label = 1]
+  25.0 -> 20.0 [lhead = cluster_20, label = 0]
+  25.0 -> 24.0 [lhead = cluster_24, label = 1]
+  26.0 -> 25.0 [lhead = cluster_25, label = 0]
+  26.0 -> 22.0 [lhead = cluster_22, label = 1]
+  27.0 -> 12.0 [lhead = cluster_12, label = 0]
   27.0 -> 26.0 [lhead = cluster_26, label = 1]
   28.0 -> 27.0 [lhead = cluster_27, label = 0]
-  28.0 -> 24.0 [lhead = cluster_24, label = 1]
-  29.0 -> 12.0 [lhead = cluster_12, label = 0]
+  29.0 -> 17.0 [lhead = cluster_17, label = 0]
   29.0 -> 28.0 [lhead = cluster_28, label = 1]
-  30.0 -> 29.0 [lhead = cluster_29, label = 0]
-  31.0 -> 19.0 [lhead = cluster_19, label = 0]
-  31.0 -> 30.0 [lhead = cluster_30, label = 1]
-  32.0 -> 1.0 [lhead = cluster_1, label = 0]
-  32.0 -> 31.0 [lhead = cluster_31, label = 1]
+  30.0 -> 1.0 [lhead = cluster_1, label = 0]
+  30.0 -> 29.0 [lhead = cluster_29, label = 1]
 }

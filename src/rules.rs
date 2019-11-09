@@ -579,17 +579,23 @@ impl Applier<Math, Meta> for RAMul {
         let a = map[&"?a".parse().unwrap()][0];
         let b = map[&"?b".parse().unwrap()][0];
         let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
-        let mut mul_schema = egraph[mul.id].metadata.schema.as_ref().unwrap().get_schm().keys();
+        egraph.rebuild();
+        let mul_meta = &egraph[mul.id].metadata;
+        println!("meta {:?}", mul_meta);
+        let mul_schema: Vec<String> = egraph[mul.id].metadata.schema.as_ref().unwrap().get_schm().keys().cloned().collect();
+        println!("mul schema {:?}", mul_schema);
         let a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys()
             .filter(|&k| k != "_").collect();
+        println!("a schema {:?}", a_schema);
         let b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys()
             .filter(|&k| k != "_").collect();
+        println!("b schema {:?}", b_schema);
 
         let mut res = vec![];
         if mul_schema.len() <= 2 {
             let wc = "_".to_owned();
-            let i = mul_schema.next().unwrap_or(&wc).clone();
-            let j = mul_schema.next().unwrap_or(&wc).clone();
+            let i = mul_schema.get(0).unwrap_or(&wc).clone();
+            let j = mul_schema.get(1).unwrap_or(&wc).clone();
             let ai = if let None = a_schema.get(&i) { &wc } else { &i };
             let aj = if let None = a_schema.get(&j) { &wc } else { &j };
             let bi = if let None = b_schema.get(&i) { &wc } else { &i };
@@ -616,6 +622,7 @@ impl Applier<Math, Meta> for RAMul {
                 ).unwrap().apply(egraph, map);
                 res.append(&mut bind_ji);
             } else {
+                println!("WAAA");
                 let i = a_schema.into_iter().next().unwrap_or(&wc).clone();
                 let j = b_schema.into_iter().next().unwrap_or(&wc).clone();
                 let mut mmul_ij = Math::parse_pattern(
