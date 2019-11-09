@@ -139,15 +139,19 @@ impl egg::egraph::Metadata<Math> for Meta {
             .into_iter().flatten().min().copied();
         let nnz = [self.nnz, other.nnz]
             .into_iter().flatten().min().copied();
-        let schema = match (&sparsity, &nnz)  {
-            (Some(f), Some(0)) if *f == 0.0.into() => {
-                    Some(Schema::Schm(HashMap::new()))
-            },
-            _ => {
-                debug_assert_eq!(&self.schema, &other.schema);
-                self.schema.clone()
-            }
-        };
+        debug_assert_eq!(&self.schema, &other.schema);
+        let schema = self.schema.clone();
+        // NOTE perhaps move the special case for 0 to
+        // make(Mul)?
+        // match (&sparsity, &nnz)  {
+        //    (Some(f), Some(0)) if *f == 0.0.into() => {
+        //            Some(Schema::Schm(HashMap::new()))
+        //    },
+        //    _ => {
+        //        debug_assert_eq!(&self.schema, &other.schema);
+        //        self.schema.clone()
+        //    }
+        //};
         Meta {schema, sparsity, nnz}
     }
 
