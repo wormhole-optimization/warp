@@ -122,7 +122,11 @@ digraph {
   }
   subgraph cluster_30 {
     style=dotted
-    30.0[label = "l*"]
+    30.0[label = "b(/)"]
+  }
+  subgraph cluster_31 {
+    style=dotted
+    31.0[label = "udf"]
   }
   1.0 -> 0.0 [lhead = cluster_0, label = 0]
   3.0 -> 2.0 [lhead = cluster_2, label = 0]
@@ -163,6 +167,7 @@ digraph {
   28.0 -> 27.0 [lhead = cluster_27, label = 0]
   29.0 -> 17.0 [lhead = cluster_17, label = 0]
   29.0 -> 28.0 [lhead = cluster_28, label = 1]
-  30.0 -> 1.0 [lhead = cluster_1, label = 0]
-  30.0 -> 29.0 [lhead = cluster_29, label = 1]
+  31.0 -> 30.0 [lhead = cluster_30, label = 0]
+  31.0 -> 1.0 [lhead = cluster_1, label = 1]
+  31.0 -> 29.0 [lhead = cluster_29, label = 2]
 }

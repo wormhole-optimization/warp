@@ -1,6 +1,7 @@
 use crate::{Math, EGraph, Expr};
 use egg::parse::ParsableLanguage;
 use std::collections::HashMap;
+use smallvec::smallvec;
 
 pub static HOP: &str = "29,29;80;LiteralOp 6.14;;0,0,-1,-1,-1;S;D;0,0,0,0;;;";
 
@@ -14,22 +15,24 @@ pub struct Hop {
     nnz: Option<u32>,
 }
 
-fn ops() -> HashMap<&'static str, Math> {
+fn op(s: &str) -> Option<Math> {
     use Math::*;
-    [("r(t)", LTrs),
-     ("b(*)", LMul),
-     ("b(+)", LAdd),
-     ("ba(+*)", MMul),
-     ("ua(+R)", Srow),
-     ("ua(+C)", Scol),
-     ("ua(+RC)", Sall),
-    ].iter().cloned().collect()
+    match s {
+        "r(t)" => Some(LTrs),
+        "b(*)" => Some(LMul),
+        "b(+)" => Some(LAdd),
+        "ba(+*)" => Some(MMul),
+        "ua(+R)" => Some(Srow),
+        "ua(+C)" => Some(Scol),
+        "ua(+RC)" => Some(Sall),
+        _ => None,
+    }
 }
 
 fn get_lit(s: &str) -> Option<Math> {
     if s.starts_with("LiteralOp") {
-        let n: i32 = s.split_whitespace().nth(1).unwrap().parse().unwrap();
-        Some(Math::Num(n))
+        let n: f64 = s.split_whitespace().nth(1).unwrap().parse().unwrap();
+        Some(Math::Num(n.into()))
     } else {
         None
     }
@@ -44,13 +47,18 @@ fn get_var(s: &str) -> Option<Math> {
     }
 }
 
+fn get_udf(s: &str) -> Option<Math> {
+    Some(Math::Str(s.to_owned()))
+}
+
 pub fn parse_hop(s: &str) -> Hop {
     let hop: Vec<_> = s.split(";").collect();
     let id: u32 = hop[1].parse().unwrap();
     let op_s = hop[2];
-    let op = ops().get(op_s).cloned()
+    let op = op(op_s)
         .or(get_var(op_s))
         .or(get_lit(op_s))
+        .or(get_udf(op_s))
         .unwrap();
     let children: Vec<u32> = hop[3].split(",").filter_map(|s| s.parse().ok()).collect();
 
@@ -81,11 +89,22 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
                 root = lit;
             },
             Str(x) => {
-                let m = format!("(lmat {x} {i} {j} {z})", x=x, i=hop.row, j=hop.col, z=hop.nnz.unwrap());
-                let exp = Math::parse_expr(&m).unwrap();
-                let mat = egraph.add_expr(&exp);
-                id_map.insert(hop.id, mat);
-                root = mat;
+                let args = hop.children;
+                if args.is_empty() {
+                    let m = format!("(lmat {x} {i} {j} {z})", x=x, i=hop.row, j=hop.col, z=hop.nnz.unwrap());
+                    let exp = Math::parse_expr(&m).unwrap();
+                    let mat = egraph.add_expr(&exp);
+                    id_map.insert(hop.id, mat);
+                    root = mat;
+                } else {
+                    let op_s = egraph.add(Expr::new(Str(x), smallvec![]));
+                    let mut children  = smallvec![op_s.id];
+                    children.extend(args.iter().map(|c| id_map[c]));
+                    let udf = egraph.add(Expr::new(Udf, children)).id;
+                    id_map.insert(hop.id, udf);
+                    root = udf;
+                }
+
             }
             op => {
                 let children: Vec<_> = hop.children.iter().map(|c| id_map[c]).collect();

@@ -7,7 +7,6 @@ use egg::{
 };
 
 use std::collections::{HashSet, HashMap};
-use std::i32;
 use std::hash::Hash;
 use std::cmp::min;
 use std::iter::*;
@@ -25,7 +24,7 @@ pub use extract::*;
 
 pub type EGraph = egg::egraph::EGraph<Math, Meta>;
 
-type Number = i32;
+type Number = NotNan<f64>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Meta {
@@ -49,6 +48,38 @@ fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
             rw.run(egraph);
         }
         egraph.rebuild();
+    }
+}
+
+pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
+    match op {
+        "b(/)" => {
+            let x = &children[0];
+            let x_schema = &children[0].schema.as_ref().unwrap();
+            let y = &children[1];
+            let y_schema = &children[1].schema.as_ref().unwrap();
+
+            let (x_i, x_j) = x_schema.get_mat();
+            let (y_i, y_j) = y_schema.get_mat();
+            dims_ok(*x_i, *x_j, *y_i, *y_j);
+            let row = if *x_i == 1 { y_i } else { x_i };
+            let col = if *x_j == 1 { y_j } else { x_j };
+
+            let sparsity = min(x.sparsity, y.sparsity);
+
+            let nnz = sparsity.map(|sp| {
+                let vol: usize = *row * *col;
+                let nnz = NotNan::from(vol as f64) * sp;
+                nnz.round() as usize
+            });
+
+            Meta {
+                schema: Some(Schema::Mat(*row, *col)),
+                nnz,
+                sparsity
+            }
+        },
+        _ => panic!("Unknown udf {}", op)
     }
 }
 
@@ -325,9 +356,9 @@ impl egg::egraph::Metadata<Math> for Meta {
             },
             Num(n) => {
                 Meta {
-                    schema: Some(Schema::Size(n as usize)),
-                    nnz: Some(if n == 0 { 0 } else { 1 }),
-                    sparsity: Some(if n == 0 {0.0.into()} else {1.0.into()})
+                    schema: Some(Schema::Size(n.into_inner().round() as usize)),
+                    nnz: Some(if n == 0.0.into() { 0 } else { 1 }),
+                    sparsity: Some(if n == 0.0.into() {0.0.into()} else {1.0.into()})
                 }
             },
             Nnz => {
@@ -346,6 +377,11 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
             },
             // Schema rules for LA plans
+            Udf => {
+                let op_s = expr_schema(&expr, 0).get_name();
+                let args = &expr.children[1..];
+                udf_meta(op_s, args)
+            },
             LMat => {
                 debug_assert_eq!(expr.children.len(), 4, "wrong length in lmat");
                 let row = expr_schema(&expr, 1).get_size();
@@ -510,6 +546,7 @@ define_term! {
         LMul = "l*", MMul = "m*", LTrs = "trans",
         Srow = "srow", Scol = "scol", Sall = "sall",
         Bind = "b+", Ubnd = "b-", LLit = "llit",
+        Udf = "udf",
         // RA
         Add = "+", Mul = "*", Agg = "sum", RMMul = "rm*",
         Lit = "lit", Var = "var", Mat = "mat",
@@ -524,7 +561,7 @@ impl Language for Math {
         let cost = match self {
             LMat | LAdd | LMin | LMul |
             MMul | LTrs | Srow | Scol |
-            Sall | LLit |
+            Sall | LLit | Udf |
             Num(_) | Str(_)=> 1,
             _ => 100
         };

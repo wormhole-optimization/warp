@@ -1,4 +1,4 @@
-use crate::{EGraph, Math};
+use crate::{EGraph, Math, udf_meta};
 
 use egg::expr::{Expr, Id, RecExpr};
 
@@ -96,7 +96,7 @@ pub fn extract(egraph: EGraph,
             if let Some(&v) = var_bns.get_by_right(&var_name) {
                 selected.insert(v);
             } else {
-                if let Some(&v) = var_bqs.get_by_right(&var_name) {
+                if let Some(&_v) = var_bqs.get_by_right(&var_name) {
                     //println!("{:?}", v)
                 }
             }
@@ -188,6 +188,15 @@ pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
                 std::cmp::min(nnz, vol / len)
             }
         },
+        Math::Udf => {
+            let op = expr.children[0];
+            let op_s = egraph[op].metadata.schema.as_ref().unwrap().get_name();
+            let children_id = &expr.children[1..];
+            let children_metas:Vec<_> = children_id.into_iter().map(|c| &egraph[*c].metadata).collect();
+            let meta = udf_meta(op_s, &children_metas);
+            meta.nnz.unwrap_or(0)
+        },
+        // TODO mmul
         _ => 0
     }
 }
