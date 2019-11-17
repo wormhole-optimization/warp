@@ -116,3 +116,74 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
     }
     root
 }
+
+pub fn print_dag(egraph: &EGraph) {
+    use Math::*;
+    for c in egraph.classes() {
+        let id = &c.id;
+        for e in &c.nodes {
+            let op = &e.op;
+            match op {
+                Str(_) | Num(_) => {},
+                Udf => {
+                    print!("0,0;{id};", id=id);
+                    let f = e.children[0];
+                    for e in &egraph[f].nodes {
+                        print!("{};", e.op);
+                    }
+                    for c in &e.children {
+                        print!("{},",c);
+                    }
+                    println!(";;M;D;;;;;")
+                },
+                LMat => {
+                    print!("0,0;{id};TRead ", id=id);
+                    let x = e.children[0];
+                    for e in &egraph[x].nodes {
+                        print!("{}", e.op);
+                    }
+                    println!(";;;M;D;;;;;")
+                },
+                LLit => {
+                    print!("0,0;{id};LiteralOp ", id=id);
+                    for c in &e.children {
+                        for e in &egraph[*c].nodes {
+                            print!("{}", e.op);
+                        }
+                    }
+                    println!(";;;M;D;;;;;");
+                },
+                Var => {
+                    println!("var");
+                },
+                op => {
+                    print!("0,0;{id};{op};", id=id, op=dml_op(op));
+                    for c in &e.children {
+                        print!("{},",c);
+                    }
+                    println!(";;M;D;;;;;");
+                }
+            }
+        }
+    }
+}
+
+fn dml_op(op: &Math) -> &'static str {
+    use Math::*;
+    match op {
+        LAdd => "b(+)",
+        LMin => "b(-)",
+        LMul => "b(*)",
+        MMul => "ba(+*)",
+        LTrs => "r(t)",
+        Srow => "ua(+R)",
+        Scol => "ua(+C)",
+        Sall => "ua(+RC)",
+        _ => panic!("unknown op")
+    }
+}
+
+// 29,29;86;TRead B;;500000,10,1000,1000,5000000;M;D;0,0,38,-;;;
+
+// 29,29;80;LiteralOp 6.14;;0,0,-1,-1,-1;S;D;0,0,0,0;;;
+// LMat = "lmat", LLit = "llit", Udf = "udf", Var = "var"

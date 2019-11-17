@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost, optimize};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost, optimize, print_dag};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -59,6 +59,9 @@ fn opt() {
 
     let sol_s = sol.pretty(80);
     println!("{}", sol_s);
+    let mut egraph = EGraph::default();
+    egraph.add_expr(&sol);
+    print_dag(&egraph);
 }
 
 #[test]
