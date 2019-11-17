@@ -131,7 +131,7 @@ pub fn print_dag(egraph: &EGraph) {
                     for e in &egraph[f].nodes {
                         print!("{};", e.op);
                     }
-                    for c in &e.children {
+                    for c in &e.children[1..] {
                         print!("{},",c);
                     }
                     println!(";;M;D;;;;;")
@@ -157,7 +157,6 @@ pub fn print_dag(egraph: &EGraph) {
                     println!("var");
                 },
                 op => {
-                    print!("0,0;{id};{op};", id=id, op=dml_op(op));
                     for c in &e.children {
                         print!("{},",c);
                     }
