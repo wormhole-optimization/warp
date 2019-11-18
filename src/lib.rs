@@ -3,7 +3,6 @@ use egg::{
     egraph::EClass,
     expr::{Expr, RecExpr, Language},
     pattern::Rewrite,
-    extract::Extractor,
 };
 
 use std::collections::{HashSet, HashMap};
@@ -12,6 +11,9 @@ use std::cmp::min;
 use std::iter::*;
 
 use ordered_float::NotNan;
+
+mod translate;
+pub use translate::Extractor;
 
 mod hop;
 pub use hop::*;
@@ -103,7 +105,7 @@ pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
     // Translate RA plan to LA
     let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
     saturate(&mut untrans_graph, &untrans_rules(), 50);
-    let ext = Extractor::new(&untrans_graph);
+    let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
     let best = ext.find_best(root);
     println!("{:?}", best.cost);
     best.expr
