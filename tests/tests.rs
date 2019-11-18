@@ -216,6 +216,7 @@ fn test_extract() {
     println!("input: {:?}", start);
     let start_expr = Math::parse_expr(start).unwrap();
     let (mut egraph, root) = EGraph::from_expr(&start_expr);
+    println!("root {:?}", root);
 
     let rules = rules();
     for _i in 1..50 {

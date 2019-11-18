@@ -91,12 +91,14 @@ pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
     // Translate LA plan to RA
     let (mut trans_graph, root) = (lgraph, root);
     saturate(&mut trans_graph, &trans_rules(), 20);
-    let rplan = extract(trans_graph, &[root], trans_cost);
+    let trans_ext = Extractor::new(&trans_graph, trans_model);
+    let rplan = trans_ext.find_best(root);
 
-    println!("{}", rplan[0].pretty(80));
+    println!("{}", rplan.expr.pretty(80));
     println!("Optimize RA plan");
     // Optimize RA plan
-    let (mut opt_graph, root) = EGraph::from_expr(&rplan[0]);
+    let (mut opt_graph, root) = EGraph::from_expr(&rplan.expr);
+    println!("ROOT {:?}", root);
     saturate(&mut opt_graph, &rules(), 3);
     let best = extract(opt_graph, &[root], cost);
     println!("{}", best[0].pretty(80));
@@ -569,4 +571,16 @@ impl Language for Math {
         };
         cost + children.iter().sum::<u64>()
     }
+}
+
+fn trans_model(op: &Math, children: &[u64]) -> u64 {
+    use Math::*;
+    let cost = match op {
+        LMat | LAdd | LMin | LMul |
+        MMul | LTrs | Srow | Scol |
+        Sall | Bind | Ubnd | LLit |
+        Sub => 100,
+        _ => 1
+    };
+    cost + children.iter().sum::<u64>()
 }

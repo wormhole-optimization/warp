@@ -581,15 +581,11 @@ impl Applier<Math, Meta> for RAMul {
         let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
         egraph.rebuild();
         let mul_meta = &egraph[mul.id].metadata;
-        println!("meta {:?}", mul_meta);
         let mul_schema: Vec<String> = egraph[mul.id].metadata.schema.as_ref().unwrap().get_schm().keys().cloned().collect();
-        println!("mul schema {:?}", mul_schema);
         let a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys()
             .filter(|&k| k != "_").collect();
-        println!("a schema {:?}", a_schema);
         let b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys()
             .filter(|&k| k != "_").collect();
-        println!("b schema {:?}", b_schema);
 
         let mut res = vec![];
         if mul_schema.len() <= 2 {
@@ -606,7 +602,6 @@ impl Applier<Math, Meta> for RAMul {
                     "(b+ {i} {j} (l* (b- {ai} {aj} ?a) (b- {bi} {bj} ?b)))",
                     i=&i, j=&j, ai=&ai, aj=&aj, bi=&bi, bj=&bj
                 );
-                println!("bijJJJ {:?}", &bij);
                 let mut bind_ij = Math::parse_pattern(
                     &bij
                 ).unwrap().apply(egraph, map);
@@ -616,13 +611,11 @@ impl Applier<Math, Meta> for RAMul {
                     "(b+ {j} {i} (l* (b- {aj} {ai} ?a) (b- {bj} {bi} ?b)))",
                     i=&i, j=&j, ai=&ai, aj=&aj, bi=&bi, bj=&bj
                 );
-                println!("bjiIIII {:?}", &bji);
                 let mut bind_ji = Math::parse_pattern(
                     &bji
                 ).unwrap().apply(egraph, map);
                 res.append(&mut bind_ji);
             } else {
-                println!("WAAA");
                 let i = a_schema.into_iter().next().unwrap_or(&wc).clone();
                 let j = b_schema.into_iter().next().unwrap_or(&wc).clone();
                 let mut mmul_ij = Math::parse_pattern(
