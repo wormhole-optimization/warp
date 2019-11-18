@@ -100,7 +100,7 @@ pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
     let (mut opt_graph, root) = EGraph::from_expr(&rplan.expr);
     println!("ROOT {:?}", root);
     saturate(&mut opt_graph, &rules(), 3);
-    let best = extract(opt_graph, &[root], cost);
+    let best = extract(opt_graph, &[root]);
     println!("{}", best[0].pretty(80));
 
     println!("Translate RA plan to LA");

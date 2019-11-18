@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, cost, trans_cost, optimize, print_dag};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, optimize, print_dag};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -225,7 +225,7 @@ fn test_extract() {
         }
     }
 
-    let best = extract(egraph, &[root], cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -249,7 +249,7 @@ fn la_parrot() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root], trans_cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -346,7 +346,7 @@ fn extract_parrot() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root], cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -410,7 +410,7 @@ fn test_translate() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root], trans_cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -536,7 +536,7 @@ fn test_transpose() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root], trans_cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }
@@ -643,7 +643,7 @@ fn als_cg() {
         egraph.rebuild();
     }
 
-    let best = extract(egraph, &[root], cost);
+    let best = extract(egraph, &[root]);
     for e in best {
         println!("{}", e.pretty(80));
     }

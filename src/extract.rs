@@ -15,8 +15,8 @@ use std::{
 };
 
 pub fn extract(egraph: EGraph,
-               roots: &[Id],
-               cost: fn(&EGraph, &Expr<Math, Id>) -> usize)
+               roots: &[Id],)
+               //cost: fn(&EGraph, &Expr<Math, Id>) -> usize)
                -> Vec<RecExpr<Math>>
 {
     let mut problem = LpProblem::new("wormhole", LpObjective::Minimize);
@@ -36,44 +36,26 @@ pub fn extract(egraph: EGraph,
 
                 for e in c.nodes.iter() {
                     // generate variable only if e can be expressed in LA
-                    let mut consider = false;
                     match e.op {
-                        Math::Add => {
+                        Math::Add | Math::Mul if {
                             debug_assert_eq!(e.children.len(), 2);
-                            let x = e.children[0];
-                            let x_schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
-                            let xs: HashSet<_> = x_schema.keys().collect();
-                            let y = e.children[1];
-                            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
-                            let ys: HashSet<_> = y_schema.keys().collect();
-                            let j: HashSet<_> = xs.intersection(&ys).collect();
-                            // TODO fix test for add!!
-                            if !j.is_empty() {
-                                consider = true
-                            }
-                            consider = true
-                        },
-                        Math::Agg => {
-                            debug_assert_eq!(e.children.len(), 2, "wrong length in agg");
-                            let body = e.children[1];
-                            let body_schm = egraph[body].metadata.schema.as_ref().unwrap().get_schm();
-                            if body_schm.len() <= 2 {
-                                consider = true
-                            }
+                            let x_schema = egraph[e.children[0]]
+                                .metadata.schema.as_ref().unwrap().get_schm().clone();
+                            let y_schema = egraph[e.children[1]]
+                                .metadata.schema.as_ref().unwrap().get_schm().clone();
+                            x_schema.len() == 1 && y_schema.len() == 1 && x_schema != y_schema
+                        }
+                        => {
+                            // row vec +/* col vec not allowed in LA
                         },
                         _ => {
-                            consider = true
+                            let mut s = DefaultHasher::new();
+                            e.hash(&mut s);
+                            let bn = "bn".to_owned() + &s.finish().to_string();
+                            var_bns
+                                .insert_no_overwrite(e, bn)
+                                .expect("equal exprs not merged");
                         }
-                    }
-
-                    if consider {
-                        let mut s = DefaultHasher::new();
-                        e.hash(&mut s);
-                        let bn = "bn".to_owned() + &s.finish().to_string();
-
-                        var_bns
-                            .insert_no_overwrite(e, bn)
-                            .expect("equal exprs not merged");
                     }
                 }
             }
@@ -120,8 +102,12 @@ pub fn extract(egraph: EGraph,
                 if let Some(bn) = &var_bns.get_by_left(&node) {
                     let bn = LpBinary::new(bn);
                     for class in node.children.iter() {
-                        let bq = LpBinary::new(&var_bqs.get_by_left(&class).unwrap());
-                        problem += ((1 - &bn) + bq).ge(1);
+                        if let Some(bq) = &var_bqs.get_by_left(&class) {
+                            let bq = LpBinary::new(bq);
+                            problem += ((1 - &bn) + bq).ge(1);
+                        } else {
+                            problem += (0 + &bn).equal(0)
+                        }
                     }
                 }
             }
@@ -173,91 +159,91 @@ fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
         .into()
 }
 
-pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
-    match expr.op {
-        Math::Add => {
-            debug_assert_eq!(expr.children.len(), 2);
-            let x = expr.children[0];
-            let y = expr.children[1];
+//pub fn cost(egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+//    match expr.op {
+//        Math::Add => {
+//            debug_assert_eq!(expr.children.len(), 2);
+//            let x = expr.children[0];
+//            let y = expr.children[1];
+//
+//            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
+//            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
+//
+//            let xs: HashSet<_> = schema.keys().collect();
+//            let ys: HashSet<_> = schema.keys().collect();
+//
+//            let j: HashSet<_> = xs.intersection(&ys).collect();
+//
+//            if j.is_empty() {
+//                10000000
+//            } else {
+//                schema.extend(y_schema);
+//
+//                let x_sparsity = egraph[x].metadata.sparsity.unwrap();
+//                let y_sparsity = egraph[y].metadata.sparsity.unwrap();
+//
+//                let sparsity = std::cmp::min(1.0.into(), x_sparsity + y_sparsity);
+//
+//                let vol: usize = schema.values().product();
+//                let nnz = NotNan::from(vol as f64) * sparsity;
+//                nnz.round() as usize
+//            }
+//        },
+//        Math::Mul => {
+//            debug_assert_eq!(expr.children.len(), 2);
+//            let x = expr.children[0];
+//            let y = expr.children[1];
+//
+//            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
+//            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
+//            schema.extend(y_schema);
+//
+//            let x_sparsity = egraph[x].metadata.sparsity.unwrap();
+//            let y_sparsity = egraph[y].metadata.sparsity.unwrap();
+//
+//            let sparsity = std::cmp::min(x_sparsity, y_sparsity);
+//
+//            let vol: usize = schema.values().product();
+//            let nnz = NotNan::from(vol as f64) * sparsity;
+//            nnz.round() as usize
+//        },
+//        Math::Agg => {
+//            debug_assert_eq!(expr.children.len(), 2, "wrong length in agg");
+//            let i = expr.children[0];
+//            let body = expr.children[1];
+//            let body_schm = egraph[body].metadata.schema.as_ref().unwrap().get_schm();
+//            if body_schm.len() > 2 {
+//                10000000
+//            } else {
+//                let sparsity = egraph[body].metadata.sparsity.unwrap();
+//                let vol: usize = body_schm.values().product();
+//                let len = egraph[i].metadata.schema.as_ref().unwrap().get_dims().1;
+//
+//                // sparsity * vol / (vol / len)
+//                let nnz = (NotNan::from(*len as f64) * sparsity).round() as usize;
+//                std::cmp::min(nnz, vol / len)
+//            }
+//        },
+//        Math::Udf => {
+//            let op = expr.children[0];
+//            let op_s = egraph[op].metadata.schema.as_ref().unwrap().get_name();
+//            let children_id = &expr.children[1..];
+//            let children_metas:Vec<_> = children_id.into_iter().map(|c| &egraph[*c].metadata).collect();
+//            let meta = udf_meta(op_s, &children_metas);
+//            meta.nnz.unwrap_or(0)
+//        },
+//        // TODO mmul
+//        _ => 0
+//    }
+//}
 
-            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
-            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
-
-            let xs: HashSet<_> = schema.keys().collect();
-            let ys: HashSet<_> = schema.keys().collect();
-
-            let j: HashSet<_> = xs.intersection(&ys).collect();
-
-            if j.is_empty() {
-                10000000
-            } else {
-                schema.extend(y_schema);
-
-                let x_sparsity = egraph[x].metadata.sparsity.unwrap();
-                let y_sparsity = egraph[y].metadata.sparsity.unwrap();
-
-                let sparsity = std::cmp::min(1.0.into(), x_sparsity + y_sparsity);
-
-                let vol: usize = schema.values().product();
-                let nnz = NotNan::from(vol as f64) * sparsity;
-                nnz.round() as usize
-            }
-        },
-        Math::Mul => {
-            debug_assert_eq!(expr.children.len(), 2);
-            let x = expr.children[0];
-            let y = expr.children[1];
-
-            let mut schema = egraph[x].metadata.schema.as_ref().unwrap().get_schm().clone();
-            let y_schema = egraph[y].metadata.schema.as_ref().unwrap().get_schm().clone();
-            schema.extend(y_schema);
-
-            let x_sparsity = egraph[x].metadata.sparsity.unwrap();
-            let y_sparsity = egraph[y].metadata.sparsity.unwrap();
-
-            let sparsity = std::cmp::min(x_sparsity, y_sparsity);
-
-            let vol: usize = schema.values().product();
-            let nnz = NotNan::from(vol as f64) * sparsity;
-            nnz.round() as usize
-        },
-        Math::Agg => {
-            debug_assert_eq!(expr.children.len(), 2, "wrong length in agg");
-            let i = expr.children[0];
-            let body = expr.children[1];
-            let body_schm = egraph[body].metadata.schema.as_ref().unwrap().get_schm();
-            if body_schm.len() > 2 {
-                10000000
-            } else {
-                let sparsity = egraph[body].metadata.sparsity.unwrap();
-                let vol: usize = body_schm.values().product();
-                let len = egraph[i].metadata.schema.as_ref().unwrap().get_dims().1;
-
-                // sparsity * vol / (vol / len)
-                let nnz = (NotNan::from(*len as f64) * sparsity).round() as usize;
-                std::cmp::min(nnz, vol / len)
-            }
-        },
-        Math::Udf => {
-            let op = expr.children[0];
-            let op_s = egraph[op].metadata.schema.as_ref().unwrap().get_name();
-            let children_id = &expr.children[1..];
-            let children_metas:Vec<_> = children_id.into_iter().map(|c| &egraph[*c].metadata).collect();
-            let meta = udf_meta(op_s, &children_metas);
-            meta.nnz.unwrap_or(0)
-        },
-        // TODO mmul
-        _ => 0
-    }
-}
-
-pub fn trans_cost(_egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
-    use Math::*;
-    match expr.op {
-        LMat | LAdd | LMin | LMul |
-        MMul | LTrs | Srow | Scol |
-        Sall | Bind | Ubnd | LLit |
-        Sub => 1,
-        _ => 0
-    }
-}
+//pub fn trans_cost(_egraph: &EGraph, expr: &Expr<Math, Id>) -> usize {
+//    use Math::*;
+//    match expr.op {
+//        LMat | LAdd | LMin | LMul |
+//        MMul | LTrs | Srow | Scol |
+//        Sall | Bind | Ubnd | LLit |
+//        Sub => 1,
+//        _ => 0
+//    }
+//}
