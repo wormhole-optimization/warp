@@ -4,9 +4,9 @@ use egg::{
 };
 
 use indexmap::IndexMap;
-use log::*;
+use std::cmp::Ordering;
 
-pub type Cost = u64;
+pub type Cost = f64;
 
 pub struct CostExpr<L: Language> {
     pub cost: Cost,
@@ -17,6 +17,16 @@ pub struct Extractor<'a, L: Language, M> {
     costs: IndexMap<Id, Cost>,
     egraph: &'a EGraph<L, M>,
     model: fn(&L, &[Cost]) -> Cost,
+}
+
+fn cmp(a: &Option<Cost>, b: &Option<Cost>) -> Ordering {
+    // None is high
+    match (a, b) {
+        (None, None) => Ordering::Equal,
+        (None, Some(_)) => Ordering::Greater,
+        (Some(_), None) => Ordering::Less,
+        (Some(a), Some(b)) => a.partial_cmp(&b).unwrap(),
+    }
 }
 
 impl<'a, L: Language, M> Extractor<'a, L, M> {
@@ -48,7 +58,11 @@ impl<'a, L: Language, M> Extractor<'a, L, M> {
         let best_node = self.egraph[eclass]
             .iter()
             .filter(|n| self.node_total_cost(n).is_some())
-            .min_by_key(|n| self.node_total_cost(n))
+            .min_by(|a, b| {
+                let a = self.node_total_cost(a);
+                let b = self.node_total_cost(b);
+                cmp(&a, &b)
+            })
             .expect("eclass shouldn't be empty");
 
         best_node
@@ -86,6 +100,6 @@ impl<'a, L: Language, M> Extractor<'a, L, M> {
     }
 
     fn make_pass(&self, eclass: &EClass<L, M>) -> Option<Cost> {
-        eclass.iter().filter_map(|n| self.node_total_cost(n)).min()
+        eclass.iter().map(|n| self.node_total_cost(n)).min_by(cmp).unwrap()
     }
 }

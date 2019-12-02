@@ -560,27 +560,27 @@ define_term! {
 }
 
 impl Language for Math {
-    fn cost(&self, children: &[u64]) -> u64 {
+    fn cost(&self, children: &[f64]) -> f64 {
         use Math::*;
         let cost = match self {
             LMat | LAdd | LMin | LMul |
             MMul | LTrs | Srow | Scol |
             Sall | LLit | Udf |
-            Num(_) | Str(_)=> 1,
-            _ => 100
+            Num(_) | Str(_)=> 1.0,
+            _ => 100.0
         };
-        cost + children.iter().sum::<u64>()
+        cost + children.iter().sum::<f64>()
     }
 }
 
-fn trans_model(op: &Math, children: &[u64]) -> u64 {
+fn trans_model(op: &Math, children: &[f64]) -> f64 {
     use Math::*;
     let cost = match op {
         LMat | LAdd | LMin | LMul |
         MMul | LTrs | Srow | Scol |
         Sall | Bind | Ubnd | LLit |
-        Sub => 100,
-        _ => 1
+        Sub => 100.0,
+        _ => 1.0
     };
-    cost + children.iter().sum::<u64>()
+    cost + children.iter().sum::<f64>()
 }

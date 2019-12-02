@@ -65,6 +65,7 @@ pub fn extract(egraph: EGraph,
     // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
         var_bqs.iter().map(|(c, var)| {
+            // NOTE careful here with 1000
             let coef = egraph[*c].metadata.nnz.unwrap_or(1000);
             let bq = LpBinary::new(&var);
             coef as f32 * &bq
