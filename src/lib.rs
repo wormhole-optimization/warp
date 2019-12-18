@@ -81,6 +81,10 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 sparsity
             }
         },
+        // NOTE nnz here can be wrong
+        "b(>)" | "b(>=)" | "b(<)" | "b(<=)" => {
+            children[0].clone()
+        },
         _ => panic!("Unknown udf {}", op)
     }
 }
