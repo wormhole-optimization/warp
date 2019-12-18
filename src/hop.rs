@@ -12,7 +12,7 @@ pub struct Hop {
     children: Vec<u32>,
     row: u32,
     col: u32,
-    nnz: Option<u32>,
+    nnz: Option<i32>,
 }
 
 fn op(s: &str) -> Option<Math> {
@@ -72,12 +72,15 @@ pub fn parse_hop(s: &str) -> Hop {
         .unwrap();
     let children: Vec<u32> = hop[3].split(",").filter_map(|s| s.parse().ok()).collect();
 
-    let meta: Vec<Option<u32>> = hop[4].split(",").map(|s| s.parse().ok()).collect();
-    let mut row = meta[0].unwrap_or(0);
+    let meta: Vec<Option<i32>> = hop[4].split(",").map(|s| s.parse().ok()).collect();
+    let mut row = meta[0].unwrap_or(0) as u32;
     if row == 0 { row = 1 };
-    let mut col = meta[1].unwrap_or(0);
+    let mut col = meta[1].unwrap_or(0) as u32;
     if col == 0 { col = 1 };
-    let nnz = meta[4];
+    let mut nnz = meta[4];
+    if let Some(-1) = nnz {
+        nnz = Some(row as i32 * col as i32)
+    }
 
     Hop{id, op, children, row, col, nnz}
 }
