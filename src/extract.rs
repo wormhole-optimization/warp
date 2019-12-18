@@ -1,11 +1,10 @@
-use crate::{EGraph, Math, udf_meta, Schema};
+use crate::{EGraph, Math, Schema};
 
 use egg::expr::{Expr, Id, RecExpr};
 
 use lp_modeler::solvers::{GurobiSolver, SolverTrait};
 use lp_modeler::dsl::*;
 
-use ordered_float::NotNan;
 use bimap::BiMap;
 
 use std::{
@@ -118,8 +117,7 @@ pub fn extract(egraph: EGraph,
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
 
-    let (solver_status, var_values) = result.unwrap();
-    println!("{:?}", solver_status);
+    let (_solver_status, var_values) = result.unwrap();
 
     // Lookup selected nodes and classes
     let mut selected = HashSet::new();
@@ -136,11 +134,6 @@ pub fn extract(egraph: EGraph,
             }
         }
     }
-
-    println!("SELECT {:?}", selected);
-
-    //println!("{:?}", selected);
-
     roots.iter().map(|root| find_expr(&egraph, *root, &selected)).collect()
 }
 
@@ -150,10 +143,6 @@ fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) ->
         .iter()
         .find(|n| selected.contains(n))
         .expect(&format!("no node selected in class {}", class));
-
-    println!("heya");
-    //println!("{:?}", (class, best_node.clone()));
-
     best_node
         .clone()
         .map_children(|child| find_expr(egraph, child, selected))

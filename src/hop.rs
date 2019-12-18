@@ -82,11 +82,11 @@ pub fn parse_hop(s: &str) -> Hop {
     Hop{id, op, children, row, col, nnz}
 }
 
-pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
+pub fn load_dag(egraph: &mut EGraph, s: &str) -> Vec<u32> {
     use Math::*;
     let mut id_map = HashMap::new();
     let hops = s.lines();
-    let mut root = 0;
+    let mut roots = vec![];
     for h in hops {
         let hop = parse_hop(h);
         // TODO special case for literal, string
@@ -96,7 +96,6 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
                 let exp = Math::parse_expr(&s).unwrap();
                 let lit = egraph.add_expr(&exp);
                 id_map.insert(hop.id, lit);
-                root = lit;
             },
             Str(x) => {
                 let args = hop.children;
@@ -105,25 +104,25 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
                     let exp = Math::parse_expr(&m).unwrap();
                     let mat = egraph.add_expr(&exp);
                     id_map.insert(hop.id, mat);
-                    root = mat;
                 } else {
                     let op_s = egraph.add(Expr::new(Str(x), smallvec![]));
                     let mut children  = smallvec![op_s.id];
                     children.extend(args.iter().map(|c| id_map[c]));
                     let udf = egraph.add(Expr::new(Udf, children)).id;
                     id_map.insert(hop.id, udf);
-                    root = udf;
                 }
-            }
+            },
             op => {
                 let children: Vec<_> = hop.children.iter().map(|c| id_map[c]).collect();
-                let id = egraph.add(Expr::new(op, children.into())).id;
+                let id = egraph.add(Expr::new(op.clone(), children.into())).id;
+                if let TWrite(_) = op {
+                    roots.push(id);
+                }
                 id_map.insert(hop.id, id);
-                root = id;
             }
         }
     }
-    root
+    roots
 }
 
 pub fn print_dag(egraph: &EGraph) {

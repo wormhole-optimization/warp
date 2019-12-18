@@ -89,32 +89,35 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
     }
 }
 
-pub fn optimize(lgraph: EGraph, root: u32) -> RecExpr<Math> {
+pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
 
-    println!("Translate LA plan to RA");
     // Translate LA plan to RA
-    let (mut trans_graph, root) = (lgraph, root);
+    println!("Translate LA plan to RA");
+    let (mut trans_graph, roots) = (lgraph, roots);
     saturate(&mut trans_graph, &trans_rules(), 20);
     let trans_ext = Extractor::new(&trans_graph, trans_model);
-    let rplan = trans_ext.find_best(root);
-
-    println!("{}", rplan.expr.pretty(80));
-    println!("Optimize RA plan");
+    let rplans: Vec<_> = roots.iter().map(|r| trans_ext.find_best(*r).expr).collect();
+    for rp in rplans.iter() {
+        println!("{}", rp.pretty(80));
+    }
     // Optimize RA plan
-    let (mut opt_graph, root) = EGraph::from_expr(&rplan.expr);
-    println!("ROOT {:?}", root);
+    println!("Optimize RA plan");
+    let mut opt_graph = EGraph::default();
+    let opt_roots: Vec<_> = rplans.iter().map(|rp| opt_graph.add_expr(rp)).collect();
+    println!("ROOT {:?}", opt_roots);
     saturate(&mut opt_graph, &rules(), 3);
-    let best = extract(opt_graph, &[root]);
-    println!("{}", best[0].pretty(80));
-
-    println!("Translate RA plan to LA");
+    let best = extract(opt_graph, &opt_roots);
+    for e in best.iter() {
+        println!("{}", e.pretty(80));
+    }
     // Translate RA plan to LA
-    let (mut untrans_graph, root) = EGraph::from_expr(&best[0]);
+    println!("Translate RA plan to LA");
+    let mut untrans_graph = EGraph::default();
+    let untrans_roots: Vec<_> = best.iter().map(|p| untrans_graph.add_expr(p)).collect();
     saturate(&mut untrans_graph, &untrans_rules(), 50);
     let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
-    let best = ext.find_best(root);
-    println!("{:?}", best.cost);
-    best.expr
+    let bests = untrans_roots.iter().map(|r| ext.find_best(*r).expr).collect();
+    bests
 }
 
 impl Schema {

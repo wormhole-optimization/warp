@@ -57,10 +57,14 @@ fn opt() {
     let root = load_dag(&mut egraph, &contents);
     let sol = optimize(egraph, root);
 
-    let sol_s = sol.pretty(80);
-    println!("{}", sol_s);
+    for s in sol.iter() {
+        let sol_s = s.pretty(80);
+        println!("{}", sol_s);
+    }
     let mut egraph = EGraph::default();
-    egraph.add_expr(&sol);
+    for s in sol.iter() {
+        egraph.add_expr(&s);
+    }
     print_dag(&egraph);
 }
 
