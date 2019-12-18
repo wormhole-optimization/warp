@@ -693,44 +693,6 @@ impl Applier<Math, Meta> for RARMMul {
     }
 }
 
-//#[derive(Debug)]
-//struct RAMMul;
-//
-//impl Applier<Math, Meta> for RAMMul {
-//    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
-//        let a = map[&"?a".parse().unwrap()][0];
-//        let b = map[&"?b".parse().unwrap()][0];
-//        let j = map[&"?j".parse().unwrap()][0];
-//        let mul = egraph.add(Expr::new(Math::Mul, smallvec![a, b]));
-//        let sum = egraph.add(Expr::new(Math::Agg, smallvec![j, mul.id]));
-//        let j_schema = egraph[j].metadata.schema.as_ref().unwrap().get_dims().0.clone();
-//        let sum_schema = egraph[sum.id].metadata.schema.as_ref().unwrap().get_schm().keys();
-//        let mut a_schema: HashSet<_> = egraph[a].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
-//        let mut b_schema: HashSet<_> = egraph[b].metadata.schema.as_ref().unwrap().get_schm().keys().collect();
-//
-//        let mut res = vec![];
-//        if sum_schema.len() <= 2 {
-//            a_schema.remove(&j_schema);
-//            b_schema.remove(&j_schema);
-//            let wc = "_".to_owned();
-//            let i = a_schema.into_iter().next().unwrap_or(&wc).clone();
-//            let k = b_schema.into_iter().next().unwrap_or(&wc).clone();
-//
-//            let mut bind_ik = Math::parse_pattern(
-//                &format!("(b+ {i} {k} (m* (b- {i} {j} ?a) (b- {j} {k} ?b)))", i=&i, j=&j_schema, k=&k)
-//            ).unwrap().apply(egraph, map);
-//            res.append(&mut bind_ik);
-//
-//            let mut res = vec![];
-//            let mut bind_ik = Math::parse_pattern(
-//                &format!("(b+ {k} {i} (m* (b- {k} {j} ?b) (b- {j} {i} ?a)))", i=&i, j=&j, k=&k)
-//            ).unwrap().apply(egraph, map);
-//            res.append(&mut bind_ik);
-//        }
-//        res
-//    }
-//}
-
 #[derive(Debug)]
 struct RASum;
 
