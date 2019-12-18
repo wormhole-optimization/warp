@@ -47,6 +47,15 @@ fn get_var(s: &str) -> Option<Math> {
     }
 }
 
+fn get_write(s: &str) -> Option<Math> {
+    if s.starts_with("TWrite") {
+        let v = s.split_whitespace().nth(1).unwrap();
+        Some(Math::TWrite(v.to_owned()))
+    } else {
+        None
+    }
+}
+
 fn get_udf(s: &str) -> Option<Math> {
     Some(Math::Str(s.to_owned()))
 }
@@ -56,6 +65,7 @@ pub fn parse_hop(s: &str) -> Hop {
     let id: u32 = hop[1].parse().unwrap();
     let op_s = hop[2];
     let op = op(op_s)
+        .or(get_write(op_s))
         .or(get_var(op_s))
         .or(get_lit(op_s))
         .or(get_udf(op_s))
@@ -104,7 +114,6 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> u32 {
                     id_map.insert(hop.id, udf);
                     root = udf;
                 }
-
             }
             op => {
                 let children: Vec<_> = hop.children.iter().map(|c| id_map[c]).collect();
@@ -152,6 +161,13 @@ pub fn print_dag(egraph: &EGraph) {
                         }
                     }
                     println!(";;;M;D;;;;;");
+                },
+                TWrite(s) => {
+                    print!("0,0;{id};TWrite {var};", id=id, var=s);
+                    for c in &e.children {
+                        print!("{},",c);
+                    }
+                    println!(";;M;D;;;;;")
                 },
                 Var => {
                     println!("var");

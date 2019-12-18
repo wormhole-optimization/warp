@@ -523,7 +523,12 @@ impl egg::egraph::Metadata<Math> for Meta {
                     nnz: None,
                     sparsity: None
                 }
-            }
+            },
+            TWrite(_) => Meta {
+                schema: None,
+                nnz: None,
+                sparsity: None,
+            },
         };
         schema
     }
@@ -560,9 +565,13 @@ define_term! {
         Lit = "lit", Var = "var", Mat = "mat",
         Dim = "dim", Nnz = "nnz", Sub = "subst",
         Num(Number), Str(String),
+        // NOTE careful here, TWrite might be parsed as Str
+        TWrite(String),
     }
 }
 
+// Cost to translate to LA
+// TODO twrite?
 impl Language for Math {
     fn cost(&self, children: &[f64]) -> f64 {
         use Math::*;
@@ -577,6 +586,8 @@ impl Language for Math {
     }
 }
 
+// Cost to translation to RA
+// TODO twrite?
 fn trans_model(op: &Math, children: &[f64]) -> f64 {
     use Math::*;
     let cost = match op {
