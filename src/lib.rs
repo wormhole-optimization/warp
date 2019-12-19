@@ -82,7 +82,7 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
             }
         },
         // NOTE nnz here can be wrong
-        "b(>)" | "b(>=)" | "b(<)" | "b(<=)" => {
+        "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" | "u(exp)" | "u(log)"=> {
             children[0].clone()
         },
         _ => panic!("Unknown udf {}", op)
