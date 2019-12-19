@@ -21,6 +21,7 @@ fn op(s: &str) -> Option<Math> {
         "r(t)" => Some(LTrs),
         "b(*)" => Some(LMul),
         "b(+)" => Some(LAdd),
+        "b(-)" => Some(LMin),
         "ba(+*)" => Some(MMul),
         "ua(+R)" => Some(Srow),
         "ua(+C)" => Some(Scol),
@@ -197,7 +198,7 @@ fn dml_op(op: &Math) -> &'static str {
         Srow => "ua(+R)",
         Scol => "ua(+C)",
         Sall => "ua(+RC)",
-        _ => panic!("unknown op")
+        o => panic!("unknown op {:?}", o)
     }
 }
 

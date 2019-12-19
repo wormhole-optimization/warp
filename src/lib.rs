@@ -81,32 +81,6 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 sparsity
             }
         },
-        "b(-)" => {
-            let x = &children[0];
-            let x_schema = &children[0].schema.as_ref().unwrap();
-            let y = &children[1];
-            let y_schema = &children[1].schema.as_ref().unwrap();
-
-            let (x_i, x_j) = x_schema.get_mat();
-            let (y_i, y_j) = y_schema.get_mat();
-            dims_ok(*x_i, *x_j, *y_i, *y_j);
-            let row = if *x_i == 1 { y_i } else { x_i };
-            let col = if *x_j == 1 { y_j } else { x_j };
-
-            let sparsity = x.sparsity.and_then(|xs| y.sparsity.map(|ys| min(1.0.into(), xs + ys)));
-
-            let nnz = sparsity.map(|sp| {
-                let vol: usize = *row * *col;
-                let nnz = NotNan::from(vol as f64) * sp;
-                nnz.round() as usize
-            });
-
-            Meta {
-                schema: Some(Schema::Mat(*row, *col)),
-                nnz,
-                sparsity
-            }
-        },
         // NOTE nnz here can be wrong
         "b(>)" | "b(>=)" | "b(<)" | "b(<=)" => {
             children[0].clone()

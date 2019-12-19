@@ -28,8 +28,9 @@ fn drw(name: &str, l: &str, r: impl Applier<Math, Meta> + 'static) -> Rewrite<Ma
 #[rustfmt::skip]
 pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
-        rw("ra-minus", "(l+ ?a (l* (lit -1) ?b))" ,"(l- ?a ?b)"),
+        rw("ra-minus", "(l+ ?a (l* (llit -1) ?b))" ,"(l- ?a ?b)"),
         rw("ra-elim-bind0", "(b- ?i ?j (b+ ?i ?j ?x))", "?x"),
+        rw("ra-unbind-lit", "(b- ?i ?j (lit ?n))", "(llit ?n)"),
         rw("ra_sall", "(srow (scol ?x))", "(sall ?x)"),
         rw("ra_sall2", "(scol (srow ?x))", "(sall ?x)"),
         rw("ra_mat1", "(mat ?x (dim ?i ?n) (dim ?j ?m) (nnz ?z))", "(b+ ?i ?j (lmat ?x ?n ?m ?z))"),
@@ -48,7 +49,7 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
 #[rustfmt::skip]
 pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
-        rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (lit -1) ?b))"),
+        rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (llit -1) ?b))"),
         rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) (nnz ?z))"),
         rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",         "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
