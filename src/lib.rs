@@ -128,8 +128,21 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 sparsity: Some(1.0.into())
             }
         },
+        "ua(minR)" => {
+            let x = &children[0];
+            let x_schema = &children[0].schema.as_ref().unwrap();
+            let (x_i, _x_j) = x_schema.get_mat();
+            let sparsity = x.sparsity;
+            let nnz = sparsity.map(|s| s.round() as usize * x_i);
+
+            Meta {
+                schema: Some(Schema::Mat(*x_i, 1)),
+                nnz,
+                sparsity
+            }
+        },
         // NOTE nnz here can be wrong
-        "b(!=)" | "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" | "u(exp)" | "u(log)"=> {
+        "b(min)" | "b(&)" | "ua(sqrt)" | "b(!=)" | "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" | "u(exp)" | "u(log)" => {
             children[0].clone()
         },
         _ => panic!("Unknown udf {}", op)
