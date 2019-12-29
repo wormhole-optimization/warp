@@ -47,6 +47,7 @@ pub enum Schema {
 fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
     for _i in 1..iters {
         for rw in rws {
+            println!("Running rule {:?}", rw);
             rw.run(egraph);
         }
         egraph.rebuild();
@@ -79,6 +80,19 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 schema: Some(Schema::Mat(*row, *col)),
                 nnz,
                 sparsity
+            }
+        },
+        "lix" | "rix" => {
+            // NOTE might want to tweak the nnz here
+            let x = &children[0];
+            let r = &children[5].schema.as_ref().unwrap();
+            let row = r.get_size();
+            let c = &children[6].schema.as_ref().unwrap();
+            let col = c.get_size();
+            Meta {
+                schema: Some(Schema::Mat(*row, *col)),
+                nnz: x.nnz,
+                sparsity: x.sparsity,
             }
         },
         // NOTE nnz here can be wrong
@@ -206,6 +220,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 let y = &expr.children[1];
 
                 let mut schema = x.schema.as_ref().unwrap().get_schm().clone();
+                println!("{:?}", y.schema.clone());
                 let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
                 schema.extend(y_schema);
 

@@ -102,13 +102,22 @@ pub fn load_dag(egraph: &mut EGraph, s: &str) -> Vec<u32> {
                 id_map.insert(hop.id, lit);
             },
             Str(x) => {
-                let args = hop.children;
+                let mut args = hop.children;
                 if args.is_empty() {
                     let m = format!("(lmat {x} {i} {j} {z})", x=x, i=hop.row, j=hop.col, z=hop.nnz.unwrap());
                     let exp = Math::parse_expr(&m).unwrap();
                     let mat = egraph.add_expr(&exp);
                     id_map.insert(hop.id, mat);
                 } else {
+                    // add dimensions to children for rix / lix (right and left index)
+                    if x == "rix" || x == "lix" {
+                        let row = egraph.add(Expr::new(Math::Num((hop.row as f64).into()), smallvec![]));
+                        let col = egraph.add(Expr::new(Math::Num((hop.col as f64).into()), smallvec![]));
+                        args.push(row.id);
+                        args.push(col.id);
+                        id_map.insert(row.id, row.id);
+                        id_map.insert(col.id, col.id);
+                    }
                     let op_s = egraph.add(Expr::new(Str(x), smallvec![]));
                     let mut children  = smallvec![op_s.id];
                     children.extend(args.iter().map(|c| id_map[c]));
@@ -140,10 +149,17 @@ pub fn print_dag(egraph: &EGraph) {
                 Udf => {
                     print!("0,0;{id};", id=id);
                     let f = e.children[0];
-                    for e in &egraph[f].nodes {
-                        print!("{};", e.op);
-                    }
-                    for c in &e.children[1..] {
+                    let op = format!("{}", &egraph[f].nodes[0].op);
+                    print!("{};", op);
+                    //for e in &egraph[f].nodes {
+                    //    print!("{};", e.op);
+                    //}
+                    let args = if op == "rix" || op == "lix" {
+                        &e.children[1..6]
+                    } else {
+                        &e.children[1..]
+                    };
+                    for c in args {
                         print!("{},",c);
                     }
                     println!(";;M;D;;;;;")
