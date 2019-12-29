@@ -154,8 +154,10 @@ pub fn print_dag(egraph: &EGraph) {
                     //for e in &egraph[f].nodes {
                     //    print!("{};", e.op);
                     //}
-                    let args = if op == "rix" || op == "lix" {
+                    let args = if op == "rix" {
                         &e.children[1..6]
+                    } else if op == "lix" {
+                        &e.children[1..7]
                     } else {
                         &e.children[1..]
                     };

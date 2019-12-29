@@ -82,7 +82,7 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 sparsity
             }
         },
-        "lix" | "rix" => {
+        "rix" => {
             // NOTE might want to tweak the nnz here
             let x = &children[0];
             let r = &children[5].schema.as_ref().unwrap();
@@ -93,6 +93,39 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 schema: Some(Schema::Mat(*row, *col)),
                 nnz: x.nnz,
                 sparsity: x.sparsity,
+            }
+        },
+        "lix" => {
+            // NOTE might want to tweak the nnz here
+            let x = &children[0];
+            let r = &children[6].schema.as_ref().unwrap();
+            let row = r.get_size();
+            let c = &children[7].schema.as_ref().unwrap();
+            let col = c.get_size();
+            Meta {
+                schema: Some(Schema::Mat(*row, *col)),
+                nnz: x.nnz,
+                sparsity: x.sparsity,
+            }
+        },
+        "r(diag)" => {
+            let x = &children[0];
+            let x_schema = &children[0].schema.as_ref().unwrap();
+            let (x_i, x_j) = x_schema.get_mat();
+
+            let vol: Number = ((x_i * x_i * x_j * x_j) as f64).into();
+
+            Meta {
+                schema: Some(Schema::Mat(x_i * x_j, x_i * x_j)),
+                nnz: x.nnz,
+                sparsity: x.sparsity.map(|sp| sp / vol),
+            }
+        },
+        "u(ncol)" | "u(nrow)" => {
+            Meta {
+                schema: Some(Schema::Mat(1, 1)),
+                nnz: Some(1),
+                sparsity: Some(1.0.into())
             }
         },
         // NOTE nnz here can be wrong
