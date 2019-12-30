@@ -49,6 +49,7 @@ pub fn untrans_rules() -> Vec<Rewrite<Math, Meta>> {
 #[rustfmt::skip]
 pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
+        rw("la-sq", "(udf b(^) ?x (llit 2))", "(l* ?x ?x)"),
         rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (llit -1) ?b))"),
         rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) (nnz ?z))"),
         rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),

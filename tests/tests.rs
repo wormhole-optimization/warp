@@ -9,8 +9,34 @@ use egg::{
 };
 use log::*;
 
-//use std::env;
 use std::fs;
+
+fn hops() -> Vec<&'static str> {
+  vec![
+"/home/wopt/wormhole/systemml-perftest/hops/Kmeans-opt0-X10k_1k_dense/hops_1957793473",
+"/home/wopt/wormhole/systemml-perftest/hops/Kmeans-opt0-X10k_1k_dense/hops_93586243",
+"/home/wopt/wormhole/systemml-perftest/hops/Kmeans-opt0-X10k_1k_dense/hops_-486999781",
+"/home/wopt/wormhole/systemml-perftest/hops/GLM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_2002741515",
+"/home/wopt/wormhole/systemml-perftest/hops/GLM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_-651318885",
+"/home/wopt/wormhole/systemml-perftest/hops/GLM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_-838702319",
+"/home/wopt/wormhole/systemml-perftest/hops/L2SVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_8335479",
+"/home/wopt/wormhole/systemml-perftest/hops/L2SVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_879998029",
+"/home/wopt/wormhole/systemml-perftest/hops/L2SVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_883890130",
+"/home/wopt/wormhole/systemml-perftest/hops/MSVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_1548401885",
+"/home/wopt/wormhole/systemml-perftest/hops/MSVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_2109504932",
+"/home/wopt/wormhole/systemml-perftest/hops/MSVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_1560157566",
+"/home/wopt/wormhole/systemml-perftest/hops/MSVM-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_2090198896",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_848861782",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_-983819037",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_984857727",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_-956156503",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_988509992",
+"/home/wopt/wormhole/systemml-perftest/hops/MultiLogReg-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_608711308",
+"/home/wopt/wormhole/systemml-perftest/hops/LinearRegCG-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_1846016887",
+"/home/wopt/wormhole/systemml-perftest/hops/LinearRegCG-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_1371950232",
+"/home/wopt/wormhole/systemml-perftest/hops/LinearRegCG-opt0-X10k_1k_sparse01-y10k_1k_sparse01/hops_-1786667730",
+  ]
+} 
 
 #[test]
 fn opt_untrans() {
@@ -45,6 +71,30 @@ fn opt_untrans() {
     let best = ext.find_best(root);
 
     println!("best is {}",best.expr.pretty(100));
+}
+
+#[test]
+fn optAll() {
+for hop in hops() {
+    println!("testing {}", hop);
+    let _ = env_logger::builder().is_test(true).try_init();
+    let contents = fs::read_to_string(hop)
+        .expect("Something went wrong reading the file");
+
+    let mut egraph = EGraph::default();
+    let root = load_dag(&mut egraph, &contents);
+    let sol = optimize(egraph, root);
+
+    for s in sol.iter() {
+        let sol_s = s.pretty(80);
+        println!("{}", sol_s);
+    }
+    let mut egraph = EGraph::default();
+    for s in sol.iter() {
+        egraph.add_expr(&s);
+    }
+    print_dag(&egraph);
+}
 }
 
 #[test]
