@@ -1,0 +1,660 @@
+Translate LA plan to RA
+(wormhole6 (b- _ _ (+ (lit 69) (lit 1))))
+(i_CG (b- _ _ (+ (lit 0) (lit 1))))
+(q_CG
+  (b-
+    vadd_i933502
+    _
+    (+
+      (+
+        (*
+          (mat lambda (dim vadd_i933502 1001) (dim _ 1) (nnz 1000))
+          (mat p_CG (dim vadd_i933502 1001) (dim _ 1) (nnz 1001)))
+        (sum
+          (dim vmmul_j548988 1001)
+          (*
+            (b+
+              vadd_i933502
+              vmmul_j548988
+              (udf
+                r(diag)
+                (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+            (sum
+              (dim vmmul_j498317 10000)
+              (*
+                (mat X (dim vmmul_j498317 10000) (dim vmmul_j548988 1001) (nnz 109877))
+                (*
+                  (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                  (sum
+                    (dim vmmul_j632164 1001)
+                    (*
+                      (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                      (b+
+                        vmmul_j632164
+                        _
+                        (udf
+                          lix
+                          (b-
+                            vmmul_i449753
+                            _
+                            (sum
+                              (dim vmmul_j449753 1001)
+                              (*
+                                (b+
+                                  vmmul_i449753
+                                  vmmul_j449753
+                                  (udf
+                                    r(diag)
+                                    (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                          (b-
+                            _
+                            _
+                            (+
+                              (b+
+                                _
+                                _
+                                (udf
+                                  rix
+                                  (b-
+                                    vmmul_i449753
+                                    _
+                                    (sum
+                                      (dim vmmul_j449753 1001)
+                                      (*
+                                        (b+
+                                          vmmul_i449753
+                                          vmmul_j449753
+                                          (udf
+                                            r(diag)
+                                            (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                        (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                  (llit 1001)
+                                  (llit 1001)
+                                  (llit 1)
+                                  (udf
+                                    u(ncol)
+                                    (b-
+                                      vmmul_i449753
+                                      _
+                                      (sum
+                                        (dim vmmul_j449753 1001)
+                                        (*
+                                          (b+
+                                            vmmul_i449753
+                                            vmmul_j449753
+                                            (udf
+                                              r(diag)
+                                              (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                          (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                  1
+                                  1))
+                              (sum
+                                (dim vmmul_j938431 1001)
+                                (*
+                                  (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                  (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                          (llit 1001)
+                          (llit 1001)
+                          (llit 1)
+                          (udf
+                            u(ncol)
+                            (b-
+                              vmmul_i449753
+                              _
+                              (sum
+                                (dim vmmul_j449753 1001)
+                                (*
+                                  (b+
+                                    vmmul_i449753
+                                    vmmul_j449753
+                                    (udf
+                                      r(diag)
+                                      (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                  (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                          1001
+                          1))))))))))
+      (*
+        (mat shift_X (dim vadd_i933502 1001) (dim _ 1) (nnz 1000))
+        (b+
+          _
+          _
+          (udf
+            rix
+            (b-
+              vmmul_i498317
+              _
+              (sum
+                (dim vmmul_j498317 10000)
+                (*
+                  (mat X (dim vmmul_j498317 10000) (dim vmmul_i498317 1001) (nnz 109877))
+                  (*
+                    (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                    (sum
+                      (dim vmmul_j632164 1001)
+                      (*
+                        (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                        (b+
+                          vmmul_j632164
+                          _
+                          (udf
+                            lix
+                            (b-
+                              vmmul_i449753
+                              _
+                              (sum
+                                (dim vmmul_j449753 1001)
+                                (*
+                                  (b+
+                                    vmmul_i449753
+                                    vmmul_j449753
+                                    (udf
+                                      r(diag)
+                                      (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                  (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                            (b-
+                              _
+                              _
+                              (+
+                                (b+
+                                  _
+                                  _
+                                  (udf
+                                    rix
+                                    (b-
+                                      vmmul_i449753
+                                      _
+                                      (sum
+                                        (dim vmmul_j449753 1001)
+                                        (*
+                                          (b+
+                                            vmmul_i449753
+                                            vmmul_j449753
+                                            (udf
+                                              r(diag)
+                                              (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                          (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                    (llit 1001)
+                                    (llit 1001)
+                                    (llit 1)
+                                    (udf
+                                      u(ncol)
+                                      (b-
+                                        vmmul_i449753
+                                        _
+                                        (sum
+                                          (dim vmmul_j449753 1001)
+                                          (*
+                                            (b+
+                                              vmmul_i449753
+                                              vmmul_j449753
+                                              (udf
+                                                r(diag)
+                                                (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                            (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                    1
+                                    1))
+                                (sum
+                                  (dim vmmul_j938431 1001)
+                                  (*
+                                    (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                    (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                            (llit 1001)
+                            (llit 1001)
+                            (llit 1)
+                            (udf
+                              u(ncol)
+                              (b-
+                                vmmul_i449753
+                                _
+                                (sum
+                                  (dim vmmul_j449753 1001)
+                                  (*
+                                    (b+
+                                      vmmul_i449753
+                                      vmmul_j449753
+                                      (udf
+                                        r(diag)
+                                        (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                    (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                            1001
+                            1))))))))
+            (llit 1001)
+            (llit 1001)
+            (llit 1)
+            (udf
+              u(ncol)
+              (b-
+                vmmul_i498317
+                _
+                (sum
+                  (dim vmmul_j498317 10000)
+                  (*
+                    (mat X (dim vmmul_j498317 10000) (dim vmmul_i498317 1001) (nnz 109877))
+                    (*
+                      (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                      (sum
+                        (dim vmmul_j632164 1001)
+                        (*
+                          (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                          (b+
+                            vmmul_j632164
+                            _
+                            (udf
+                              lix
+                              (b-
+                                vmmul_i449753
+                                _
+                                (sum
+                                  (dim vmmul_j449753 1001)
+                                  (*
+                                    (b+
+                                      vmmul_i449753
+                                      vmmul_j449753
+                                      (udf
+                                        r(diag)
+                                        (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                    (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                              (b-
+                                _
+                                _
+                                (+
+                                  (b+
+                                    _
+                                    _
+                                    (udf
+                                      rix
+                                      (b-
+                                        vmmul_i449753
+                                        _
+                                        (sum
+                                          (dim vmmul_j449753 1001)
+                                          (*
+                                            (b+
+                                              vmmul_i449753
+                                              vmmul_j449753
+                                              (udf
+                                                r(diag)
+                                                (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                            (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                      (llit 1001)
+                                      (llit 1001)
+                                      (llit 1)
+                                      (udf
+                                        u(ncol)
+                                        (b-
+                                          vmmul_i449753
+                                          _
+                                          (sum
+                                            (dim vmmul_j449753 1001)
+                                            (*
+                                              (b+
+                                                vmmul_i449753
+                                                vmmul_j449753
+                                                (udf
+                                                  r(diag)
+                                                  (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                              (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                      1
+                                      1))
+                                  (sum
+                                    (dim vmmul_j938431 1001)
+                                    (*
+                                      (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                      (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                              (llit 1001)
+                              (llit 1001)
+                              (llit 1)
+                              (udf
+                                u(ncol)
+                                (b-
+                                  vmmul_i449753
+                                  _
+                                  (sum
+                                    (dim vmmul_j449753 1001)
+                                    (*
+                                      (b+
+                                        vmmul_i449753
+                                        vmmul_j449753
+                                        (udf
+                                          r(diag)
+                                          (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                      (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                              1001
+                              1)))))))))
+            1
+            1))))))
+(pq_CG
+  (b-
+    _
+    _
+    (sum
+      (dim vsall_i306378 1001)
+      (sum
+        (dim _ 1)
+        (*
+          (mat p_CG (dim vsall_i306378 1001) (dim _ 1) (nnz 1001))
+          (+
+            (+
+              (*
+                (mat lambda (dim vsall_i306378 1001) (dim _ 1) (nnz 1000))
+                (mat p_CG (dim vsall_i306378 1001) (dim _ 1) (nnz 1001)))
+              (sum
+                (dim vmmul_j548988 1001)
+                (*
+                  (b+
+                    vsall_i306378
+                    vmmul_j548988
+                    (udf
+                      r(diag)
+                      (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                  (sum
+                    (dim vmmul_j498317 10000)
+                    (*
+                      (mat X (dim vmmul_j498317 10000) (dim vmmul_j548988 1001) (nnz 109877))
+                      (*
+                        (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                        (sum
+                          (dim vmmul_j632164 1001)
+                          (*
+                            (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                            (b+
+                              vmmul_j632164
+                              _
+                              (udf
+                                lix
+                                (b-
+                                  vmmul_i449753
+                                  _
+                                  (sum
+                                    (dim vmmul_j449753 1001)
+                                    (*
+                                      (b+
+                                        vmmul_i449753
+                                        vmmul_j449753
+                                        (udf
+                                          r(diag)
+                                          (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                      (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                (b-
+                                  _
+                                  _
+                                  (+
+                                    (b+
+                                      _
+                                      _
+                                      (udf
+                                        rix
+                                        (b-
+                                          vmmul_i449753
+                                          _
+                                          (sum
+                                            (dim vmmul_j449753 1001)
+                                            (*
+                                              (b+
+                                                vmmul_i449753
+                                                vmmul_j449753
+                                                (udf
+                                                  r(diag)
+                                                  (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                              (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                        (llit 1001)
+                                        (llit 1001)
+                                        (llit 1)
+                                        (udf
+                                          u(ncol)
+                                          (b-
+                                            vmmul_i449753
+                                            _
+                                            (sum
+                                              (dim vmmul_j449753 1001)
+                                              (*
+                                                (b+
+                                                  vmmul_i449753
+                                                  vmmul_j449753
+                                                  (udf
+                                                    r(diag)
+                                                    (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                                (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                        1
+                                        1))
+                                    (sum
+                                      (dim vmmul_j938431 1001)
+                                      (*
+                                        (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                        (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                                (llit 1001)
+                                (llit 1001)
+                                (llit 1)
+                                (udf
+                                  u(ncol)
+                                  (b-
+                                    vmmul_i449753
+                                    _
+                                    (sum
+                                      (dim vmmul_j449753 1001)
+                                      (*
+                                        (b+
+                                          vmmul_i449753
+                                          vmmul_j449753
+                                          (udf
+                                            r(diag)
+                                            (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                        (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                1001
+                                1))))))))))
+            (*
+              (mat shift_X (dim vsall_i306378 1001) (dim _ 1) (nnz 1000))
+              (b+
+                _
+                _
+                (udf
+                  rix
+                  (b-
+                    vmmul_i498317
+                    _
+                    (sum
+                      (dim vmmul_j498317 10000)
+                      (*
+                        (mat X (dim vmmul_j498317 10000) (dim vmmul_i498317 1001) (nnz 109877))
+                        (*
+                          (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                          (sum
+                            (dim vmmul_j632164 1001)
+                            (*
+                              (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                              (b+
+                                vmmul_j632164
+                                _
+                                (udf
+                                  lix
+                                  (b-
+                                    vmmul_i449753
+                                    _
+                                    (sum
+                                      (dim vmmul_j449753 1001)
+                                      (*
+                                        (b+
+                                          vmmul_i449753
+                                          vmmul_j449753
+                                          (udf
+                                            r(diag)
+                                            (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                        (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                  (b-
+                                    _
+                                    _
+                                    (+
+                                      (b+
+                                        _
+                                        _
+                                        (udf
+                                          rix
+                                          (b-
+                                            vmmul_i449753
+                                            _
+                                            (sum
+                                              (dim vmmul_j449753 1001)
+                                              (*
+                                                (b+
+                                                  vmmul_i449753
+                                                  vmmul_j449753
+                                                  (udf
+                                                    r(diag)
+                                                    (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                                (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                          (llit 1001)
+                                          (llit 1001)
+                                          (llit 1)
+                                          (udf
+                                            u(ncol)
+                                            (b-
+                                              vmmul_i449753
+                                              _
+                                              (sum
+                                                (dim vmmul_j449753 1001)
+                                                (*
+                                                  (b+
+                                                    vmmul_i449753
+                                                    vmmul_j449753
+                                                    (udf
+                                                      r(diag)
+                                                      (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                                  (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                          1
+                                          1))
+                                      (sum
+                                        (dim vmmul_j938431 1001)
+                                        (*
+                                          (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                          (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                                  (llit 1001)
+                                  (llit 1001)
+                                  (llit 1)
+                                  (udf
+                                    u(ncol)
+                                    (b-
+                                      vmmul_i449753
+                                      _
+                                      (sum
+                                        (dim vmmul_j449753 1001)
+                                        (*
+                                          (b+
+                                            vmmul_i449753
+                                            vmmul_j449753
+                                            (udf
+                                              r(diag)
+                                              (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                          (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                  1001
+                                  1))))))))
+                  (llit 1001)
+                  (llit 1001)
+                  (llit 1)
+                  (udf
+                    u(ncol)
+                    (b-
+                      vmmul_i498317
+                      _
+                      (sum
+                        (dim vmmul_j498317 10000)
+                        (*
+                          (mat X (dim vmmul_j498317 10000) (dim vmmul_i498317 1001) (nnz 109877))
+                          (*
+                            (mat w (dim vmmul_j498317 10000) (dim _ 1) (nnz 10000))
+                            (sum
+                              (dim vmmul_j632164 1001)
+                              (*
+                                (mat X (dim vmmul_j498317 10000) (dim vmmul_j632164 1001) (nnz 109877))
+                                (b+
+                                  vmmul_j632164
+                                  _
+                                  (udf
+                                    lix
+                                    (b-
+                                      vmmul_i449753
+                                      _
+                                      (sum
+                                        (dim vmmul_j449753 1001)
+                                        (*
+                                          (b+
+                                            vmmul_i449753
+                                            vmmul_j449753
+                                            (udf
+                                              r(diag)
+                                              (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                          (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                    (b-
+                                      _
+                                      _
+                                      (+
+                                        (b+
+                                          _
+                                          _
+                                          (udf
+                                            rix
+                                            (b-
+                                              vmmul_i449753
+                                              _
+                                              (sum
+                                                (dim vmmul_j449753 1001)
+                                                (*
+                                                  (b+
+                                                    vmmul_i449753
+                                                    vmmul_j449753
+                                                    (udf
+                                                      r(diag)
+                                                      (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                                  (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001)))))
+                                            (llit 1001)
+                                            (llit 1001)
+                                            (llit 1)
+                                            (udf
+                                              u(ncol)
+                                              (b-
+                                                vmmul_i449753
+                                                _
+                                                (sum
+                                                  (dim vmmul_j449753 1001)
+                                                  (*
+                                                    (b+
+                                                      vmmul_i449753
+                                                      vmmul_j449753
+                                                      (udf
+                                                        r(diag)
+                                                        (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                                    (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                            1
+                                            1))
+                                        (sum
+                                          (dim vmmul_j938431 1001)
+                                          (*
+                                            (mat shift_X (dim vmmul_j938431 1001) (dim _ 1) (nnz 1000))
+                                            (mat p_CG (dim vmmul_j938431 1001) (dim _ 1) (nnz 1001))))))
+                                    (llit 1001)
+                                    (llit 1001)
+                                    (llit 1)
+                                    (udf
+                                      u(ncol)
+                                      (b-
+                                        vmmul_i449753
+                                        _
+                                        (sum
+                                          (dim vmmul_j449753 1001)
+                                          (*
+                                            (b+
+                                              vmmul_i449753
+                                              vmmul_j449753
+                                              (udf
+                                                r(diag)
+                                                (b- vmat_i434917 _ (mat scale_X (dim vmat_i434917 1001) (dim _ 1) (nnz 1001)))))
+                                            (mat p_CG (dim vmmul_j449753 1001) (dim _ 1) (nnz 1001))))))
+                                    1001
+                                    1)))))))))
+                  1
+                  1)))))))))
+Optimize RA plan
+Translate RA plan to LA
+COST BEFORE 474548
+COST AFTER 709312
+SPEEDUP 1.4947107563407707

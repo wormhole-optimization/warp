@@ -73,7 +73,7 @@ fn opt_untrans() {
     println!("best is {}",best.expr.pretty(100));
 }
 
-#[test]
+//#[test]
 fn optAll() {
 for hop in hops() {
     println!("testing {}", hop);

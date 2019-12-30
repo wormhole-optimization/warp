@@ -129,7 +129,7 @@ pub fn extract(egraph: EGraph,
                 selected.insert(v);
             } else {
                 if let Some(&v) = var_bqs.get_by_right(&var_name) {
-                    println!("class {:?}", v)
+                    //println!("class {:?}", v)
                 }
             }
         }

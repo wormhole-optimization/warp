@@ -1,4 +1,4 @@
-use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, optimize, print_dag};
+use warp::{Math, EGraph, rules, untrans_rules, trans_rules, extract, parse_hop, load_dag, optimize, print_dag, dag_cost};
 use egg::{
     //define_term,
     //egraph::{AddResult, EClass, Metadata},
@@ -26,11 +26,11 @@ fn main() {
 
     for s in sol.iter() {
         let sol_s = s.pretty(80);
-        println!("{}", sol_s);
+        //println!("{}", sol_s);
     }
     let mut egraph = EGraph::default();
     for s in sol.iter() {
         egraph.add_expr(&s);
     }
-    print_dag(&egraph);
+    //print_dag(&egraph);
 }

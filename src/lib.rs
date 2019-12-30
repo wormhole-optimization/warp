@@ -44,6 +44,14 @@ pub enum Schema {
     Mat(usize, usize),
 }
 
+pub fn dag_cost(eg: &EGraph) -> usize {
+    eg.classes().map(|c| {
+        let nnz = c.metadata.nnz;
+        //println!("NNZ {:?}", nnz);
+        nnz.unwrap_or(0)
+    }).sum()
+}
+
 fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
     for _i in 1..iters {
         for rw in rws {
@@ -163,19 +171,24 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     println!("Optimize RA plan");
     let mut opt_graph = EGraph::default();
     let opt_roots: Vec<_> = rplans.iter().map(|rp| opt_graph.add_expr(rp)).collect();
-    println!("ROOT {:?}", opt_roots);
-    saturate(&mut opt_graph, &rules(), 3);
+    let orig_cost = dag_cost(&opt_graph);
+    //println!("ROOT {:?}", opt_roots);
+    saturate(&mut opt_graph, &rules(), 27);
     let best = extract(opt_graph, &opt_roots);
     for e in best.iter() {
-        println!("{}", e.pretty(80));
+        //println!("{}", e.pretty(80));
     }
     // Translate RA plan to LA
     println!("Translate RA plan to LA");
     let mut untrans_graph = EGraph::default();
     let untrans_roots: Vec<_> = best.iter().map(|p| untrans_graph.add_expr(p)).collect();
+    let final_cost = dag_cost(&untrans_graph);
     saturate(&mut untrans_graph, &untrans_rules(), 50);
     let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
     let bests = untrans_roots.iter().map(|r| ext.find_best(*r).expr).collect();
+    println!("COST BEFORE {}", orig_cost);
+    println!("COST AFTER {}", final_cost);
+    println!("SPEEDUP {}", final_cost as f64 / orig_cost as f64);
     bests
 }
 
@@ -408,7 +421,8 @@ impl egg::egraph::Metadata<Math> for Meta {
                             Schema::Dims(body_i.clone(), *body_n)
                         }
                     },
-                    _ => panic!("cannot subst for attr. and size")
+                    Schema::Size(n) => panic!("cannot subst for size {:?}", n),
+                    _ => panic!("cannot subst for attr. and mat")
                 };
 
                 Meta {
@@ -655,9 +669,11 @@ fn trans_model(op: &Math, children: &[f64]) -> f64 {
     let cost = match op {
         LMat | LAdd | LMin | LMul |
         MMul | LTrs | Srow | Scol |
-        Sall | Bind | Ubnd | LLit |
+        Sall | LLit |
         Sub => 100.0,
+        Bind | Ubnd => 10.0,
         _ => 1.0
     };
-    cost + children.iter().sum::<f64>()
+    let c_cost: f64 = children.iter().sum();
+    cost + c_cost
 }

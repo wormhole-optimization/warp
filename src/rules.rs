@@ -58,6 +58,20 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
         rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j ?z))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j) ?z)"),
         rw("subst-lit",    "(subst ?e ?v (lit ?n))",          "(lit ?n)"),
         rw("subst-var",    "(subst ?e ?v (var ?n))",          "(var ?n)"),
+        rw("subst-udf1",   "(subst ?e ?v (udf ?op ?x))",       "(udf ?op (subst ?e ?v ?x))"),
+        rw("subst-udf2",   "(subst ?e ?v (udf ?op ?x ?y))",    "(udf ?op (subst ?e ?v ?x) (subst ?e ?v ?y))"),
+        rw("subst-udf3",   "(subst ?e ?v (udf ?op ?x ?y ?z))", "(udf ?op (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z))"),
+        rw("subst-udf4",   "(subst ?e ?v (udf ?op ?x ?y ?z ?u))", "(udf ?op (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z) (subst ?e ?v ?u))"),
+        rw("subst-udf5",   "(subst ?e ?v (udf ?op ?x ?y ?z ?u ?w))",
+           "(udf ?op (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z) (subst ?e ?v ?u) (subst ?e ?v ?w))"),
+        rw("subst-udf6",   "(subst ?e ?v (udf ?op ?x ?y ?z ?u ?w ?a))",
+           "(udf ?op (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z) (subst ?e ?v ?u) (subst ?e ?v ?w) (subst ?e ?v ?a))"),
+        rw("subst-rix",   "(subst ?e ?v (udf ?op ?x ?y ?z ?u ?w ?a ?b))",
+           "(udf rix (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z) (subst ?e ?v ?u) (subst ?e ?v ?w) ?a ?b)"),
+        rw("subst-udf8",   "(subst ?e ?v (udf ?op ?x ?y ?z ?u ?w ?a ?b ?c))",
+           "(udf lix (subst ?e ?v ?x) (subst ?e ?v ?y) (subst ?e ?v ?z) (subst ?e ?v ?u) (subst ?e ?v ?w) (subst ?e ?v ?a) ?b ?c)"),
+        rw("subst-wild", "(subst (dim _ ?i) (dim _ ?j) ?e)", "?e"),
+        drw("la_lmat",     "(lmat ?x ?i ?j ?z)", LAMat),
         drw("la_mul", "(l* ?x ?y)", LAMul),
         drw("la_add", "(l+ ?x ?y)", LAAdd),
         drw("la_mmul","(m* ?x ?y)", LAMMul),
@@ -66,8 +80,9 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
         drw("la-sall", "(sall ?a)", LASall),
         drw("la-trans", "(trans ?a)", LATrans),
         drw("la-bind", "(b+ ?k ?l (b- ?i ?j ?x))", LABind),
+        drw("subst-bind", "(subst (dim ?j ?m) (dim ?i ?n) (b+ ?k ?l ?e))", SubstBind),
         drw("agg-subst", "(subst ?e ?v1 (sum ?v2 ?body))", SubstAgg),
-        drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst)
+        drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
     ]
 }
 
@@ -173,6 +188,29 @@ impl Applier<Math, Meta> for SubstAgg {
         vec![res]
     }
 }
+
+// drw("subst-bind", "(subst (dim ?j ?m) (dim ?i ?n) (b+ ?k ?l ?e))", SubstBind),
+#[derive(Debug)]
+struct SubstBind;
+impl Applier<Math, Meta> for SubstBind {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let i = map[&"?i".parse().unwrap()][0];
+        let k = map[&"?k".parse().unwrap()][0];
+        let l = map[&"?l".parse().unwrap()][0];
+
+        if i == k {
+            Math::parse_pattern(&format!("(b+ ?j ?l ?e)"))
+                .unwrap().apply(egraph, map)
+        } else if i == l {
+            Math::parse_pattern(&format!("(b+ ?k ?j ?e)"))
+                .unwrap().apply(egraph, map)
+        } else {
+            Math::parse_pattern(&format!("(b+ ?k ?l ?e)"))
+                .unwrap().apply(egraph, map)
+        }
+    }
+}
+
 
 #[derive(Debug)]
 struct SumIA;
@@ -303,6 +341,37 @@ impl Applier<Math, Meta> for LAMul {
             )).unwrap().apply(egraph, map)
     }
 }
+
+#[derive(Debug)]
+struct LAMat;
+impl Applier<Math, Meta> for LAMat {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        // (lmat x i j z)
+        let x = map[&"?x".parse().unwrap()][0];
+        let i = map[&"?i".parse().unwrap()][0];
+        let j = map[&"?j".parse().unwrap()][0];
+        let z = map[&"?i".parse().unwrap()][0];
+
+        let i_schema = egraph[i].metadata.clone().schema.unwrap();
+        let x_i = i_schema.get_size();
+        let j_schema = egraph[j].metadata.clone().schema.unwrap();
+        let x_j = j_schema.get_size();
+
+        let mut s = DefaultHasher::new();
+        [x, i, j, z].hash(&mut s);
+        let fresh_s = (s.finish() % 976521).to_string();
+        let fresh_i = format!("vmat_i{}", &fresh_s);
+        let fresh_j = format!("vmat_j{}", &fresh_s);
+        let bind_i = if *x_i == 1 {"_"} else { &fresh_i };
+        let bind_j = if *x_j == 1 {"_"} else { &fresh_j };
+
+        Math::parse_pattern(
+            &format!(
+                "(b- {i} {j} (mat ?x (dim {i} ?i) (dim {j} ?j) (nnz ?z)))", i = bind_i, j = bind_j
+            )).unwrap().apply(egraph, map)
+    }
+}
+
 
 #[derive(Debug)]
 struct LAAdd;
