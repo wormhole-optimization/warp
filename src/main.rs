@@ -32,5 +32,5 @@ fn main() {
     for s in sol.iter() {
         egraph.add_expr(&s);
     }
-    //print_dag(&egraph);
+    print_dag(&egraph);
 }

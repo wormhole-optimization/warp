@@ -1,4 +1,4 @@
-use crate::{EGraph, Math, Schema};
+use crate::{EGraph, Math, Schema, get_vol};
 
 use egg::expr::{Expr, Id, RecExpr};
 
@@ -65,7 +65,8 @@ pub fn extract(egraph: EGraph,
     let obj_vec: Vec<LpExpression> = {
         var_bqs.iter().map(|(c, var)| {
             // NOTE careful here with 1000
-            let coef = egraph[*c].metadata.nnz.unwrap_or(1000);
+            let meta = &egraph[*c].metadata;
+            let coef = meta.nnz.unwrap_or(get_vol(meta));
             let bq = LpBinary::new(&var);
             coef as f32 * &bq
         }).collect()
@@ -121,6 +122,7 @@ pub fn extract(egraph: EGraph,
 
     // Lookup selected nodes and classes
     let mut selected = HashSet::new();
+    let mut cost = 0;
 
     for (var_name, var_value) in &var_values {
         let int_var_value = *var_value as u32;
@@ -129,11 +131,13 @@ pub fn extract(egraph: EGraph,
                 selected.insert(v);
             } else {
                 if let Some(&v) = var_bqs.get_by_right(&var_name) {
-                    //println!("class {:?}", v)
+                    let nnz = egraph[v].metadata.nnz.unwrap_or(0);
+                    cost += nnz;
                 }
             }
         }
     }
+    println!("SELECTED COST {:?}", cost);
     roots.iter().map(|root| find_expr(&egraph, *root, &selected)).collect()
 }
 

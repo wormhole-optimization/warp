@@ -48,7 +48,7 @@ pub fn dag_cost(eg: &EGraph) -> usize {
     eg.classes().map(|c| {
         let nnz = c.metadata.nnz;
         //println!("NNZ {:?}", nnz);
-        nnz.unwrap_or(0)
+        nnz.unwrap_or(get_vol(&c.metadata))
     }).sum()
 }
 
@@ -676,4 +676,16 @@ fn trans_model(op: &Math, children: &[f64]) -> f64 {
     };
     let c_cost: f64 = children.iter().sum();
     cost + c_cost
+}
+
+pub fn get_vol(m: &Meta) -> usize {
+    if let Some(schm) = &m.schema {
+        match schm {
+            Schema::Schm(s) => s.values().product(),
+            Schema::Mat(r, c) => r * c,
+            _ => 0
+        }
+    } else {
+        0
+    }
 }
