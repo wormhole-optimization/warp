@@ -53,6 +53,7 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
         rw("la-minus", "(l- ?a ?b)", "(l+ ?a (l* (llit -1) ?b))"),
         rw("la-mat-bind", "(b+ ?k ?l (lmat ?x ?i ?j ?z))", "(mat ?x (dim ?k ?i) (dim ?l ?j) (nnz ?z))"),
         rw("la-lit-bind",  "(b+ ?i ?j (llit ?n))",            "(lit ?n)"),
+        rw("la-lit-ubnd",  "(llit ?n)",                       "(b- _ _ (lit ?n))"),
         rw("subst-+",      "(subst ?e ?v (+ ?a ?b))",         "(+ (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-*",      "(subst ?e ?v (* ?a ?b))",         "(* (subst ?e ?v ?a) (subst ?e ?v ?b))"),
         rw("subst-matrix", "(subst ?e ?v (mat ?a ?i ?j ?z))", "(mat ?a (subst ?e ?v ?i) (subst ?e ?v ?j) ?z)"),

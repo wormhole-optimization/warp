@@ -47,7 +47,13 @@ pub enum Schema {
 pub fn dag_cost(eg: &EGraph) -> usize {
     eg.classes().map(|c| {
         let nnz = c.metadata.nnz;
-        //println!("NNZ {:?}", nnz);
+        //if let None = nnz {
+        //    println!("missing nnz for {:?}", c.metadata);
+        //    for node in &c.nodes {
+        //        println!("{:?}", node);
+        //    }
+        //}
+        // println!("NNZ {:?}", nnz);
         nnz.unwrap_or(get_vol(&c.metadata))
     }).sum()
 }
@@ -565,6 +571,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 debug_assert_eq!(expr.children.len(), 3, "wrong length in lmat");
                 let i = expr_schema(&expr, 0).get_name();
                 let j = expr_schema(&expr, 1).get_name();
+                let x = &expr.children[2];
                 let (x_row, x_col) = expr_schema(&expr, 2).get_mat();
                 let mut schema = HashMap::new();
                 if *x_row != 1 {
@@ -575,21 +582,22 @@ impl egg::egraph::Metadata<Math> for Meta {
                 }
                 Meta {
                     schema: Some(Schema::Schm(schema)),
-                    nnz: None,
-                    sparsity: None
+                    nnz: x.nnz,
+                    sparsity: x.sparsity
                 }
             },
             Ubnd => {
                 debug_assert_eq!(expr.children.len(), 3, "wrong length in ubind");
                 let i = expr_schema(&expr, 0).get_name();
                 let j = expr_schema(&expr, 1).get_name();
-                let x = expr_schema(&expr, 2).get_schm();
-                let row = *x.get(i).unwrap_or(&1);
-                let col = *x.get(j).unwrap_or(&1);
+                let x = &expr.children[2];
+                let x_schm = expr_schema(&expr, 2).get_schm();
+                let row = *x_schm.get(i).unwrap_or(&1);
+                let col = *x_schm.get(j).unwrap_or(&1);
                 Meta {
                     schema: Some(Schema::Mat(row, col)),
-                    nnz: None,
-                    sparsity: None
+                    nnz: x.nnz,
+                    sparsity: x.sparsity
                 }
             },
             LLit => {
