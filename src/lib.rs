@@ -179,7 +179,8 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     let opt_roots: Vec<_> = rplans.iter().map(|rp| opt_graph.add_expr(rp)).collect();
     let orig_cost = dag_cost(&opt_graph);
     //println!("ROOT {:?}", opt_roots);
-    saturate(&mut opt_graph, &rules(), 27);
+    saturate(&mut opt_graph, &rules(), 3);
+    println!("DONE SATURATING");
     let best = extract(opt_graph, &opt_roots);
     for e in best.iter() {
         //println!("{}", e.pretty(80));
