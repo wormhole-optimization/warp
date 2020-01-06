@@ -28,7 +28,7 @@ pub fn extract(egraph: EGraph,
     for c in egraph.classes() {
         // only pick if dimensions are good
         match &c.metadata.schema {
-            Some(Schema::Schm(s)) if s.len() > 2 => continue,
+            Some(Schema::Schm(s)) if s.len() > 2 => {},
             _ => {
                 let bq = "bq".to_owned() + &c.id.to_string();
                 var_bqs.insert(c.id, bq);
@@ -60,6 +60,7 @@ pub fn extract(egraph: EGraph,
             }
         }
     };
+     println!("DONE generating vars");
 
     // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
@@ -72,7 +73,13 @@ pub fn extract(egraph: EGraph,
         }).collect()
     };
 
+    println!("so many vars {:?}", obj_vec.len());
+
+    // for term in obj_vec {
+    //     problem += term;
+    // }
     problem += obj_vec.sum();
+    println!("DONE adding objective");
 
     // Constraint Br: must pick roots
 
@@ -115,10 +122,12 @@ pub fn extract(egraph: EGraph,
         }
     }
 
+    println!("START SOLVING");
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
+    println!("DONE SOLVING");
 
-    let (_solver_status, var_values) = result.unwrap();
+    let var_values = result.unwrap().results;
 
     // Lookup selected nodes and classes
     let mut selected = HashSet::new();

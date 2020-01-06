@@ -9,6 +9,9 @@ use std::collections::{HashSet, HashMap};
 use std::hash::Hash;
 use std::cmp::min;
 use std::iter::*;
+use std::time::Instant;
+
+use log::*;
 
 use ordered_float::NotNan;
 
@@ -59,12 +62,50 @@ pub fn dag_cost(eg: &EGraph) -> usize {
 }
 
 fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
-    for _i in 1..iters {
+    let limit = 10000;
+    let start_time = Instant::now();
+    'outer: for i in 1..iters {
+        info!("\n\nIteration {}\n", i);
+        let search_time = Instant::now();
+        let mut applied = 0;
+        let mut matches = Vec::new();
         for rw in rws {
-            rw.run(egraph);
+            let ms = rw.search(&egraph);
+            if !ms.is_empty() {
+                matches.push(ms);
+            }
         }
+        info!("Search time: {:?}", search_time.elapsed());
+        let match_time = Instant::now();
+        for m in matches {
+            let actually_matched = m.apply_with_limit(egraph, limit).len();
+            if egraph.total_size() > limit {
+                error!("Node limit exceeded. {} > {}", egraph.total_size(), limit);
+                break 'outer;
+            }
+
+            applied += actually_matched;
+            if actually_matched > 0 {
+                info!("Applied {} {} times", m.rewrite.name, actually_matched);
+            }
+        }
+        info!("Match time: {:?}", match_time.elapsed());
+        let rebuild_time = Instant::now();
         egraph.rebuild();
+        info!("Rebuild time: {:?}", rebuild_time.elapsed());
+        info!(
+            "Size: n={}, e={}",
+            egraph.total_size(),
+            egraph.number_of_classes()
+        );
+
+        if applied == 0 {
+            info!("Stopping early!");
+            break;
+        }
     }
+    let rules_time = start_time.elapsed();
+    info!("Rules time: {:?}", rules_time);
 }
 
 pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
@@ -182,7 +223,7 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     saturate(&mut opt_graph, &rules(), 3);
     println!("DONE SATURATING");
     let best = extract(opt_graph, &opt_roots);
-    for e in best.iter() {
+    for _e in best.iter() {
         //println!("{}", e.pretty(80));
     }
     // Translate RA plan to LA
