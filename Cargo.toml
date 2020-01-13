@@ -21,6 +21,7 @@ pest_derive = "2.0"
 lp-modeler = { path = "../rust-lp-modeler" }
 # lp-modeler = "0.4"
 bimap = "0.4"
+rand = "0.7"
 
 # [features]
 # parent-pointers = ["egg/parent-pointers"]

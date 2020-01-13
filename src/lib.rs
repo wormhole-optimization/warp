@@ -1,8 +1,8 @@
 use egg::{
     define_term,
     egraph::EClass,
-    expr::{Expr, RecExpr, Language},
-    pattern::Rewrite,
+    expr::{Expr, RecExpr, Language, Id},
+    pattern::{Rewrite, RewriteMatches},
 };
 
 use std::collections::{HashSet, HashMap};
@@ -11,9 +11,11 @@ use std::cmp::min;
 use std::iter::*;
 use std::time::Instant;
 
-use log::*;
+use rand::seq::SliceRandom;
 
 use ordered_float::NotNan;
+
+use log::*;
 
 mod translate;
 pub use translate::Extractor;
@@ -61,8 +63,14 @@ pub fn dag_cost(eg: &EGraph) -> usize {
     }).sum()
 }
 
-fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
-    let limit = 10000;
+fn saturate(
+    egraph: &mut EGraph,
+    rws: &[Rewrite<Math, Meta>],
+    iters: usize,
+    randomize: bool
+) {
+    let mut rng = rand::thread_rng();
+    let limit = 8000000;
     let start_time = Instant::now();
     'outer: for i in 1..iters {
         info!("\n\nIteration {}\n", i);
@@ -78,7 +86,19 @@ fn saturate(egraph: &mut EGraph, rws: &[Rewrite<Math, Meta>], iters: usize) {
         info!("Search time: {:?}", search_time.elapsed());
         let match_time = Instant::now();
         for m in matches {
-            let actually_matched = m.apply_with_limit(egraph, limit).len();
+            let actually_matched =
+                if randomize {
+                    m.apply_random(
+                        egraph,
+                        limit,
+                        1, &mut rng
+                    ).len()
+                } else {
+                    m.apply_with_limit(
+                        egraph,
+                        limit
+                    ).len()
+                };
             if egraph.total_size() > limit {
                 error!("Node limit exceeded. {} > {}", egraph.total_size(), limit);
                 break 'outer;
@@ -208,19 +228,23 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     // Translate LA plan to RA
     println!("Translate LA plan to RA");
     let (mut trans_graph, roots) = (lgraph, roots);
-    saturate(&mut trans_graph, &trans_rules(), 20);
+    saturate(&mut trans_graph, &trans_rules(), 20, false);
     let trans_ext = Extractor::new(&trans_graph, trans_model);
-    let rplans: Vec<_> = roots.iter().map(|r| trans_ext.find_best(*r).expr).collect();
+    let rplans: Vec<_> = roots.iter().map(|r| {
+        trans_ext.find_best(*r).expr
+    }).collect();
     for rp in rplans.iter() {
         println!("{}", rp.pretty(80));
     }
     // Optimize RA plan
     println!("Optimize RA plan");
     let mut opt_graph = EGraph::default();
-    let opt_roots: Vec<_> = rplans.iter().map(|rp| opt_graph.add_expr(rp)).collect();
+    let opt_roots: Vec<_> = rplans.iter().map(|rp| {
+        opt_graph.add_expr(rp)
+    }).collect();
     let orig_cost = dag_cost(&opt_graph);
     //println!("ROOT {:?}", opt_roots);
-    saturate(&mut opt_graph, &rules(), 3);
+    saturate(&mut opt_graph, &rules(), 27, true);
     println!("DONE SATURATING");
     let best = extract(opt_graph, &opt_roots);
     for _e in best.iter() {
@@ -229,11 +253,15 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     // Translate RA plan to LA
     println!("Translate RA plan to LA");
     let mut untrans_graph = EGraph::default();
-    let untrans_roots: Vec<_> = best.iter().map(|p| untrans_graph.add_expr(p)).collect();
+    let untrans_roots: Vec<_> = best.iter().map(|p| {
+        untrans_graph.add_expr(p)
+    }).collect();
     let final_cost = dag_cost(&untrans_graph);
-    saturate(&mut untrans_graph, &untrans_rules(), 50);
+    saturate(&mut untrans_graph, &untrans_rules(), 50, false);
     let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
-    let bests = untrans_roots.iter().map(|r| ext.find_best(*r).expr).collect();
+    let bests = untrans_roots.iter().map(|r| {
+        ext.find_best(*r).expr
+    }).collect();
     println!("COST BEFORE {}", orig_cost);
     println!("COST AFTER {}", final_cost);
     println!("SPEEDUP {}", final_cost as f64 / orig_cost as f64);
