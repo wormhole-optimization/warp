@@ -1,14 +1,54 @@
 got some
-got some
 Translate LA plan to RA
-(step_sz
+(wormhole4 (b- _ _ (+ (lit 45) (lit 1))))
+(S (b- vmat_i941667 _ (mat Snew (dim vmat_i941667 1000) (dim _ 1) (nnz 1000))))
+(R
+  (b-
+    vadd_i16379
+    _
+    (+
+      (mat R (dim vadd_i16379 1000) (dim _ 1) (nnz 1000))
+      (*
+        (lit -1)
+        (*
+          (lit 0.06564153009798053)
+          (mat HV (dim vadd_i16379 1000) (dim _ 1) (nnz 1000)))))))
+(norm_R2
   (b-
     _
     _
+    (sum
+      (dim vsall_i256170 1000)
+      (sum
+        (dim _ 1)
+        (*
+          (+
+            (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+            (*
+              (lit -1)
+              (*
+                (lit 0.06564153009798053)
+                (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
+          (+
+            (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+            (*
+              (lit -1)
+              (*
+                (lit 0.06564153009798053)
+                (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))))))))))
+(V
+  (b-
+    vadd_i782499
+    _
     (+
-      (lit 0.00002490661231180007)
+      (+
+        (mat R (dim vadd_i782499 1000) (dim _ 1) (nnz 1000))
+        (*
+          (lit -1)
+          (*
+            (lit 0.06564153009798053)
+            (mat HV (dim vadd_i782499 1000) (dim _ 1) (nnz 1000)))))
       (*
-        (lit -1)
         (b+
           _
           _
@@ -17,266 +57,102 @@ Translate LA plan to RA
             (b-
               _
               _
-              (+
-                (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
-                (*
-                  (lit -1)
-                  (sum
-                    (dim vsall_i804878 10000)
-                    (sum
-                      (dim _ 1)
+              (sum
+                (dim vsall_i256170 1000)
+                (sum
+                  (dim _ 1)
+                  (*
+                    (+
+                      (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
                       (*
+                        (lit -1)
                         (*
-                          (*
-                            (+
-                              (lit 1)
-                              (*
-                                (lit -1)
-                                (*
-                                  (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
-                                  (+
-                                    (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
-                                    (*
-                                      (lit 0.00002490661231180007)
-                                      (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
-                            (b+
-                              vsall_i804878
-                              _
-                              (udf
-                                b(>)
-                                (b-
-                                  vadd_i732908
-                                  _
-                                  (+
-                                    (lit 1)
-                                    (*
-                                      (lit -1)
-                                      (*
-                                        (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
-                                        (+
-                                          (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
-                                          (*
-                                            (lit 0.00002490661231180007)
-                                            (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
-                                (b- _ _ (lit 0)))))
-                          (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
-                        (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))))))))
-            (b-
-              _
-              _
-              (+
-                (lit 5579186.847353816)
-                (sum
-                  (dim vsall_i484157 10000)
-                  (sum
-                    (dim _ 1)
-                    (*
+                          (lit 0.06564153009798053)
+                          (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
+                    (+
+                      (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
                       (*
-                        (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
-                        (b+
-                          vsall_i484157
-                          _
-                          (udf
-                            b(>)
-                            (b-
-                              vadd_i732908
-                              _
-                              (+
-                                (lit 1)
-                                (*
-                                  (lit -1)
-                                  (*
-                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
-                                    (+
-                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
-                                      (*
-                                        (lit 0.00002490661231180007)
-                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
-                            (b- _ _ (lit 0)))))
-                      (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000)))))))))))))
-(continue1
+                        (lit -1)
+                        (*
+                          (lit 0.06564153009798053)
+                          (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))))))
+            (b- _ _ (lit 58.31240854830055))))
+        (mat V (dim vadd_i782499 1000) (dim _ 1) (nnz 1000))))))
+(innerconverge
   (udf
-    b(>=)
-    (udf
-      b(/)
-      (b-
-        _
-        _
-        (*
-          (+
-            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
-            (*
-              (lit -1)
-              (sum
-                (dim vsall_i804878 10000)
-                (sum
-                  (dim _ 1)
-                  (*
-                    (*
-                      (*
-                        (+
-                          (lit 1)
-                          (*
-                            (lit -1)
-                            (*
-                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
-                              (+
-                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
-                                (*
-                                  (lit 0.00002490661231180007)
-                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
-                        (b+
-                          vsall_i804878
-                          _
-                          (udf
-                            b(>)
-                            (b-
-                              vadd_i732908
-                              _
-                              (+
-                                (lit 1)
-                                (*
-                                  (lit -1)
-                                  (*
-                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
-                                    (+
-                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
-                                      (*
-                                        (lit 0.00002490661231180007)
-                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
-                            (b- _ _ (lit 0)))))
-                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
-                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
-          (+
-            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
-            (*
-              (lit -1)
-              (sum
-                (dim vsall_i804878 10000)
-                (sum
-                  (dim _ 1)
-                  (*
-                    (*
-                      (*
-                        (+
-                          (lit 1)
-                          (*
-                            (lit -1)
-                            (*
-                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
-                              (+
-                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
-                                (*
-                                  (lit 0.00002490661231180007)
-                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
-                        (b+
-                          vsall_i804878
-                          _
-                          (udf
-                            b(>)
-                            (b-
-                              vadd_i732908
-                              _
-                              (+
-                                (lit 1)
-                                (*
-                                  (lit -1)
-                                  (*
-                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
-                                    (+
-                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
-                                      (*
-                                        (lit 0.00002490661231180007)
-                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
-                            (b- _ _ (lit 0)))))
-                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
-                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))))
-      (b-
-        _
-        _
-        (+
-          (lit 5579186.847353816)
-          (sum
-            (dim vsall_i484157 10000)
-            (sum
-              (dim _ 1)
+    b(<=)
+    (b-
+      _
+      _
+      (sum
+        (dim vsall_i256170 1000)
+        (sum
+          (dim _ 1)
+          (*
+            (+
+              (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
               (*
+                (lit -1)
                 (*
-                  (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
-                  (b+
-                    vsall_i484157
-                    _
-                    (udf
-                      b(>)
-                      (b-
-                        vadd_i732908
-                        _
-                        (+
-                          (lit 1)
-                          (*
-                            (lit -1)
-                            (*
-                              (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
-                              (+
-                                (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
-                                (*
-                                  (lit 0.00002490661231180007)
-                                  (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
-                      (b- _ _ (lit 0)))))
-                (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))))))))
-    (b- _ _ (lit 0.0000000001))))
+                  (lit 0.06564153009798053)
+                  (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
+            (+
+              (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+              (*
+                (lit -1)
+                (*
+                  (lit 0.06564153009798053)
+                  (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))))))
+    (b-
+      _
+      _
+      (*
+        (* (lit 0.1) (lit 11.757366208701768))
+        (* (lit 0.1) (lit 11.757366208701768))))))
 Optimize RA plan
-got some
 got some
 DONE SATURATING
 DONE generating vars
-so many vars 347
+so many vars 384
 DONE adding objective
 START SOLVING
 DONE SOLVING
-SELECTED COST 270045
+SELECTED COST 21040
 Translate RA plan to LA
 got some
+COST BEFORE 25037
+COST AFTER 21039
+SPEEDUP 0.8403163318288932
 got some
-COST BEFORE 270040
-COST AFTER 240043
-SPEEDUP 0.8889164568212117
-got some
-got some
-0,0;1;LiteralOp -1;;;M;D;;;;;
-0,0;4;LiteralOp 0;;;M;D;;;;;
-0,0;8;TRead Y;;;M;D;;;;;
-0,0;12;LiteralOp 0.00002490661231180007;;;M;D;;;;;
-0,0;14;TRead Xd;;;M;D;;;;;
-0,0;15;b(*);8,14,;;M;D;;;;;
-0,0;16;m1mul;12,15,;;M;D;;;;;
-0,0;18;TRead Xw;;;M;D;;;;;
-0,0;19;b(*);18,1,;;M;D;;;;;
-0,0;20;b(*);8,19,;;M;D;;;;;
-0,0;21;b(+);16,20,;;M;D;;;;;
-0,0;22;b(>);21,4,;;M;D;;;;;
-0,0;23;b(*);8,22,;;M;D;;;;;
-0,0;24;b(*);23,14,;;M;D;;;;;
-0,0;25;r(t);24,;;M;D;;;;;
-0,0;26;b(*);14,12,;;M;D;;;;;
-0,0;27;b(+);18,26,;;M;D;;;;;
-0,0;28;m1mul;8,27,;;M;D;;;;;
-0,0;29;ba(+*);25,28,;;M;D;;;;;
-0,0;30;b(*);1,29,;;M;D;;;;;
-0,0;32;LiteralOp 5579186.847353816;;;M;D;;;;;
-0,0;33;b(*);12,32,;;M;D;;;;;
-0,0;34;b(+);30,33,;;M;D;;;;;
-0,0;35;b(+);4,34,;;M;D;;;;;
-0,0;36;r(t);14,;;M;D;;;;;
-0,0;37;b(*);14,22,;;M;D;;;;;
-0,0;38;ba(+*);36,37,;;M;D;;;;;
-0,0;39;b(+);32,38,;;M;D;;;;;
-0,0;40;b(/);35,39,;;M;D;;;;;
-0,0;41;b(*);1,40,;;M;D;;;;;
-0,0;42;b(+);41,12,;;M;D;;;;;
-0,0;43;TWrite step_sz;42,;;M;D;;;;;
-0,0;45;b(*);35,35,;;M;D;;;;;
-0,0;46;b(/);45,39,;;M;D;;;;;
-0,0;48;LiteralOp 0.0000000001;;;M;D;;;;;
-0,0;49;b(>=);46,48,;;M;D;;;;;
-0,0;50;TWrite continue1;49,;;M;D;;;;;
+0,0;1;LiteralOp 1;;;M;D;;;;;
+0,0;3;LiteralOp 45;;;M;D;;;;;
+0,0;4;b(+);1,3,;;M;D;;;;;
+0,0;5;TWrite wormhole4;4,;;M;D;;;;;
+0,0;8;TRead Snew;;;M;D;;;;;
+0,0;9;TWrite S;8,;;M;D;;;;;
+0,0;11;TRead R;;;M;D;;;;;
+0,0;13;LiteralOp 0.06564153009798053;;;M;D;;;;;
+0,0;15;LiteralOp -1;;;M;D;;;;;
+0,0;16;b(*);13,15,;;M;D;;;;;
+0,0;18;TRead HV;;;M;D;;;;;
+0,0;19;b(*);16,18,;;M;D;;;;;
+0,0;20;b(+);11,19,;;M;D;;;;;
+0,0;21;TWrite R;20,;;M;D;;;;;
+0,0;22;r(t);20,;;M;D;;;;;
+0,0;23;ba(+*);22,20,;;M;D;;;;;
+0,0;24;TWrite norm_R2;23,;;M;D;;;;;
+0,0;25;b(*);13,18,;;M;D;;;;;
+0,0;26;b(*);15,25,;;M;D;;;;;
+0,0;29;LiteralOp 58.31240854830055;;;M;D;;;;;
+0,0;30;b(/);23,29,;;M;D;;;;;
+0,0;32;TRead V;;;M;D;;;;;
+0,0;33;b(*);30,32,;;M;D;;;;;
+0,0;34;b(+);26,33,;;M;D;;;;;
+0,0;35;b(+);11,34,;;M;D;;;;;
+0,0;36;TWrite V;35,;;M;D;;;;;
+0,0;39;LiteralOp 0.1;;;M;D;;;;;
+0,0;41;LiteralOp 11.757366208701768;;;M;D;;;;;
+0,0;42;b(*);39,41,;;M;D;;;;;
+0,0;43;b(*);42,42,;;M;D;;;;;
+0,0;44;b(<=);23,43,;;M;D;;;;;
+0,0;45;TWrite innerconverge;44,;;M;D;;;;;

@@ -52,14 +52,11 @@ pub enum Schema {
 pub fn dag_cost(eg: &EGraph) -> usize {
     eg.classes().map(|c| {
         let nnz = c.metadata.nnz;
-        //if let None = nnz {
-        //    println!("missing nnz for {:?}", c.metadata);
-        //    for node in &c.nodes {
-        //        println!("{:?}", node);
-        //    }
-        //}
-        // println!("NNZ {:?}", nnz);
-        nnz.unwrap_or(get_vol(&c.metadata))
+        if let Some(Schema::Schm(_)) = c.metadata.schema {
+            nnz.unwrap_or(get_vol(&c.metadata))
+        } else {
+            0
+        }
     }).sum()
 }
 
@@ -233,7 +230,9 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
             }
         },
         // NOTE nnz here can be wrong
-        "b(^)" | "b(min)" | "b(&)" | "u(sqrt)" | "b(!=)" | "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" | "u(exp)" | "u(log)" => {
+        "b(^)" | "b(min)" | "b(&)" | "u(sqrt)" | "b(!=)" |
+        "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" |
+        "u(exp)" | "u(log)" | "sprop" => {
             println!("got some");
             children[0].clone()
         },

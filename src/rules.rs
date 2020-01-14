@@ -121,6 +121,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
         drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
         drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
+        drw("sprop", "(* ?x (+ (lit 1) (* (lit -1) ?x)))", Sprop),
         rw("sum_", "(sum (dim _ 1) ?x)", "(* (lit 1) ?x)"),
         //drw("foundit",
         //    "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
@@ -132,6 +133,42 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         //    Foundit
         //)
     ]
+}
+
+#[derive(Debug)]
+struct Sprop;
+impl Applier<Math, Meta> for Sprop {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        // (b+ i j (sprop (b- i j ?x)))
+        let x = map[&"?x".parse().unwrap()][0];
+        let mut x_schema = egraph[x]
+            .metadata.schema
+            .as_ref().unwrap()
+            .get_schm().keys();
+        let mut res = vec![];
+        if x_schema.len() <= 2 {
+            let wc = "_".to_owned();
+            let i = x_schema.next().unwrap_or(&wc).clone();
+            let j = x_schema.next().unwrap_or(&wc).clone();
+
+            let mut bind_ij = Math::parse_pattern(
+                &format!(
+                    "(b+ {i} {j} (udf sprop (b- {i} {j} ?x)))",
+                    i=&i, j=&j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ij);
+
+            let mut bind_ji = Math::parse_pattern(
+                &format!(
+                    "(b+ {j} {i} (udf sprop (b- {j} {i} ?x)))",
+                    i=&i, j=&j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ji);
+        }
+        res
+    }
 }
 
 #[derive(Debug)]
