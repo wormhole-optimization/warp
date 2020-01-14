@@ -90,6 +90,7 @@ pub fn trans_rules() -> Vec<Rewrite<Math, Meta>> {
 #[rustfmt::skip]
 pub fn rules() -> Vec<Rewrite<Math, Meta>> {
     vec![
+        // NOTE udf b(m1mul) breaks b/c parsing
         rw("+-commutative", "(+ ?a ?b)", "(+ ?b ?a)"),
         rw("*-commutative", "(* ?a ?b)", "(* ?b ?a)"),
         rw("associate-+r+", "(+ ?a (+ ?b ?c))", "(+ (+ ?a ?b) ?c)"),
@@ -119,6 +120,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("agg-subst", "(subst ?e ?v1 (sum ?v2 ?body))", SubstAgg),
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
         drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
+        drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
         rw("sum_", "(sum (dim _ 1) ?x)", "(* (lit 1) ?x)"),
         //drw("foundit",
         //    "(+ (sum ?i (sum ?j (+ (* (mat ?x ?i ?j ?za) (mat ?x ?i ?j ?zb)) (+ \
@@ -130,6 +132,50 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         //    Foundit
         //)
     ]
+}
+
+#[derive(Debug)]
+struct MOneMul;
+impl Applier<Math, Meta> for MOneMul {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        // drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
+        // (b+ i j (udf m1mul (b- i j x) (b- i j y)))
+        // get x schema, unbind
+        // get y schema, unbind
+        // get result schema, bind
+
+        let x = map[&"?x".parse().unwrap()][0];
+        let y = map[&"?y".parse().unwrap()][0];
+        let mul = egraph.add(Expr::new(Math::Mul, smallvec![x, y]));
+        let mut mul_schema = egraph[mul.id]
+            .metadata.schema
+            .as_ref().unwrap()
+            .get_schm().keys();
+
+        let mut res = vec![];
+        if mul_schema.len() <= 2 {
+            let wc = "_".to_owned();
+            let i = mul_schema.next().unwrap_or(&wc).clone();
+            let j = mul_schema.next().unwrap_or(&wc).clone();
+
+            let mut bind_ij = Math::parse_pattern(
+                &format!(
+                    "(b+ {i} {j} (udf m1mul (b- {i} {j} ?x) (b- {i} {j} ?y)))",
+                    i=&i, j=&j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ij);
+
+            let mut bind_ji = Math::parse_pattern(
+                &format!(
+                    "(b+ {j} {i} (udf m1mul (b- {j} {i} ?x) (b- {j} {i} ?y)))",
+                    i=&i, j=&j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ji);
+        }
+        res
+    }
 }
 
 #[derive(Debug)]

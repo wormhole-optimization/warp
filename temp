@@ -1,28 +1,282 @@
-missing nnz for Meta { schema: None, sparsity: None, nnz: None }
-Expr { op: TWrite("wormhole6"), children: [6] }
-missing nnz for Meta { schema: None, sparsity: None, nnz: None }
-Expr { op: TWrite("i_CG"), children: [11] }
-missing nnz for Meta { schema: Some(Dims("vadd_i933502", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [13, 15] }
-missing nnz for Meta { schema: Some(Dims("_", 1)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [0, 3] }
-missing nnz for Meta { schema: Some(Dims("vmmul_j548988", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [25, 15] }
-missing nnz for Meta { schema: Some(Dims("vmat_i434917", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [28, 15] }
-missing nnz for Meta { schema: Some(Dims("vmmul_j498317", 10000)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [35, 36] }
-missing nnz for Meta { schema: Some(Dims("vmmul_j632164", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [45, 15] }
-missing nnz for Meta { schema: Some(Dims("vmmul_j449753", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [50, 15] }
-missing nnz for Meta { schema: Some(Dims("vmmul_j938431", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [65, 15] }
-missing nnz for Meta { schema: Some(Dims("vmmul_i498317", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [85, 15] }
-missing nnz for Meta { schema: None, sparsity: None, nnz: None }
-Expr { op: TWrite("q_CG"), children: [96] }
-missing nnz for Meta { schema: Some(Dims("vsall_i306378", 1001)), sparsity: None, nnz: None }
-Expr { op: Dim, children: [98, 15] }
-missing nnz for Meta { schema: None, sparsity: None, nnz: None }
-Expr { op: TWrite("pq_CG"), children: [113] }
+got some
+got some
+Translate LA plan to RA
+(step_sz
+  (b-
+    _
+    _
+    (+
+      (lit 0.00002490661231180007)
+      (*
+        (lit -1)
+        (b+
+          _
+          _
+          (udf
+            b(/)
+            (b-
+              _
+              _
+              (+
+                (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+                (*
+                  (lit -1)
+                  (sum
+                    (dim vsall_i804878 10000)
+                    (sum
+                      (dim _ 1)
+                      (*
+                        (*
+                          (*
+                            (+
+                              (lit 1)
+                              (*
+                                (lit -1)
+                                (*
+                                  (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                                  (+
+                                    (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                    (*
+                                      (lit 0.00002490661231180007)
+                                      (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                            (b+
+                              vsall_i804878
+                              _
+                              (udf
+                                b(>)
+                                (b-
+                                  vadd_i732908
+                                  _
+                                  (+
+                                    (lit 1)
+                                    (*
+                                      (lit -1)
+                                      (*
+                                        (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                        (+
+                                          (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                          (*
+                                            (lit 0.00002490661231180007)
+                                            (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                                (b- _ _ (lit 0)))))
+                          (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                        (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))))))))
+            (b-
+              _
+              _
+              (+
+                (lit 5579186.847353816)
+                (sum
+                  (dim vsall_i484157 10000)
+                  (sum
+                    (dim _ 1)
+                    (*
+                      (*
+                        (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+                        (b+
+                          vsall_i484157
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000)))))))))))))
+(continue1
+  (udf
+    b(>=)
+    (udf
+      b(/)
+      (b-
+        _
+        _
+        (*
+          (+
+            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+            (*
+              (lit -1)
+              (sum
+                (dim vsall_i804878 10000)
+                (sum
+                  (dim _ 1)
+                  (*
+                    (*
+                      (*
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                        (b+
+                          vsall_i804878
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+          (+
+            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+            (*
+              (lit -1)
+              (sum
+                (dim vsall_i804878 10000)
+                (sum
+                  (dim _ 1)
+                  (*
+                    (*
+                      (*
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                        (b+
+                          vsall_i804878
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))))
+      (b-
+        _
+        _
+        (+
+          (lit 5579186.847353816)
+          (sum
+            (dim vsall_i484157 10000)
+            (sum
+              (dim _ 1)
+              (*
+                (*
+                  (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+                  (b+
+                    vsall_i484157
+                    _
+                    (udf
+                      b(>)
+                      (b-
+                        vadd_i732908
+                        _
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                      (b- _ _ (lit 0)))))
+                (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))))))))
+    (b- _ _ (lit 0.0000000001))))
+Optimize RA plan
+got some
+got some
+DONE SATURATING
+DONE generating vars
+so many vars 347
+DONE adding objective
+START SOLVING
+DONE SOLVING
+SELECTED COST 270045
+Translate RA plan to LA
+got some
+got some
+COST BEFORE 270040
+COST AFTER 240043
+SPEEDUP 0.8889164568212117
+got some
+got some
+0,0;1;LiteralOp -1;;;M;D;;;;;
+0,0;4;LiteralOp 0;;;M;D;;;;;
+0,0;8;TRead Y;;;M;D;;;;;
+0,0;12;LiteralOp 0.00002490661231180007;;;M;D;;;;;
+0,0;14;TRead Xd;;;M;D;;;;;
+0,0;15;b(*);8,14,;;M;D;;;;;
+0,0;16;m1mul;12,15,;;M;D;;;;;
+0,0;18;TRead Xw;;;M;D;;;;;
+0,0;19;b(*);18,1,;;M;D;;;;;
+0,0;20;b(*);8,19,;;M;D;;;;;
+0,0;21;b(+);16,20,;;M;D;;;;;
+0,0;22;b(>);21,4,;;M;D;;;;;
+0,0;23;b(*);8,22,;;M;D;;;;;
+0,0;24;b(*);23,14,;;M;D;;;;;
+0,0;25;r(t);24,;;M;D;;;;;
+0,0;26;b(*);14,12,;;M;D;;;;;
+0,0;27;b(+);18,26,;;M;D;;;;;
+0,0;28;m1mul;8,27,;;M;D;;;;;
+0,0;29;ba(+*);25,28,;;M;D;;;;;
+0,0;30;b(*);1,29,;;M;D;;;;;
+0,0;32;LiteralOp 5579186.847353816;;;M;D;;;;;
+0,0;33;b(*);12,32,;;M;D;;;;;
+0,0;34;b(+);30,33,;;M;D;;;;;
+0,0;35;b(+);4,34,;;M;D;;;;;
+0,0;36;r(t);14,;;M;D;;;;;
+0,0;37;b(*);14,22,;;M;D;;;;;
+0,0;38;ba(+*);36,37,;;M;D;;;;;
+0,0;39;b(+);32,38,;;M;D;;;;;
+0,0;40;b(/);35,39,;;M;D;;;;;
+0,0;41;b(*);1,40,;;M;D;;;;;
+0,0;42;b(+);41,12,;;M;D;;;;;
+0,0;43;TWrite step_sz;42,;;M;D;;;;;
+0,0;45;b(*);35,35,;;M;D;;;;;
+0,0;46;b(/);45,39,;;M;D;;;;;
+0,0;48;LiteralOp 0.0000000001;;;M;D;;;;;
+0,0;49;b(>=);46,48,;;M;D;;;;;
+0,0;50;TWrite continue1;49,;;M;D;;;;;

@@ -156,6 +156,23 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
                 sparsity
             }
         },
+        "m1mul" => {
+            let x_schema = &children[0].schema.as_ref().unwrap();
+            let y_schema = &children[1].schema.as_ref().unwrap();
+
+            let (x_i, x_j) = x_schema.get_mat();
+            let (y_i, y_j) = y_schema.get_mat();
+
+            dims_ok(*x_i, *x_j, *y_i, *y_j);
+            let row = if *x_i == 1 { y_i } else { x_i };
+            let col = if *x_j == 1 { y_j } else { x_j };
+
+            Meta {
+                schema: Some(Schema::Mat(*row, *col)),
+                nnz: None,
+                sparsity: None
+            }
+        },
         "rix" => {
             // NOTE might want to tweak the nnz here
             let x = &children[0];
@@ -217,6 +234,7 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
         },
         // NOTE nnz here can be wrong
         "b(^)" | "b(min)" | "b(&)" | "u(sqrt)" | "b(!=)" | "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" | "u(exp)" | "u(log)" => {
+            println!("got some");
             children[0].clone()
         },
         _ => panic!("Unknown udf {}", op)
