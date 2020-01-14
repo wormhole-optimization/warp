@@ -64,12 +64,15 @@ pub fn extract(egraph: EGraph,
 
     // Objective function to minimize
     let obj_vec: Vec<LpExpression> = {
-        var_bqs.iter().map(|(c, var)| {
-            // NOTE careful here with 1000
+        var_bqs.iter().flat_map(|(c, var)| {
             let meta = &egraph[*c].metadata;
-            let coef = meta.nnz.unwrap_or(get_vol(meta));
-            let bq = LpBinary::new(&var);
-            coef as f32 * &bq
+            if let Some(Schema::Schm(_)) = meta.schema {
+                let coef = meta.nnz.unwrap_or(get_vol(meta));
+                let bq = LpBinary::new(&var);
+                Some(coef as f32 * &bq)
+            } else {
+                None
+            }
         }).collect()
     };
 
