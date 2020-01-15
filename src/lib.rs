@@ -127,6 +127,34 @@ fn saturate(
 
 pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
     match op {
+        "axpy" => {
+            let x = &children[0];
+            let x_schema = &children[0].schema.as_ref().unwrap();
+            let p = &children[1];
+            let p_schema = &children[1].schema.as_ref().unwrap();
+            let y = &children[2];
+            let y_schema = &children[2].schema.as_ref().unwrap();
+
+            let (x_i, x_j) = x_schema.get_mat();
+            let (p_i, p_j) = x_schema.get_mat();
+            let (y_i, y_j) = y_schema.get_mat();
+
+            let sparsity = x.sparsity.and_then(|x| y.sparsity.map(|y| {
+                min(1.0.into(), x + y)
+            }));
+
+            let nnz = sparsity.map(|sp| {
+                let vol: usize = x_i * x_j;
+                let nnz = NotNan::from(vol as f64) * sp;
+                nnz.round() as usize
+            });
+
+            let schema = Some(Schema::Mat(*x_i, *x_j));
+            Meta {
+                schema, sparsity, nnz
+            }
+
+        }
         "b(/)" => {
             let x = &children[0];
             let x_schema = &children[0].schema.as_ref().unwrap();

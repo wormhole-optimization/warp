@@ -137,6 +137,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
         drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
         drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
+        drw("axpy", "(+ ?x (* ?p ?y))", Axpy),
         drw("sprop", "(* ?x (+ (lit 1) (* (lit -1) ?x)))", Sprop),
         drw("udf_rename", "(b+ ?i ?j (udf ?o (b- ?k ?l ?x) (b- ?m ?n ?y)))", UdfRn),
         // TODO need bind ubnd below
@@ -172,6 +173,52 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         //    Foundit
         //)
     ]
+}
+
+#[derive(Debug)]
+struct Axpy;
+impl Applier<Math, Meta> for Axpy {
+    fn apply(&self, egraph: &mut EGraph, map: &WildMap) -> Vec<AddResult> {
+        let x = map[&"?x".parse().unwrap()][0];
+        let x_schema = egraph[x]
+            .metadata.schema
+            .as_ref().unwrap()
+            .get_schm();
+        let p = map[&"?p".parse().unwrap()][0];
+        let p_schema = egraph[p]
+            .metadata.schema
+            .as_ref().unwrap()
+            .get_schm();
+        let y = map[&"?y".parse().unwrap()][0];
+        let y_schema = egraph[y]
+            .metadata.schema
+            .as_ref().unwrap()
+            .get_schm();
+
+        let mut res = vec![];
+        if p_schema.is_empty() && x_schema.len() == 2 && x_schema == y_schema {
+            let mut x_schema = x_schema.keys();
+            let wc = "_".to_owned();
+            let i = x_schema.next().unwrap_or(&wc).clone();
+            let j = x_schema.next().unwrap_or(&wc).clone();
+
+            let mut bind_ij = Math::parse_pattern(
+                &format!(
+                    "(b+ {i} {j} (udf axpy (b- {i} {j} ?x) (b- _ _ ?p) (b- {i} {j} ?y)))",
+                    i = &i, j = &j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ij);
+            let mut bind_ji = Math::parse_pattern(
+                &format!(
+                    "(b+ {j} {i} (udf axpy (b- {j} {i} ?x) (b- _ _ ?p) (b- {j} {i} ?y)))",
+                    i = &i, j = &j
+                )
+            ).unwrap().apply(egraph, map);
+            res.append(&mut bind_ji);
+        }
+        res
+    }
 }
 
 #[derive(Debug)]

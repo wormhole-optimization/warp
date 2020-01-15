@@ -146,7 +146,7 @@ pub fn print_dag(egraph: &EGraph) {
             let op = &e.op;
             match op {
                 Str(_) | Num(_) => {
-                    println!("STRNUM id{} {:?}", id, op);
+                    // println!("STRNUM id{} {:?}", id, op);
                 },
                 Udf => {
                     print!("0,0;{id};", id=id);
