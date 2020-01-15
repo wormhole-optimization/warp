@@ -1,54 +1,14 @@
 got some
+got some
 Translate LA plan to RA
-(wormhole4 (b- _ _ (+ (lit 45) (lit 1))))
-(S (b- vmat_i941667 _ (mat Snew (dim vmat_i941667 1000) (dim _ 1) (nnz 1000))))
-(R
+(step_sz
   (b-
-    vadd_i16379
+    _
     _
     (+
-      (mat R (dim vadd_i16379 1000) (dim _ 1) (nnz 1000))
+      (lit 0.00002490661231180007)
       (*
         (lit -1)
-        (*
-          (lit 0.06564153009798053)
-          (mat HV (dim vadd_i16379 1000) (dim _ 1) (nnz 1000)))))))
-(norm_R2
-  (b-
-    _
-    _
-    (sum
-      (dim vsall_i256170 1000)
-      (sum
-        (dim _ 1)
-        (*
-          (+
-            (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
-            (*
-              (lit -1)
-              (*
-                (lit 0.06564153009798053)
-                (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
-          (+
-            (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
-            (*
-              (lit -1)
-              (*
-                (lit 0.06564153009798053)
-                (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))))))))))
-(V
-  (b-
-    vadd_i782499
-    _
-    (+
-      (+
-        (mat R (dim vadd_i782499 1000) (dim _ 1) (nnz 1000))
-        (*
-          (lit -1)
-          (*
-            (lit 0.06564153009798053)
-            (mat HV (dim vadd_i782499 1000) (dim _ 1) (nnz 1000)))))
-      (*
         (b+
           _
           _
@@ -57,102 +17,2244 @@ Translate LA plan to RA
             (b-
               _
               _
+              (+
+                (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+                (*
+                  (lit -1)
+                  (sum
+                    (dim vsall_i804878 10000)
+                    (sum
+                      (dim _ 1)
+                      (*
+                        (*
+                          (*
+                            (+
+                              (lit 1)
+                              (*
+                                (lit -1)
+                                (*
+                                  (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                                  (+
+                                    (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                    (*
+                                      (lit 0.00002490661231180007)
+                                      (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                            (b+
+                              vsall_i804878
+                              _
+                              (udf
+                                b(>)
+                                (b-
+                                  vadd_i732908
+                                  _
+                                  (+
+                                    (lit 1)
+                                    (*
+                                      (lit -1)
+                                      (*
+                                        (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                        (+
+                                          (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                          (*
+                                            (lit 0.00002490661231180007)
+                                            (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                                (b- _ _ (lit 0)))))
+                          (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                        (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))))))))
+            (b-
+              _
+              _
+              (+
+                (lit 5579186.847353816)
+                (sum
+                  (dim vsall_i484157 10000)
+                  (sum
+                    (dim _ 1)
+                    (*
+                      (*
+                        (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+                        (b+
+                          vsall_i484157
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000)))))))))))))
+(continue1
+  (udf
+    b(>=)
+    (udf
+      b(/)
+      (b-
+        _
+        _
+        (*
+          (+
+            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+            (*
+              (lit -1)
               (sum
-                (dim vsall_i256170 1000)
+                (dim vsall_i804878 10000)
                 (sum
                   (dim _ 1)
                   (*
-                    (+
-                      (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+                    (*
                       (*
-                        (lit -1)
-                        (*
-                          (lit 0.06564153009798053)
-                          (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
-                    (+
-                      (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                        (b+
+                          vsall_i804878
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+          (+
+            (+ (lit 0) (* (lit 0.00002490661231180007) (lit 5579186.847353816)))
+            (*
+              (lit -1)
+              (sum
+                (dim vsall_i804878 10000)
+                (sum
+                  (dim _ 1)
+                  (*
+                    (*
                       (*
-                        (lit -1)
-                        (*
-                          (lit 0.06564153009798053)
-                          (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))))))
-            (b- _ _ (lit 58.31240854830055))))
-        (mat V (dim vadd_i782499 1000) (dim _ 1) (nnz 1000))))))
-(innerconverge
-  (udf
-    b(<=)
-    (b-
-      _
-      _
-      (sum
-        (dim vsall_i256170 1000)
-        (sum
-          (dim _ 1)
-          (*
-            (+
-              (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vsall_i804878 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+                        (b+
+                          vsall_i804878
+                          _
+                          (udf
+                            b(>)
+                            (b-
+                              vadd_i732908
+                              _
+                              (+
+                                (lit 1)
+                                (*
+                                  (lit -1)
+                                  (*
+                                    (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (+
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (*
+                                        (lit 0.00002490661231180007)
+                                        (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                            (b- _ _ (lit 0)))))
+                      (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                    (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))))
+      (b-
+        _
+        _
+        (+
+          (lit 5579186.847353816)
+          (sum
+            (dim vsall_i484157 10000)
+            (sum
+              (dim _ 1)
               (*
-                (lit -1)
                 (*
-                  (lit 0.06564153009798053)
-                  (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))
-            (+
-              (mat R (dim vsall_i256170 1000) (dim _ 1) (nnz 1000))
-              (*
-                (lit -1)
-                (*
-                  (lit 0.06564153009798053)
-                  (mat HV (dim vsall_i256170 1000) (dim _ 1) (nnz 1000)))))))))
-    (b-
-      _
-      _
-      (*
-        (* (lit 0.1) (lit 11.757366208701768))
-        (* (lit 0.1) (lit 11.757366208701768))))))
+                  (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+                  (b+
+                    vsall_i484157
+                    _
+                    (udf
+                      b(>)
+                      (b-
+                        vadd_i732908
+                        _
+                        (+
+                          (lit 1)
+                          (*
+                            (lit -1)
+                            (*
+                              (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                              (+
+                                (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                (*
+                                  (lit 0.00002490661231180007)
+                                  (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))))
+                      (b- _ _ (lit 0)))))
+                (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))))))))
+    (b- _ _ (lit 0.0000000001))))
 Optimize RA plan
+got some
+got some
+got some
+got some
+got some
+got some
 got some
 DONE SATURATING
 DONE generating vars
-so many vars 384
+so many vars 442
 DONE adding objective
 START SOLVING
 DONE SOLVING
-SELECTED COST 21040
+SELECTED COST 260043
+CLASS 69
+NODE Expr { op: TWrite("step_sz"), children: [68] }
+CLASS 68
+NODE Expr { op: Ubnd, children: [0, 0, 67] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 67
+NODE Expr { op: Add, children: [66, 806] }
+NODE Expr { op: Add, children: [806, 66] }
+CLASS 66
+NODE Expr { op: Mul, children: [145, 65] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 65
+NODE Expr { op: Bind, children: [0, 0, 64] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 64
+NODE Expr { op: Udf, children: [5, 53, 63] }
+CLASS 5
+NODE Expr { op: Str("b(/)"), children: [] }
+CLASS 53
+NODE Expr { op: Ubnd, children: [0, 0, 52] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 52
+NODE Expr { op: Add, children: [7, 81] }
+NODE Expr { op: Add, children: [11, 51] }
+NODE Expr { op: Add, children: [143, 10] }
+CLASS 11
+NODE Expr { op: Add, children: [7, 10] }
+CLASS 7
+NODE Expr { op: Lit, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 10
+NODE Expr { op: Mul, children: [9, 806] }
+NODE Expr { op: Mul, children: [806, 9] }
+CLASS 9
+NODE Expr { op: Lit, children: [8] }
+CLASS 8
+NODE Expr { op: Num(NotNan(5579186.847353816)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 51
+NODE Expr { op: Agg, children: [253, 98] }
+NODE Expr { op: Mul, children: [145, 50] }
+NODE Expr { op: Agg, children: [361, 154] }
+NODE Expr { op: Mul, children: [117, 154] }
+NODE Expr { op: Mul, children: [154, 117] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 50
+NODE Expr { op: Agg, children: [361, 373] }
+NODE Expr { op: Agg, children: [253, 49] }
+NODE Expr { op: Mul, children: [117, 373] }
+NODE Expr { op: Mul, children: [373, 117] }
+NODE Expr { op: RMMul, children: [47, 96] }
+NODE Expr { op: RMMul, children: [46, 129] }
+NODE Expr { op: RMMul, children: [109, 558] }
+NODE Expr { op: RMMul, children: [109, 476] }
+NODE Expr { op: Add, children: [1323, 1324] }
+NODE Expr { op: Add, children: [1324, 1323] }
+NODE Expr { op: Add, children: [1327, 1328] }
+NODE Expr { op: Add, children: [1330, 1331] }
+NODE Expr { op: Add, children: [1328, 1327] }
+NODE Expr { op: Add, children: [1331, 1330] }
+NODE Expr { op: Add, children: [1330, 1335] }
+NODE Expr { op: Add, children: [1337, 1338] }
+NODE Expr { op: Add, children: [1327, 1337] }
+NODE Expr { op: Add, children: [1341, 1330] }
+NODE Expr { op: Add, children: [1327, 1343] }
+NODE Expr { op: Add, children: [1345, 1330] }
+NODE Expr { op: Add, children: [1330, 1345] }
+NODE Expr { op: Add, children: [1343, 1338] }
+NODE Expr { op: Add, children: [1349, 1330] }
+NODE Expr { op: Add, children: [1328, 1351] }
+NODE Expr { op: Add, children: [1353, 1354] }
+NODE Expr { op: Add, children: [1356, 1354] }
+NODE Expr { op: Add, children: [1358, 1359] }
+NODE Expr { op: Add, children: [1361, 1359] }
+NODE Expr { op: Add, children: [1363, 1364] }
+NODE Expr { op: Add, children: [1364, 1363] }
+NODE Expr { op: Add, children: [1367, 1368] }
+NODE Expr { op: Add, children: [1370, 1371] }
+NODE Expr { op: Add, children: [1368, 1367] }
+NODE Expr { op: Add, children: [1371, 1370] }
+NODE Expr { op: Add, children: [1370, 1375] }
+NODE Expr { op: Add, children: [1377, 1378] }
+NODE Expr { op: Add, children: [1367, 1377] }
+NODE Expr { op: Add, children: [1381, 1370] }
+NODE Expr { op: Add, children: [1367, 1383] }
+NODE Expr { op: Add, children: [1385, 1370] }
+NODE Expr { op: Add, children: [1370, 1385] }
+NODE Expr { op: Add, children: [1383, 1378] }
+NODE Expr { op: Add, children: [1389, 1370] }
+NODE Expr { op: Add, children: [1368, 1391] }
+NODE Expr { op: Add, children: [1393, 1394] }
+NODE Expr { op: Add, children: [1396, 1394] }
+NODE Expr { op: Add, children: [1398, 1399] }
+NODE Expr { op: Add, children: [1401, 1399] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 373
+NODE Expr { op: RMMul, children: [46, 85] }
+NODE Expr { op: Agg, children: [253, 48] }
+NODE Expr { op: RMMul, children: [47, 805] }
+NODE Expr { op: RMMul, children: [109, 249] }
+NODE Expr { op: RMMul, children: [109, 251] }
+CLASS 47
+NODE Expr { op: Mul, children: [109, 161] }
+NODE Expr { op: Mul, children: [46, 227] }
+NODE Expr { op: Mul, children: [161, 109] }
+NODE Expr { op: Mul, children: [227, 46] }
+CLASS 46
+NODE Expr { op: Bind, children: [12, 0, 1299] }
+NODE Expr { op: Mul, children: [109, 45] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1299
+NODE Expr { op: Udf, children: [1298, 582] }
+CLASS 1298
+NODE Expr { op: Str("selp"), children: [] }
+CLASS 582
+NODE Expr { op: Ubnd, children: [12, 0, 109] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 109
+NODE Expr { op: Add, children: [29, 117] }
+NODE Expr { op: Sub, children: [253, 33, 41] }
+NODE Expr { op: Add, children: [117, 29] }
+NODE Expr { op: Bind, children: [12, 0, 135] }
+NODE Expr { op: Bind, children: [0, 12, 139] }
+NODE Expr { op: Add, children: [301, 544] }
+NODE Expr { op: Add, children: [163, 204] }
+NODE Expr { op: Add, children: [544, 301] }
+NODE Expr { op: Add, children: [204, 163] }
+NODE Expr { op: Bind, children: [12, 0, 336] }
+NODE Expr { op: Bind, children: [0, 12, 340] }
+NODE Expr { op: Add, children: [163, 291] }
+NODE Expr { op: Add, children: [182, 393] }
+NODE Expr { op: Bind, children: [12, 0, 268] }
+NODE Expr { op: Bind, children: [0, 12, 271] }
+NODE Expr { op: Add, children: [301, 182] }
+NODE Expr { op: Add, children: [383, 163] }
+NODE Expr { op: Add, children: [301, 185] }
+NODE Expr { op: Add, children: [293, 163] }
+NODE Expr { op: Add, children: [163, 293] }
+NODE Expr { op: Add, children: [185, 393] }
+NODE Expr { op: Add, children: [615, 163] }
+NODE Expr { op: Add, children: [544, 617] }
+NODE Expr { op: Add, children: [276, 124] }
+NODE Expr { op: Add, children: [283, 124] }
+NODE Expr { op: Add, children: [120, 289] }
+NODE Expr { op: Add, children: [187, 289] }
+NODE Expr { op: Add, children: [1192, 1193] }
+NODE Expr { op: Add, children: [1195, 1196] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 41
+NODE Expr { op: Add, children: [40, 117] }
+NODE Expr { op: Add, children: [117, 40] }
+NODE Expr { op: Bind, children: [32, 0, 135] }
+NODE Expr { op: Bind, children: [0, 32, 139] }
+NODE Expr { op: Add, children: [126, 159] }
+NODE Expr { op: Add, children: [240, 127] }
+NODE Expr { op: Bind, children: [32, 0, 268] }
+NODE Expr { op: Bind, children: [0, 32, 271] }
+NODE Expr { op: Add, children: [660, 126] }
+NODE Expr { op: Add, children: [127, 346] }
+NODE Expr { op: Add, children: [662, 463] }
+NODE Expr { op: Add, children: [664, 466] }
+CLASS 660
+NODE Expr { op: Bind, children: [32, 0, 1104] }
+NODE Expr { op: Add, children: [117, 127] }
+NODE Expr { op: Bind, children: [0, 32, 1106] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1104
+NODE Expr { op: Udf, children: [100, 1085, 133] }
+CLASS 100
+NODE Expr { op: Str("m1mul"), children: [] }
+CLASS 1085
+NODE Expr { op: Ubnd, children: [32, 0, 37] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 37
+NODE Expr { op: Mul, children: [36, 806] }
+NODE Expr { op: Mul, children: [806, 36] }
+CLASS 36
+NODE Expr { op: Mat, children: [24, 33, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 133
+NODE Expr { op: Ubnd, children: [32, 0, 34] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 126
+NODE Expr { op: Mul, children: [145, 90] }
+NODE Expr { op: Mul, children: [90, 145] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 90
+NODE Expr { op: Mul, children: [35, 34] }
+CLASS 35
+NODE Expr { op: Mat, children: [21, 33, 361, 22] }
+CLASS 21
+NODE Expr { op: Str("Xw"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 22
+NODE Expr { op: Nnz, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 227
+NODE Expr { op: Mat, children: [18, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 34] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 805
+NODE Expr { op: Mat, children: [24, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 36] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 63
+NODE Expr { op: Ubnd, children: [0, 0, 62] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 62
+NODE Expr { op: Add, children: [61, 9] }
+NODE Expr { op: Add, children: [9, 61] }
+CLASS 9
+NODE Expr { op: Lit, children: [8] }
+CLASS 8
+NODE Expr { op: Num(NotNan(5579186.847353816)), children: [] }
+CLASS 61
+NODE Expr { op: Agg, children: [361, 1287] }
+NODE Expr { op: Agg, children: [718, 60] }
+NODE Expr { op: Mul, children: [117, 1287] }
+NODE Expr { op: RMMul, children: [58, 517] }
+CLASS 58
+NODE Expr { op: Mul, children: [56, 57] }
+CLASS 56
+NODE Expr { op: Mat, children: [24, 718, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 718
+NODE Expr { op: Dim, children: [54, 13] }
+NODE Expr { op: Sub, children: [718, 33, 33] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 57
+NODE Expr { op: Bind, children: [54, 0, 1296] }
+NODE Expr { op: Bind, children: [54, 0, 44] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 44
+NODE Expr { op: Udf, children: [31, 42, 43] }
+CLASS 31
+NODE Expr { op: Str("b(>)"), children: [] }
+CLASS 42
+NODE Expr { op: Ubnd, children: [32, 0, 41] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 41
+NODE Expr { op: Add, children: [40, 117] }
+NODE Expr { op: Add, children: [117, 40] }
+NODE Expr { op: Bind, children: [32, 0, 135] }
+NODE Expr { op: Bind, children: [0, 32, 139] }
+NODE Expr { op: Add, children: [126, 159] }
+NODE Expr { op: Add, children: [240, 127] }
+NODE Expr { op: Bind, children: [32, 0, 268] }
+NODE Expr { op: Bind, children: [0, 32, 271] }
+NODE Expr { op: Add, children: [660, 126] }
+NODE Expr { op: Add, children: [127, 346] }
+NODE Expr { op: Add, children: [662, 463] }
+NODE Expr { op: Add, children: [664, 466] }
+CLASS 660
+NODE Expr { op: Bind, children: [32, 0, 1104] }
+NODE Expr { op: Add, children: [117, 127] }
+NODE Expr { op: Bind, children: [0, 32, 1106] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1104
+NODE Expr { op: Udf, children: [100, 1085, 133] }
+CLASS 100
+NODE Expr { op: Str("m1mul"), children: [] }
+CLASS 1085
+NODE Expr { op: Ubnd, children: [32, 0, 37] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 37
+NODE Expr { op: Mul, children: [36, 806] }
+NODE Expr { op: Mul, children: [806, 36] }
+CLASS 36
+NODE Expr { op: Mat, children: [24, 33, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 133
+NODE Expr { op: Ubnd, children: [32, 0, 34] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 126
+NODE Expr { op: Mul, children: [145, 90] }
+NODE Expr { op: Mul, children: [90, 145] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 90
+NODE Expr { op: Mul, children: [35, 34] }
+CLASS 35
+NODE Expr { op: Mat, children: [21, 33, 361, 22] }
+CLASS 21
+NODE Expr { op: Str("Xw"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 22
+NODE Expr { op: Nnz, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 43
+NODE Expr { op: Ubnd, children: [0, 0, 7] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 7
+NODE Expr { op: Lit, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 517
+NODE Expr { op: Mul, children: [117, 56] }
+NODE Expr { op: Agg, children: [361, 56] }
+NODE Expr { op: Mul, children: [56, 117] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 56
+NODE Expr { op: Mat, children: [24, 718, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 718
+NODE Expr { op: Dim, children: [54, 13] }
+NODE Expr { op: Sub, children: [718, 33, 33] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 78
+NODE Expr { op: TWrite("continue1"), children: [77] }
+CLASS 77
+NODE Expr { op: Udf, children: [70, 73, 76] }
+CLASS 70
+NODE Expr { op: Str("b(>=)"), children: [] }
+CLASS 73
+NODE Expr { op: Udf, children: [5, 72, 63] }
+CLASS 5
+NODE Expr { op: Str("b(/)"), children: [] }
+CLASS 72
+NODE Expr { op: Ubnd, children: [0, 0, 71] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 71
+NODE Expr { op: Add, children: [212, 213] }
+NODE Expr { op: Mul, children: [52, 52] }
+NODE Expr { op: Add, children: [215, 216] }
+NODE Expr { op: Add, children: [218, 219] }
+NODE Expr { op: Add, children: [916, 306] }
+NODE Expr { op: Add, children: [490, 309] }
+NODE Expr { op: Add, children: [492, 312] }
+NODE Expr { op: Add, children: [494, 312] }
+NODE Expr { op: Add, children: [496, 317] }
+NODE Expr { op: Add, children: [498, 320] }
+NODE Expr { op: Add, children: [365, 669] }
+NODE Expr { op: Add, children: [594, 675] }
+NODE Expr { op: Add, children: [371, 677] }
+NODE Expr { op: Add, children: [420, 675] }
+NODE Expr { op: Add, children: [549, 677] }
+NODE Expr { op: Add, children: [592, 677] }
+NODE Expr { op: Add, children: [417, 681] }
+NODE Expr { op: Add, children: [420, 683] }
+NODE Expr { op: Add, children: [423, 685] }
+NODE Expr { op: Add, children: [426, 687] }
+NODE Expr { op: Add, children: [418, 689] }
+NODE Expr { op: Add, children: [421, 691] }
+NODE Expr { op: Add, children: [424, 693] }
+NODE Expr { op: Add, children: [316, 695] }
+NODE Expr { op: Add, children: [213, 212] }
+NODE Expr { op: Add, children: [216, 215] }
+NODE Expr { op: Add, children: [219, 218] }
+NODE Expr { op: Add, children: [306, 916] }
+NODE Expr { op: Add, children: [309, 490] }
+NODE Expr { op: Add, children: [312, 492] }
+NODE Expr { op: Add, children: [312, 494] }
+NODE Expr { op: Add, children: [317, 496] }
+NODE Expr { op: Add, children: [320, 498] }
+NODE Expr { op: Add, children: [669, 365] }
+NODE Expr { op: Add, children: [675, 594] }
+NODE Expr { op: Add, children: [677, 371] }
+NODE Expr { op: Add, children: [675, 420] }
+NODE Expr { op: Add, children: [677, 549] }
+NODE Expr { op: Add, children: [677, 592] }
+NODE Expr { op: Add, children: [681, 417] }
+NODE Expr { op: Add, children: [683, 420] }
+NODE Expr { op: Add, children: [685, 423] }
+NODE Expr { op: Add, children: [687, 426] }
+NODE Expr { op: Add, children: [689, 418] }
+NODE Expr { op: Add, children: [691, 421] }
+NODE Expr { op: Add, children: [693, 424] }
+NODE Expr { op: Add, children: [695, 316] }
+NODE Expr { op: Add, children: [918, 596] }
+NODE Expr { op: Add, children: [977, 598] }
+NODE Expr { op: Add, children: [922, 622] }
+NODE Expr { op: Add, children: [924, 772] }
+NODE Expr { op: Add, children: [916, 883] }
+NODE Expr { op: Add, children: [927, 885] }
+NODE Expr { op: Add, children: [929, 887] }
+NODE Expr { op: Add, children: [931, 306] }
+NODE Expr { op: Add, children: [935, 309] }
+NODE Expr { op: Add, children: [937, 312] }
+NODE Expr { op: Add, children: [939, 596] }
+NODE Expr { op: Add, children: [943, 622] }
+NODE Expr { op: Add, children: [945, 772] }
+NODE Expr { op: Add, children: [947, 306] }
+NODE Expr { op: Add, children: [949, 309] }
+NODE Expr { op: Add, children: [951, 312] }
+NODE Expr { op: Add, children: [953, 596] }
+NODE Expr { op: Add, children: [955, 598] }
+NODE Expr { op: Add, children: [957, 741] }
+NODE Expr { op: Add, children: [959, 428] }
+NODE Expr { op: Add, children: [961, 743] }
+NODE Expr { op: Add, children: [963, 745] }
+NODE Expr { op: Add, children: [965, 747] }
+NODE Expr { op: Add, children: [967, 366] }
+NODE Expr { op: Add, children: [969, 306] }
+NODE Expr { op: Add, children: [971, 309] }
+NODE Expr { op: Add, children: [973, 312] }
+NODE Expr { op: Add, children: [975, 596] }
+NODE Expr { op: Add, children: [979, 741] }
+NODE Expr { op: Add, children: [981, 428] }
+NODE Expr { op: Add, children: [983, 743] }
+NODE Expr { op: Add, children: [985, 745] }
+NODE Expr { op: Add, children: [987, 747] }
+NODE Expr { op: Add, children: [989, 366] }
+NODE Expr { op: Add, children: [991, 750] }
+NODE Expr { op: Add, children: [993, 366] }
+NODE Expr { op: Add, children: [995, 369] }
+NODE Expr { op: Add, children: [997, 429] }
+NODE Expr { op: Add, children: [999, 428] }
+NODE Expr { op: Add, children: [1001, 429] }
+NODE Expr { op: Add, children: [1003, 429] }
+NODE Expr { op: Add, children: [995, 428] }
+NODE Expr { op: Add, children: [1007, 592] }
+NODE Expr { op: Add, children: [1009, 418] }
+NODE Expr { op: Add, children: [1011, 421] }
+NODE Expr { op: Add, children: [1015, 316] }
+NODE Expr { op: Add, children: [1017, 417] }
+NODE Expr { op: Add, children: [1019, 420] }
+NODE Expr { op: Add, children: [1021, 423] }
+NODE Expr { op: Add, children: [1023, 426] }
+NODE Expr { op: Add, children: [1025, 366] }
+NODE Expr { op: Add, children: [1027, 308] }
+NODE Expr { op: Add, children: [1029, 311] }
+NODE Expr { op: Add, children: [1031, 429] }
+NODE Expr { op: Add, children: [1033, 316] }
+NODE Expr { op: Add, children: [1035, 319] }
+NODE Expr { op: Add, children: [1045, 365] }
+NODE Expr { op: Add, children: [1047, 429] }
+NODE Expr { op: Add, children: [1043, 369] }
+NODE Expr { op: Add, children: [1043, 428] }
+NODE Expr { op: Add, children: [1049, 470] }
+NODE Expr { op: Add, children: [1051, 510] }
+NODE Expr { op: Add, children: [1053, 866] }
+NODE Expr { op: Add, children: [1055, 868] }
+NODE Expr { op: Add, children: [1057, 470] }
+NODE Expr { op: Add, children: [1059, 510] }
+NODE Expr { op: Add, children: [417, 1432] }
+NODE Expr { op: Add, children: [215, 1434] }
+NODE Expr { op: Add, children: [1436, 418] }
+CLASS 52
+NODE Expr { op: Add, children: [7, 81] }
+NODE Expr { op: Add, children: [11, 51] }
+NODE Expr { op: Add, children: [143, 10] }
+CLASS 11
+NODE Expr { op: Add, children: [7, 10] }
+CLASS 7
+NODE Expr { op: Lit, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 10
+NODE Expr { op: Mul, children: [9, 806] }
+NODE Expr { op: Mul, children: [806, 9] }
+CLASS 9
+NODE Expr { op: Lit, children: [8] }
+CLASS 8
+NODE Expr { op: Num(NotNan(5579186.847353816)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 51
+NODE Expr { op: Agg, children: [253, 98] }
+NODE Expr { op: Mul, children: [145, 50] }
+NODE Expr { op: Agg, children: [361, 154] }
+NODE Expr { op: Mul, children: [117, 154] }
+NODE Expr { op: Mul, children: [154, 117] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 50
+NODE Expr { op: Agg, children: [361, 373] }
+NODE Expr { op: Agg, children: [253, 49] }
+NODE Expr { op: Mul, children: [117, 373] }
+NODE Expr { op: Mul, children: [373, 117] }
+NODE Expr { op: RMMul, children: [47, 96] }
+NODE Expr { op: RMMul, children: [46, 129] }
+NODE Expr { op: RMMul, children: [109, 558] }
+NODE Expr { op: RMMul, children: [109, 476] }
+NODE Expr { op: Add, children: [1323, 1324] }
+NODE Expr { op: Add, children: [1324, 1323] }
+NODE Expr { op: Add, children: [1327, 1328] }
+NODE Expr { op: Add, children: [1330, 1331] }
+NODE Expr { op: Add, children: [1328, 1327] }
+NODE Expr { op: Add, children: [1331, 1330] }
+NODE Expr { op: Add, children: [1330, 1335] }
+NODE Expr { op: Add, children: [1337, 1338] }
+NODE Expr { op: Add, children: [1327, 1337] }
+NODE Expr { op: Add, children: [1341, 1330] }
+NODE Expr { op: Add, children: [1327, 1343] }
+NODE Expr { op: Add, children: [1345, 1330] }
+NODE Expr { op: Add, children: [1330, 1345] }
+NODE Expr { op: Add, children: [1343, 1338] }
+NODE Expr { op: Add, children: [1349, 1330] }
+NODE Expr { op: Add, children: [1328, 1351] }
+NODE Expr { op: Add, children: [1353, 1354] }
+NODE Expr { op: Add, children: [1356, 1354] }
+NODE Expr { op: Add, children: [1358, 1359] }
+NODE Expr { op: Add, children: [1361, 1359] }
+NODE Expr { op: Add, children: [1363, 1364] }
+NODE Expr { op: Add, children: [1364, 1363] }
+NODE Expr { op: Add, children: [1367, 1368] }
+NODE Expr { op: Add, children: [1370, 1371] }
+NODE Expr { op: Add, children: [1368, 1367] }
+NODE Expr { op: Add, children: [1371, 1370] }
+NODE Expr { op: Add, children: [1370, 1375] }
+NODE Expr { op: Add, children: [1377, 1378] }
+NODE Expr { op: Add, children: [1367, 1377] }
+NODE Expr { op: Add, children: [1381, 1370] }
+NODE Expr { op: Add, children: [1367, 1383] }
+NODE Expr { op: Add, children: [1385, 1370] }
+NODE Expr { op: Add, children: [1370, 1385] }
+NODE Expr { op: Add, children: [1383, 1378] }
+NODE Expr { op: Add, children: [1389, 1370] }
+NODE Expr { op: Add, children: [1368, 1391] }
+NODE Expr { op: Add, children: [1393, 1394] }
+NODE Expr { op: Add, children: [1396, 1394] }
+NODE Expr { op: Add, children: [1398, 1399] }
+NODE Expr { op: Add, children: [1401, 1399] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 373
+NODE Expr { op: RMMul, children: [46, 85] }
+NODE Expr { op: Agg, children: [253, 48] }
+NODE Expr { op: RMMul, children: [47, 805] }
+NODE Expr { op: RMMul, children: [109, 249] }
+NODE Expr { op: RMMul, children: [109, 251] }
+CLASS 47
+NODE Expr { op: Mul, children: [109, 161] }
+NODE Expr { op: Mul, children: [46, 227] }
+NODE Expr { op: Mul, children: [161, 109] }
+NODE Expr { op: Mul, children: [227, 46] }
+CLASS 46
+NODE Expr { op: Bind, children: [12, 0, 1299] }
+NODE Expr { op: Mul, children: [109, 45] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1299
+NODE Expr { op: Udf, children: [1298, 582] }
+CLASS 1298
+NODE Expr { op: Str("selp"), children: [] }
+CLASS 582
+NODE Expr { op: Ubnd, children: [12, 0, 109] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 109
+NODE Expr { op: Add, children: [29, 117] }
+NODE Expr { op: Sub, children: [253, 33, 41] }
+NODE Expr { op: Add, children: [117, 29] }
+NODE Expr { op: Bind, children: [12, 0, 135] }
+NODE Expr { op: Bind, children: [0, 12, 139] }
+NODE Expr { op: Add, children: [301, 544] }
+NODE Expr { op: Add, children: [163, 204] }
+NODE Expr { op: Add, children: [544, 301] }
+NODE Expr { op: Add, children: [204, 163] }
+NODE Expr { op: Bind, children: [12, 0, 336] }
+NODE Expr { op: Bind, children: [0, 12, 340] }
+NODE Expr { op: Add, children: [163, 291] }
+NODE Expr { op: Add, children: [182, 393] }
+NODE Expr { op: Bind, children: [12, 0, 268] }
+NODE Expr { op: Bind, children: [0, 12, 271] }
+NODE Expr { op: Add, children: [301, 182] }
+NODE Expr { op: Add, children: [383, 163] }
+NODE Expr { op: Add, children: [301, 185] }
+NODE Expr { op: Add, children: [293, 163] }
+NODE Expr { op: Add, children: [163, 293] }
+NODE Expr { op: Add, children: [185, 393] }
+NODE Expr { op: Add, children: [615, 163] }
+NODE Expr { op: Add, children: [544, 617] }
+NODE Expr { op: Add, children: [276, 124] }
+NODE Expr { op: Add, children: [283, 124] }
+NODE Expr { op: Add, children: [120, 289] }
+NODE Expr { op: Add, children: [187, 289] }
+NODE Expr { op: Add, children: [1192, 1193] }
+NODE Expr { op: Add, children: [1195, 1196] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 41
+NODE Expr { op: Add, children: [40, 117] }
+NODE Expr { op: Add, children: [117, 40] }
+NODE Expr { op: Bind, children: [32, 0, 135] }
+NODE Expr { op: Bind, children: [0, 32, 139] }
+NODE Expr { op: Add, children: [126, 159] }
+NODE Expr { op: Add, children: [240, 127] }
+NODE Expr { op: Bind, children: [32, 0, 268] }
+NODE Expr { op: Bind, children: [0, 32, 271] }
+NODE Expr { op: Add, children: [660, 126] }
+NODE Expr { op: Add, children: [127, 346] }
+NODE Expr { op: Add, children: [662, 463] }
+NODE Expr { op: Add, children: [664, 466] }
+CLASS 660
+NODE Expr { op: Bind, children: [32, 0, 1104] }
+NODE Expr { op: Add, children: [117, 127] }
+NODE Expr { op: Bind, children: [0, 32, 1106] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1104
+NODE Expr { op: Udf, children: [100, 1085, 133] }
+CLASS 100
+NODE Expr { op: Str("m1mul"), children: [] }
+CLASS 1085
+NODE Expr { op: Ubnd, children: [32, 0, 37] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 37
+NODE Expr { op: Mul, children: [36, 806] }
+NODE Expr { op: Mul, children: [806, 36] }
+CLASS 36
+NODE Expr { op: Mat, children: [24, 33, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 133
+NODE Expr { op: Ubnd, children: [32, 0, 34] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 126
+NODE Expr { op: Mul, children: [145, 90] }
+NODE Expr { op: Mul, children: [90, 145] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 90
+NODE Expr { op: Mul, children: [35, 34] }
+CLASS 35
+NODE Expr { op: Mat, children: [21, 33, 361, 22] }
+CLASS 21
+NODE Expr { op: Str("Xw"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 22
+NODE Expr { op: Nnz, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 227
+NODE Expr { op: Mat, children: [18, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 34] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 805
+NODE Expr { op: Mat, children: [24, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 36] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 52
+NODE Expr { op: Add, children: [7, 81] }
+NODE Expr { op: Add, children: [11, 51] }
+NODE Expr { op: Add, children: [143, 10] }
+CLASS 11
+NODE Expr { op: Add, children: [7, 10] }
+CLASS 7
+NODE Expr { op: Lit, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 10
+NODE Expr { op: Mul, children: [9, 806] }
+NODE Expr { op: Mul, children: [806, 9] }
+CLASS 9
+NODE Expr { op: Lit, children: [8] }
+CLASS 8
+NODE Expr { op: Num(NotNan(5579186.847353816)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 51
+NODE Expr { op: Agg, children: [253, 98] }
+NODE Expr { op: Mul, children: [145, 50] }
+NODE Expr { op: Agg, children: [361, 154] }
+NODE Expr { op: Mul, children: [117, 154] }
+NODE Expr { op: Mul, children: [154, 117] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 50
+NODE Expr { op: Agg, children: [361, 373] }
+NODE Expr { op: Agg, children: [253, 49] }
+NODE Expr { op: Mul, children: [117, 373] }
+NODE Expr { op: Mul, children: [373, 117] }
+NODE Expr { op: RMMul, children: [47, 96] }
+NODE Expr { op: RMMul, children: [46, 129] }
+NODE Expr { op: RMMul, children: [109, 558] }
+NODE Expr { op: RMMul, children: [109, 476] }
+NODE Expr { op: Add, children: [1323, 1324] }
+NODE Expr { op: Add, children: [1324, 1323] }
+NODE Expr { op: Add, children: [1327, 1328] }
+NODE Expr { op: Add, children: [1330, 1331] }
+NODE Expr { op: Add, children: [1328, 1327] }
+NODE Expr { op: Add, children: [1331, 1330] }
+NODE Expr { op: Add, children: [1330, 1335] }
+NODE Expr { op: Add, children: [1337, 1338] }
+NODE Expr { op: Add, children: [1327, 1337] }
+NODE Expr { op: Add, children: [1341, 1330] }
+NODE Expr { op: Add, children: [1327, 1343] }
+NODE Expr { op: Add, children: [1345, 1330] }
+NODE Expr { op: Add, children: [1330, 1345] }
+NODE Expr { op: Add, children: [1343, 1338] }
+NODE Expr { op: Add, children: [1349, 1330] }
+NODE Expr { op: Add, children: [1328, 1351] }
+NODE Expr { op: Add, children: [1353, 1354] }
+NODE Expr { op: Add, children: [1356, 1354] }
+NODE Expr { op: Add, children: [1358, 1359] }
+NODE Expr { op: Add, children: [1361, 1359] }
+NODE Expr { op: Add, children: [1363, 1364] }
+NODE Expr { op: Add, children: [1364, 1363] }
+NODE Expr { op: Add, children: [1367, 1368] }
+NODE Expr { op: Add, children: [1370, 1371] }
+NODE Expr { op: Add, children: [1368, 1367] }
+NODE Expr { op: Add, children: [1371, 1370] }
+NODE Expr { op: Add, children: [1370, 1375] }
+NODE Expr { op: Add, children: [1377, 1378] }
+NODE Expr { op: Add, children: [1367, 1377] }
+NODE Expr { op: Add, children: [1381, 1370] }
+NODE Expr { op: Add, children: [1367, 1383] }
+NODE Expr { op: Add, children: [1385, 1370] }
+NODE Expr { op: Add, children: [1370, 1385] }
+NODE Expr { op: Add, children: [1383, 1378] }
+NODE Expr { op: Add, children: [1389, 1370] }
+NODE Expr { op: Add, children: [1368, 1391] }
+NODE Expr { op: Add, children: [1393, 1394] }
+NODE Expr { op: Add, children: [1396, 1394] }
+NODE Expr { op: Add, children: [1398, 1399] }
+NODE Expr { op: Add, children: [1401, 1399] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 373
+NODE Expr { op: RMMul, children: [46, 85] }
+NODE Expr { op: Agg, children: [253, 48] }
+NODE Expr { op: RMMul, children: [47, 805] }
+NODE Expr { op: RMMul, children: [109, 249] }
+NODE Expr { op: RMMul, children: [109, 251] }
+CLASS 47
+NODE Expr { op: Mul, children: [109, 161] }
+NODE Expr { op: Mul, children: [46, 227] }
+NODE Expr { op: Mul, children: [161, 109] }
+NODE Expr { op: Mul, children: [227, 46] }
+CLASS 46
+NODE Expr { op: Bind, children: [12, 0, 1299] }
+NODE Expr { op: Mul, children: [109, 45] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1299
+NODE Expr { op: Udf, children: [1298, 582] }
+CLASS 1298
+NODE Expr { op: Str("selp"), children: [] }
+CLASS 582
+NODE Expr { op: Ubnd, children: [12, 0, 109] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 109
+NODE Expr { op: Add, children: [29, 117] }
+NODE Expr { op: Sub, children: [253, 33, 41] }
+NODE Expr { op: Add, children: [117, 29] }
+NODE Expr { op: Bind, children: [12, 0, 135] }
+NODE Expr { op: Bind, children: [0, 12, 139] }
+NODE Expr { op: Add, children: [301, 544] }
+NODE Expr { op: Add, children: [163, 204] }
+NODE Expr { op: Add, children: [544, 301] }
+NODE Expr { op: Add, children: [204, 163] }
+NODE Expr { op: Bind, children: [12, 0, 336] }
+NODE Expr { op: Bind, children: [0, 12, 340] }
+NODE Expr { op: Add, children: [163, 291] }
+NODE Expr { op: Add, children: [182, 393] }
+NODE Expr { op: Bind, children: [12, 0, 268] }
+NODE Expr { op: Bind, children: [0, 12, 271] }
+NODE Expr { op: Add, children: [301, 182] }
+NODE Expr { op: Add, children: [383, 163] }
+NODE Expr { op: Add, children: [301, 185] }
+NODE Expr { op: Add, children: [293, 163] }
+NODE Expr { op: Add, children: [163, 293] }
+NODE Expr { op: Add, children: [185, 393] }
+NODE Expr { op: Add, children: [615, 163] }
+NODE Expr { op: Add, children: [544, 617] }
+NODE Expr { op: Add, children: [276, 124] }
+NODE Expr { op: Add, children: [283, 124] }
+NODE Expr { op: Add, children: [120, 289] }
+NODE Expr { op: Add, children: [187, 289] }
+NODE Expr { op: Add, children: [1192, 1193] }
+NODE Expr { op: Add, children: [1195, 1196] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 41
+NODE Expr { op: Add, children: [40, 117] }
+NODE Expr { op: Add, children: [117, 40] }
+NODE Expr { op: Bind, children: [32, 0, 135] }
+NODE Expr { op: Bind, children: [0, 32, 139] }
+NODE Expr { op: Add, children: [126, 159] }
+NODE Expr { op: Add, children: [240, 127] }
+NODE Expr { op: Bind, children: [32, 0, 268] }
+NODE Expr { op: Bind, children: [0, 32, 271] }
+NODE Expr { op: Add, children: [660, 126] }
+NODE Expr { op: Add, children: [127, 346] }
+NODE Expr { op: Add, children: [662, 463] }
+NODE Expr { op: Add, children: [664, 466] }
+CLASS 660
+NODE Expr { op: Bind, children: [32, 0, 1104] }
+NODE Expr { op: Add, children: [117, 127] }
+NODE Expr { op: Bind, children: [0, 32, 1106] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1104
+NODE Expr { op: Udf, children: [100, 1085, 133] }
+CLASS 100
+NODE Expr { op: Str("m1mul"), children: [] }
+CLASS 1085
+NODE Expr { op: Ubnd, children: [32, 0, 37] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 37
+NODE Expr { op: Mul, children: [36, 806] }
+NODE Expr { op: Mul, children: [806, 36] }
+CLASS 36
+NODE Expr { op: Mat, children: [24, 33, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 133
+NODE Expr { op: Ubnd, children: [32, 0, 34] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 126
+NODE Expr { op: Mul, children: [145, 90] }
+NODE Expr { op: Mul, children: [90, 145] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 90
+NODE Expr { op: Mul, children: [35, 34] }
+CLASS 35
+NODE Expr { op: Mat, children: [21, 33, 361, 22] }
+CLASS 21
+NODE Expr { op: Str("Xw"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 22
+NODE Expr { op: Nnz, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 227
+NODE Expr { op: Mat, children: [18, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 34] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 805
+NODE Expr { op: Mat, children: [24, 253, 361, 19] }
+NODE Expr { op: Sub, children: [253, 33, 36] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 253
+NODE Expr { op: Dim, children: [12, 13] }
+NODE Expr { op: Sub, children: [253, 33, 33] }
+CLASS 12
+NODE Expr { op: Str("vsall_i804878"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 63
+NODE Expr { op: Ubnd, children: [0, 0, 62] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 62
+NODE Expr { op: Add, children: [61, 9] }
+NODE Expr { op: Add, children: [9, 61] }
+CLASS 9
+NODE Expr { op: Lit, children: [8] }
+CLASS 8
+NODE Expr { op: Num(NotNan(5579186.847353816)), children: [] }
+CLASS 61
+NODE Expr { op: Agg, children: [361, 1287] }
+NODE Expr { op: Agg, children: [718, 60] }
+NODE Expr { op: Mul, children: [117, 1287] }
+NODE Expr { op: RMMul, children: [58, 517] }
+CLASS 58
+NODE Expr { op: Mul, children: [56, 57] }
+CLASS 56
+NODE Expr { op: Mat, children: [24, 718, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 718
+NODE Expr { op: Dim, children: [54, 13] }
+NODE Expr { op: Sub, children: [718, 33, 33] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 57
+NODE Expr { op: Bind, children: [54, 0, 1296] }
+NODE Expr { op: Bind, children: [54, 0, 44] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 44
+NODE Expr { op: Udf, children: [31, 42, 43] }
+CLASS 31
+NODE Expr { op: Str("b(>)"), children: [] }
+CLASS 42
+NODE Expr { op: Ubnd, children: [32, 0, 41] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 41
+NODE Expr { op: Add, children: [40, 117] }
+NODE Expr { op: Add, children: [117, 40] }
+NODE Expr { op: Bind, children: [32, 0, 135] }
+NODE Expr { op: Bind, children: [0, 32, 139] }
+NODE Expr { op: Add, children: [126, 159] }
+NODE Expr { op: Add, children: [240, 127] }
+NODE Expr { op: Bind, children: [32, 0, 268] }
+NODE Expr { op: Bind, children: [0, 32, 271] }
+NODE Expr { op: Add, children: [660, 126] }
+NODE Expr { op: Add, children: [127, 346] }
+NODE Expr { op: Add, children: [662, 463] }
+NODE Expr { op: Add, children: [664, 466] }
+CLASS 660
+NODE Expr { op: Bind, children: [32, 0, 1104] }
+NODE Expr { op: Add, children: [117, 127] }
+NODE Expr { op: Bind, children: [0, 32, 1106] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 1104
+NODE Expr { op: Udf, children: [100, 1085, 133] }
+CLASS 100
+NODE Expr { op: Str("m1mul"), children: [] }
+CLASS 1085
+NODE Expr { op: Ubnd, children: [32, 0, 37] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 37
+NODE Expr { op: Mul, children: [36, 806] }
+NODE Expr { op: Mul, children: [806, 36] }
+CLASS 36
+NODE Expr { op: Mat, children: [24, 33, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 806
+NODE Expr { op: Lit, children: [1] }
+NODE Expr { op: Sub, children: [253, 33, 806] }
+CLASS 1
+NODE Expr { op: Num(NotNan(0.00002490661231180007)), children: [] }
+CLASS 133
+NODE Expr { op: Ubnd, children: [32, 0, 34] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 126
+NODE Expr { op: Mul, children: [145, 90] }
+NODE Expr { op: Mul, children: [90, 145] }
+CLASS 145
+NODE Expr { op: Lit, children: [3] }
+NODE Expr { op: Sub, children: [253, 33, 145] }
+CLASS 3
+NODE Expr { op: Num(NotNan(-1.0)), children: [] }
+CLASS 90
+NODE Expr { op: Mul, children: [35, 34] }
+CLASS 35
+NODE Expr { op: Mat, children: [21, 33, 361, 22] }
+CLASS 21
+NODE Expr { op: Str("Xw"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 22
+NODE Expr { op: Nnz, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 34
+NODE Expr { op: Mat, children: [18, 33, 361, 19] }
+CLASS 18
+NODE Expr { op: Str("Y"), children: [] }
+CLASS 33
+NODE Expr { op: Dim, children: [32, 13] }
+CLASS 32
+NODE Expr { op: Str("vadd_i732908"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 43
+NODE Expr { op: Ubnd, children: [0, 0, 7] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 7
+NODE Expr { op: Lit, children: [6] }
+CLASS 6
+NODE Expr { op: Num(NotNan(0.0)), children: [] }
+CLASS 517
+NODE Expr { op: Mul, children: [117, 56] }
+NODE Expr { op: Agg, children: [361, 56] }
+NODE Expr { op: Mul, children: [56, 117] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 56
+NODE Expr { op: Mat, children: [24, 718, 361, 19] }
+CLASS 24
+NODE Expr { op: Str("Xd"), children: [] }
+CLASS 718
+NODE Expr { op: Dim, children: [54, 13] }
+NODE Expr { op: Sub, children: [718, 33, 33] }
+CLASS 54
+NODE Expr { op: Str("vsall_i484157"), children: [] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 361
+NODE Expr { op: Dim, children: [0, 15] }
+NODE Expr { op: Sub, children: [253, 33, 361] }
+NODE Expr { op: Sub, children: [718, 33, 361] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 15
+NODE Expr { op: Num(NotNan(1.0)), children: [] }
+CLASS 19
+NODE Expr { op: Nnz, children: [13] }
+CLASS 13
+NODE Expr { op: Num(NotNan(10000.0)), children: [] }
+CLASS 76
+NODE Expr { op: Ubnd, children: [0, 0, 75] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 0
+NODE Expr { op: Str("_"), children: [] }
+CLASS 75
+NODE Expr { op: Lit, children: [74] }
+CLASS 74
+NODE Expr { op: Num(NotNan(0.0000000001)), children: [] }
+(step_sz
+  (b-
+    _
+    _
+    (+
+      (*
+        (lit -1)
+        (b+
+          _
+          _
+          (udf
+            b(/)
+            (b-
+              _
+              _
+              (+
+                (+ (lit 0) (* (lit 5579186.847353816) (lit 0.00002490661231180007)))
+                (*
+                  (lit -1)
+                  (sum
+                    (dim _ 1)
+                    (rm*
+                      (*
+                        (b+
+                          vsall_i804878
+                          _
+                          (udf
+                            selp
+                            (b-
+                              vsall_i804878
+                              _
+                              (subst
+                                (dim vsall_i804878 10000)
+                                (dim vadd_i732908 10000)
+                                (+
+                                  (b+
+                                    vadd_i732908
+                                    _
+                                    (udf
+                                      m1mul
+                                      (b-
+                                        vadd_i732908
+                                        _
+                                        (*
+                                          (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                          (lit 0.00002490661231180007)))
+                                      (b- vadd_i732908 _ (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))
+                                  (*
+                                    (lit -1)
+                                    (*
+                                      (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                      (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))))))
+                        (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                      (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))))))
+            (b-
+              _
+              _
+              (+
+                (lit 5579186.847353816)
+                (rm*
+                  (*
+                    (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+                    (b+
+                      vsall_i484157
+                      _
+                      (udf
+                        b(>)
+                        (b-
+                          vadd_i732908
+                          _
+                          (+
+                            (b+
+                              vadd_i732908
+                              _
+                              (udf
+                                m1mul
+                                (b-
+                                  vadd_i732908
+                                  _
+                                  (*
+                                    (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                    (lit 0.00002490661231180007)))
+                                (b- vadd_i732908 _ (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))
+                            (*
+                              (lit -1)
+                              (*
+                                (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))
+                        (b- _ _ (lit 0)))))
+                  (sum (dim _ 1) (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000)))))))))
+      (lit 0.00002490661231180007))))
+(continue1
+  (udf
+    b(>=)
+    (udf
+      b(/)
+      (b-
+        _
+        _
+        (*
+          (+
+            (+ (lit 0) (* (lit 5579186.847353816) (lit 0.00002490661231180007)))
+            (*
+              (lit -1)
+              (sum
+                (dim _ 1)
+                (rm*
+                  (*
+                    (b+
+                      vsall_i804878
+                      _
+                      (udf
+                        selp
+                        (b-
+                          vsall_i804878
+                          _
+                          (subst
+                            (dim vsall_i804878 10000)
+                            (dim vadd_i732908 10000)
+                            (+
+                              (b+
+                                vadd_i732908
+                                _
+                                (udf
+                                  m1mul
+                                  (b-
+                                    vadd_i732908
+                                    _
+                                    (*
+                                      (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                      (lit 0.00002490661231180007)))
+                                  (b- vadd_i732908 _ (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))
+                              (*
+                                (lit -1)
+                                (*
+                                  (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                  (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))))))
+                    (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))))))
+          (+
+            (+ (lit 0) (* (lit 5579186.847353816) (lit 0.00002490661231180007)))
+            (*
+              (lit -1)
+              (sum
+                (dim _ 1)
+                (rm*
+                  (*
+                    (b+
+                      vsall_i804878
+                      _
+                      (udf
+                        selp
+                        (b-
+                          vsall_i804878
+                          _
+                          (subst
+                            (dim vsall_i804878 10000)
+                            (dim vadd_i732908 10000)
+                            (+
+                              (b+
+                                vadd_i732908
+                                _
+                                (udf
+                                  m1mul
+                                  (b-
+                                    vadd_i732908
+                                    _
+                                    (*
+                                      (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                                      (lit 0.00002490661231180007)))
+                                  (b- vadd_i732908 _ (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))
+                              (*
+                                (lit -1)
+                                (*
+                                  (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                                  (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))))))
+                    (mat Y (dim vsall_i804878 10000) (dim _ 1) (nnz 10000)))
+                  (mat Xd (dim vsall_i804878 10000) (dim _ 1) (nnz 10000))))))))
+      (b-
+        _
+        _
+        (+
+          (lit 5579186.847353816)
+          (rm*
+            (*
+              (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000))
+              (b+
+                vsall_i484157
+                _
+                (udf
+                  b(>)
+                  (b-
+                    vadd_i732908
+                    _
+                    (+
+                      (b+
+                        vadd_i732908
+                        _
+                        (udf
+                          m1mul
+                          (b-
+                            vadd_i732908
+                            _
+                            (*
+                              (mat Xd (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))
+                              (lit 0.00002490661231180007)))
+                          (b- vadd_i732908 _ (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000)))))
+                      (*
+                        (lit -1)
+                        (*
+                          (mat Xw (dim vadd_i732908 10000) (dim _ 1) (nnz 0))
+                          (mat Y (dim vadd_i732908 10000) (dim _ 1) (nnz 10000))))))
+                  (b- _ _ (lit 0)))))
+            (sum (dim _ 1) (mat Xd (dim vsall_i484157 10000) (dim _ 1) (nnz 10000)))))))
+    (b- _ _ (lit 0.0000000001))))
 Translate RA plan to LA
 got some
-COST BEFORE 25037
-COST AFTER 21039
-SPEEDUP 0.8403163318288932
 got some
-0,0;1;LiteralOp 1;;;M;D;;;;;
-0,0;3;LiteralOp 45;;;M;D;;;;;
-0,0;4;b(+);1,3,;;M;D;;;;;
-0,0;5;TWrite wormhole4;4,;;M;D;;;;;
-0,0;8;TRead Snew;;;M;D;;;;;
-0,0;9;TWrite S;8,;;M;D;;;;;
-0,0;11;TRead R;;;M;D;;;;;
-0,0;13;LiteralOp 0.06564153009798053;;;M;D;;;;;
-0,0;15;LiteralOp -1;;;M;D;;;;;
-0,0;16;b(*);13,15,;;M;D;;;;;
-0,0;18;TRead HV;;;M;D;;;;;
-0,0;19;b(*);16,18,;;M;D;;;;;
-0,0;20;b(+);11,19,;;M;D;;;;;
-0,0;21;TWrite R;20,;;M;D;;;;;
-0,0;22;r(t);20,;;M;D;;;;;
-0,0;23;ba(+*);22,20,;;M;D;;;;;
-0,0;24;TWrite norm_R2;23,;;M;D;;;;;
-0,0;25;b(*);13,18,;;M;D;;;;;
-0,0;26;b(*);15,25,;;M;D;;;;;
-0,0;29;LiteralOp 58.31240854830055;;;M;D;;;;;
-0,0;30;b(/);23,29,;;M;D;;;;;
-0,0;32;TRead V;;;M;D;;;;;
-0,0;33;b(*);30,32,;;M;D;;;;;
-0,0;34;b(+);26,33,;;M;D;;;;;
-0,0;35;b(+);11,34,;;M;D;;;;;
-0,0;36;TWrite V;35,;;M;D;;;;;
-0,0;39;LiteralOp 0.1;;;M;D;;;;;
-0,0;41;LiteralOp 11.757366208701768;;;M;D;;;;;
-0,0;42;b(*);39,41,;;M;D;;;;;
-0,0;43;b(*);42,42,;;M;D;;;;;
-0,0;44;b(<=);23,43,;;M;D;;;;;
-0,0;45;TWrite innerconverge;44,;;M;D;;;;;
+got some
+COST BEFORE 240016
+COST AFTER 140016
+SPEEDUP 0.5833611092593827
+got some
+got some
+got some
+STRNUM id0 Num(NotNan(-1.0))
+0,0;1;LiteralOp -1;;;M;D;;;;;
+STRNUM id2 Str("b(/)")
+STRNUM id3 Num(NotNan(0.0))
+0,0;4;LiteralOp 0;;;M;D;;;;;
+STRNUM id5 Num(NotNan(5579186.847353816))
+0,0;6;LiteralOp 5579186.847353816;;;M;D;;;;;
+STRNUM id7 Num(NotNan(0.00002490661231180007))
+0,0;8;LiteralOp 0.00002490661231180007;;;M;D;;;;;
+0,0;9;b(*);6,8,;;M;D;;;;;
+0,0;10;b(+);4,9,;;M;D;;;;;
+STRNUM id11 Str("Xd")
+STRNUM id12 Num(NotNan(10000.0))
+STRNUM id13 Num(NotNan(1.0))
+0,0;14;TRead Xd;;;M;D;;;;;
+0,0;15;r(t);14,;;M;D;;;;;
+STRNUM id16 Str("selp")
+STRNUM id17 Str("vsall_i804878")
+STRNUM id18 Str("_")
+UNK dim
+0,0;19;UNKNWON OP;17,12,;;M;D;;;;;
+STRNUM id20 Str("vadd_i732908")
+UNK dim
+0,0;21;UNKNWON OP;20,12,;;M;D;;;;;
+STRNUM id22 Str("m1mul")
+0,0;23;b(*);14,8,;;M;D;;;;;
+STRNUM id24 Str("Y")
+0,0;25;TRead Y;;;M;D;;;;;
+0,0;26;m1mul;23,25,;;M;D;;;;;
+STRNUM id27 Str("Xw")
+0,0;28;TRead Xw;;;M;D;;;;;
+0,0;29;b(*);28,25,;;M;D;;;;;
+0,0;30;b(-);26,29,;;M;D;;;;;
+UNK b+
+0,0;31;UNKNWON OP;20,18,30,;;M;D;;;;;
+UNK subst
+0,0;32;UNKNWON OP;19,21,31,;;M;D;;;;;
+UNK b-
+0,0;33;UNKNWON OP;17,18,32,;;M;D;;;;;
+0,0;34;selp;33,;;M;D;;;;;
+0,0;35;b(*);34,25,;;M;D;;;;;
+0,0;36;ba(+*);15,35,;;M;D;;;;;
+0,0;37;b(-);10,36,;;M;D;;;;;
+STRNUM id38 Str("b(>)")
+0,0;39;b(>);30,4,;;M;D;;;;;
+0,0;40;b(*);14,39,;;M;D;;;;;
+0,0;41;ba(+*);15,40,;;M;D;;;;;
+0,0;42;b(+);6,41,;;M;D;;;;;
+0,0;43;b(/);37,42,;;M;D;;;;;
+0,0;44;b(*);1,43,;;M;D;;;;;
+0,0;45;b(+);44,8,;;M;D;;;;;
+0,0;46;TWrite step_sz;45,;;M;D;;;;;
+STRNUM id47 Str("b(>=)")
+0,0;48;b(*);37,37,;;M;D;;;;;
+0,0;49;b(/);48,42,;;M;D;;;;;
+STRNUM id50 Num(NotNan(0.0000000001))
+0,0;51;LiteralOp 0.0000000001;;;M;D;;;;;
+0,0;52;b(>=);49,51,;;M;D;;;;;
+0,0;53;TWrite continue1;52,;;M;D;;;;;

@@ -232,7 +232,7 @@ pub fn udf_meta(op: &str, children: &[&Meta]) -> Meta {
         // NOTE nnz here can be wrong
         "b(^)" | "b(min)" | "b(&)" | "u(sqrt)" | "b(!=)" |
         "b(==)" | "b(>)" | "b(>=)" | "b(<)" | "b(<=)" |
-        "u(exp)" | "u(log)" | "sprop" => {
+        "u(exp)" | "u(log)" | "sprop" | "selp" => {
             println!("got some");
             children[0].clone()
         },
@@ -264,8 +264,8 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     saturate(&mut opt_graph, &rules(), 27, true);
     println!("DONE SATURATING");
     let best = extract(opt_graph, &opt_roots);
-    for _e in best.iter() {
-        //println!("{}", e.pretty(80));
+    for e in best.iter() {
+        println!("{}", e.pretty(80));
     }
     // Translate RA plan to LA
     println!("Translate RA plan to LA");

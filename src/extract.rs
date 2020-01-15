@@ -154,7 +154,11 @@ pub fn extract(egraph: EGraph,
 }
 
 fn find_expr(egraph: &EGraph, class: Id, selected: &HashSet<&Expr<Math, Id>>) -> RecExpr<Math> {
+    println!("CLASS {:?}", class);
     let eclass = egraph.find(class);
+    for n in egraph[class].iter() {
+      println!("NODE {:?}", n);
+    }
     let best_node = egraph[eclass]
         .iter()
         .find(|n| selected.contains(n))

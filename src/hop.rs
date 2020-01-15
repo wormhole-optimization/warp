@@ -145,7 +145,9 @@ pub fn print_dag(egraph: &EGraph) {
         for e in &c.nodes {
             let op = &e.op;
             match op {
-                Str(_) | Num(_) => {},
+                Str(_) | Num(_) => {
+                    println!("STRNUM id{} {:?}", id, op);
+                },
                 Udf => {
                     print!("0,0;{id};", id=id);
                     let f = e.children[0];
@@ -216,7 +218,11 @@ fn dml_op(op: &Math) -> &'static str {
         Srow => "ua(+R)",
         Scol => "ua(+C)",
         Sall => "ua(+RC)",
-        o => panic!("unknown op {:?}", o)
+        // o => panic!("unknown op {:?}", o)
+        o => {
+            println!("UNK {}", o);
+            "UNKNWON OP"
+        }
     }
 }
 
