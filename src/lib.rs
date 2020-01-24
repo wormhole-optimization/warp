@@ -88,7 +88,7 @@ fn saturate(
                     m.apply_random(
                         egraph,
                         limit,
-                        1, &mut rng
+                        5, &mut rng
                     ).len()
                 } else {
                     m.apply_with_limit(

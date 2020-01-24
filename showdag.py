@@ -29,13 +29,13 @@ for hop in f.readlines():
   hop = h[2]
   hchildren = h[3]
   hmeta=h[4].split(',')
-  row, col = (hmeta[0], hmeta[1])
-  # row, col = ("", "")
-  nnz = int(hmeta[4])
-  vol=int(row) * int(col)
-  # sparsity=" "
-  if (vol > 0) & (nnz > 0):
-    sparsity = str(float(nnz) / float(vol))
+  # row, col = (hmeta[0], hmeta[1])
+  row, col = ("", "")
+  # nnz = int(hmeta[4])
+  # vol=int(row) * int(col)
+  sparsity=" "
+  # if (vol > 0) & (nnz > 0):
+  #   sparsity = str(float(nnz) / float(vol))
   
   color = "\"red\""
   if supported(hop):

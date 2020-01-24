@@ -136,10 +136,10 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         drw("agg-subst", "(subst ?e ?v1 (sum ?v2 ?body))", SubstAgg),
         drw("dim_subst", "(subst ?e (dim ?v ?m) (dim ?i ?n))", DimSubst),
         drw("mmul", "(sum ?j (* ?a ?b))", AggMMul),
-        drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
-        drw("axpy", "(+ ?x (* ?p ?y))", Axpy),
-        drw("sprop", "(* ?x (+ (lit 1) (* (lit -1) ?x)))", Sprop),
-        drw("udf_rename", "(b+ ?i ?j (udf ?o (b- ?k ?l ?x) (b- ?m ?n ?y)))", UdfRn),
+        // drw("m1mul", "(+ (lit 1) (* (lit -1) (* ?x ?y)))", MOneMul),
+        // drw("axpy", "(+ ?x (* ?p ?y))", Axpy),
+        // drw("sprop", "(* ?x (+ (lit 1) (* (lit -1) ?x)))", Sprop),
+        // drw("udf_rename", "(b+ ?i ?j (udf ?o (b- ?k ?l ?x) (b- ?m ?n ?y)))", UdfRn),
         // TODO need bind ubnd below
         // rw("selp", "(* ?x (b+ ?i ?j (udf b(>) (b- ?k ?l ?x) (b- _ _ (lit 0)))))", "(b+ ?i ?j (udf selp (b- ?k ?l ?x)))"),
         Rewrite::simple_rewrite(
