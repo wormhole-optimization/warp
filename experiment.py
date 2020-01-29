@@ -2,73 +2,80 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # plt.rcParams.update({'font.size': 13})
+# plt.rcParams["font.family"] = "Times New Roman"
+
+fig, axs = plt.subplots(
+    1, 5,
+    sharey=True,
+    figsize=(12, 4),
+    gridspec_kw={'wspace': 0}
+)
+
+ax1, ax2, ax3, ax4, ax5 = axs
+ax3.set_xlabel('Data Size (Input Dimensions)')
+ax1.set_ylabel(ylabel='Run Time [sec]') #, labelpad=-2)
+ax1.set_yscale('log')
 
 width = 0.2
 
-fig, axs = plt.subplots(1, 5, sharex=True, sharey=True, figsize=(12, 4), gridspec_kw={'hspace': 0, 'wspace': 0})
-(ax1, ax2, ax3, ax4, ax5) = axs
+# GLM L2SVM MLogReg ALS PNMF
 
+results = [
 # k-means
+    {
+        "name" : "ALS",
+        "opt0" : [13.345, 22.8758, 114.7328],
+        "opt2" : [5, 6, 41],
+        "saturate_ra" : [1.5, 2, 14],
+        "saturate_la" : [1.5, 2, 14]
+    },
+    {
+        "name" : "GLM",
+        "opt0" : [10.345, 20.8758, 104.7328],
+        "opt2" : [3, 5, 31],
+        "saturate_ra" : [3, 5, 31],
+        "saturate_la" : [3, 5, 31],
+    },
+    {
+        "name" : "L2SVM",
+        "opt0" : [23.345, 32.8758, 174.7328],
+        "opt2" : [15, 22, 81],
+        "saturate_ra" : [15, 22, 81],
+        "saturate_la" : [15, 22, 81],
+    },
+    {
+        "name" : "MLogReg",
+        "opt0" : [12.345, 24.8758, 134.7328],
+        "opt2" : [6, 7, 40],
+        "saturate_ra" : [4, 4.8, 33],
+        "saturate_la" : [5, 6, 41]
+    },
+    {
+        "name" : "PNMF",
+        "opt0" : [20.345, 35.8758, 104.7328],
+        "opt2" : [8, 11, 71],
+        "saturate_ra" : [2, 2.8, 23],
+        "saturate_la" : [8, 11, 71],
+    }
+]
+
 labels = ['1Mx10', '10Mx10', '10Mx100']
-opt0 = [13.345, 22.8758, 114.7328]
-opt2_nofuse = [5, 6, 41]
-opt2_fuse = [4, 4.8, 33]
-saturate_la = [5, 6, 41]
-
 x = np.arange(len(labels))
-ax1.set_ylabel(ylabel='Run Time [sec]', labelpad=-6)
-ax1.set_yscale('log')
 
-for ax in axs.flat:
+for i, ax in enumerate(axs.flat):
 
-    ax.bar(x-1.5*width, opt0,        width, label='no opt', ec='black', color='0.2')
-    ax.bar(x-0.5*width, opt2_nofuse, width, label='SystemML', ec='black', color='0.5')
-    ax.bar(x+0.5*width, opt2_fuse,   width, label='saturate RA', ec='black', color='white')
-    ax.bar(x+1.5*width, saturate_la, width, label='saturate LA', ec='black', color='white', hatch='//')
+    benchmark = results[i]
+    ax.bar(x-1.5*width, benchmark["opt0"],        width, label='no opt',      ec='black', color='0.2')
+    ax.bar(x-0.5*width, benchmark["opt2"],        width, label='SystemML',    ec='black', color='0.5')
+    ax.bar(x+0.5*width, benchmark["saturate_la"], width, label='saturate LA', ec='black', color='white', hatch='//')
+    ax.bar(x+1.5*width, benchmark["saturate_ra"], width, label='saturate RA', ec='black', color='white')
 
-    ax.set_title('K-Means Execution Time')
+    ax.set_title(benchmark["name"])
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax1.legend()
-    ax3.set_xlabel('Data Size (Input Dimensions)')
-
-for ax in axs.flat:
     ax.label_outer()
 
-yl = plt.ylim()
+ax1.legend()
 
 plt.tight_layout()
-plt.savefig('runtime1.pdf', format='pdf')
-
-# fig, axs = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(8, 4))
-# (ax1, ax2) = axs
-# 
-# plt.ylim(yl)
-# 
-# # k-means
-# labels = ['1Mx10', '1Mx100', '10Mx10', '10Mx100']
-# opt0 = [100, 20, 100, 20]
-# opt2_nofuse = [5, 6, 4, 7]
-# opt2_fuse = [4, 4.8, 3, 6]
-# saturate_la = [5, 6, 4, 7]
-# 
-# x = np.arange(len(labels))
-# ax1.set_ylabel('Execution Time [sec]')
-# ax1.set_yscale('log')
-# 
-# for ax in axs.flat:
-# 
-#     ax.bar(x-1.5*width, opt0,        width, label='no opt', ec='black', color='0.2')
-#     ax.bar(x-0.5*width, opt2_nofuse, width, label='SystemML', ec='black', color='0.5')
-#     ax.bar(x+0.5*width, opt2_fuse,   width, label='saturate RA', ec='black', color='white')
-#     ax.bar(x+1.5*width, saturate_la, width, label='saturate LA', ec='black', color='white', hatch='//')
-# 
-#     ax.set_title('K-Means Execution Time')
-#     ax.set_xticks(x)
-#     ax.set_xticklabels(labels)
-# 
-# for ax in axs.flat:
-#     ax.label_outer()
-# 
-# plt.tight_layout()
-# plt.savefig('runtime2.pdf', format='pdf')
+plt.savefig('runtime.pdf')
