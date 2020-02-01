@@ -272,24 +272,30 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
 
     // Translate LA plan to RA
     println!("Translate LA plan to RA");
+    let start_time = Instant::now();
     let (mut trans_graph, roots) = (lgraph, roots);
-    saturate(&mut trans_graph, &trans_rules(), 20, false);
+    saturate(&mut trans_graph, &trans_rules(), 27, false);
     let trans_ext = Extractor::new(&trans_graph, trans_model);
     let rplans: Vec<_> = roots.iter().map(|r| {
         trans_ext.find_best(*r).expr
     }).collect();
+    let trans_time = start_time.elapsed();
+    println!("TRANS TIME {:?}", trans_time);
     for rp in rplans.iter() {
         println!("{}", rp.pretty(80));
     }
     // Optimize RA plan
     println!("Optimize RA plan");
+    let start_time = Instant::now();
     let mut opt_graph = EGraph::default();
     let opt_roots: Vec<_> = rplans.iter().map(|rp| {
         opt_graph.add_expr(rp)
     }).collect();
     let orig_cost = dag_cost(&opt_graph);
     //println!("ROOT {:?}", opt_roots);
-    saturate(&mut opt_graph, &rules(), 27, true);
+    saturate(&mut opt_graph, &rules(), 17, true);
+    let sat_time = start_time.elapsed();
+    println!("SAT TIME {:?}", sat_time);
     println!("DONE SATURATING");
     let best = extract(opt_graph, &opt_roots);
     for e in best.iter() {

@@ -12,6 +12,7 @@ use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
 };
+use std::time::Instant;
 
 pub fn extract(egraph: EGraph,
                roots: &[Id],)
@@ -126,8 +127,11 @@ pub fn extract(egraph: EGraph,
     }
 
     println!("START SOLVING");
+    let start_time = Instant::now();
     let solver = GurobiSolver::new();
     let result = solver.run(&problem);
+    let solve_time = start_time.elapsed();
+    println!("SOLVE TIME {:?}", solve_time);
     println!("DONE SOLVING");
 
     let var_values = result.unwrap().results;
