@@ -297,25 +297,34 @@ pub fn optimize(lgraph: EGraph, roots: Vec<u32>) -> Vec<RecExpr<Math>> {
     let sat_time = start_time.elapsed();
     println!("SAT TIME {:?}", sat_time);
     println!("DONE SATURATING");
-    let best = extract(opt_graph, &opt_roots);
-    for e in best.iter() {
-        println!("{}", e.pretty(80));
-    }
-    // Translate RA plan to LA
-    println!("Translate RA plan to LA");
-    let mut untrans_graph = EGraph::default();
-    let untrans_roots: Vec<_> = best.iter().map(|p| {
-        untrans_graph.add_expr(p)
-    }).collect();
-    let final_cost = dag_cost(&untrans_graph);
-    saturate(&mut untrans_graph, &untrans_rules(), 50, false);
-    let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
-    let bests = untrans_roots.iter().map(|r| {
+
+    let start_time = Instant::now();
+    let ext = Extractor::new(&opt_graph, <Math as Language>::cost);
+    let bests = opt_roots.iter().map(|r| {
         ext.find_best(*r).expr
     }).collect();
-    println!("COST BEFORE {}", orig_cost);
-    println!("COST AFTER {}", final_cost);
-    println!("SPEEDUP {}", final_cost as f64 / orig_cost as f64);
+    let solv_time = start_time.elapsed();
+    println!("SOLVE TIME {:?}", solv_time);
+
+    // let best = extract(opt_graph, &opt_roots);
+    // for e in best.iter() {
+    //     println!("{}", e.pretty(80));
+    // }
+    // // Translate RA plan to LA
+    // println!("Translate RA plan to LA");
+    // let mut untrans_graph = EGraph::default();
+    // let untrans_roots: Vec<_> = best.iter().map(|p| {
+    //     untrans_graph.add_expr(p)
+    // }).collect();
+    // let final_cost = dag_cost(&untrans_graph);
+    // saturate(&mut untrans_graph, &untrans_rules(), 50, false);
+    // let ext = Extractor::new(&untrans_graph, <Math as Language>::cost);
+    // let bests = untrans_roots.iter().map(|r| {
+    //     ext.find_best(*r).expr
+    // }).collect();
+    // println!("COST BEFORE {}", orig_cost);
+    // println!("COST AFTER {}", final_cost);
+    // println!("SPEEDUP {}", final_cost as f64 / orig_cost as f64);
     bests
 }
 
