@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# plt.rcParams.update({'font.size': 13})
+plt.rcParams.update({'font.size': 9})
 # plt.rcParams["font.family"] = "Times New Roman"
 
 fig, axs = plt.subplots(
-    1, 5,
-    sharex=True,
+    2, 3,
     sharey=True,
-    figsize=(12, 3),
+    figsize=(5, 4),
     gridspec_kw={'wspace': 0}
 )
 # add a big axes, hide frame
@@ -16,12 +15,13 @@ fig, axs = plt.subplots(
 # hide tick and tick label of the big axes
 # plt.tick_params(labelcolor='none', top='off', bottom='off', left='off', right='off')
 
-ax1, ax2, ax3, ax4, ax5 = axs
-ax3.set_xlabel('Dataset')
+((ax1, ax2, ax3), (ax4, ax5, ax6)) = axs
+ax5.set_xlabel('Dataset')
 ax1.set_ylabel(ylabel='Run Time [sec]') #, labelpad=-2)
+ax4.set_ylabel(ylabel='Run Time [sec]') #, labelpad=-2)
 ax1.set_yscale('log')
 
-width = 0.4
+width = 0.35
 
 # GLM L2SVM MLogReg ALS PNMF
 
@@ -59,16 +59,22 @@ x = np.arange(len(labels))
 
 for i, ax in enumerate(axs.flat):
 
+    if i == 5:
+      break
+    if i in [1, 2, 4]:
+      ax.yaxis.set_ticks_position('none')
     benchmark = results[i]
     ax.bar(x-0.5*width, benchmark["opt2"],        width, label='SystemML',    ec='black', color='0.5')
-    ax.bar(x+0.5*width, benchmark["saturate_ra"], width, label='SPORES', ec='black', color='0.8')
+    ax.bar(x+0.5*width, benchmark["saturate_ra"], width, label='SPORES', ec='black', color='white')
 
     ax.set_title(benchmark["name"])
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.label_outer()
+
+fig.delaxes(ax6)
 handles, labels = ax5.get_legend_handles_labels()
-ax5.legend(loc = "upper right",  prop={'size': 8})
+ax5.legend(loc='center left', bbox_to_anchor=(1.1, 0.5))
 # fig.legend(handles, labels, loc='lower left', ncol = 2, bbox_to_anchor=(0.15,0))
 
 # plt.xlabel('Dataset')
