@@ -208,6 +208,15 @@ fn schema() {
 }
 
 #[test]
+fn semiring() {
+    prove_something(
+        5_000,
+        "(sum (dim w 10) (* (mat i (dim w 10) (dim w 10) (nnz 4)) (+ (mat e (dim z 10) (dim w 10) (nnz 4)) (sum (dim y 10) (sum (dim u 10) (sum (dim v 10) ( * (mat r (dim y 10) (dim u 10) (nnz 4)) (* (mat f (dim y 10) (dim v 10) (nnz 4)) (ind (* (mat i (dim u 10) (dim u 10) (nnz 4)) (mat i (dim v 10) (dim v 10) (nnz 4))) (mat i (dim w 10) (dim w 10) (nnz 4)))))))))))",
+        &["(+ (sum (dim w 10) (* (mat i (dim w 10) (dim w 10) (nnz 4)) (mat e (dim z 10) (dim w 10) (nnz 4)))) (sum (dim y 10) (* (sum (dim u 10) (* (mat i (dim u 10) (dim u 10) (nnz 4)) (mat r (dim y 10) (dim u 10) (nnz 4)))) (sum (dim v 10) (* (mat f (dim y 10) (dim v 10) (nnz 4)) (mat i (dim v 10) (dim v 10) (nnz 4)))))))"]
+    );
+}
+
+#[test]
 fn sum_i_a() {
     prove_something(
         5_000,

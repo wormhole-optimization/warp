@@ -106,7 +106,7 @@ pub fn rules() -> Vec<Rewrite<Math, Meta>> {
         // NOTE udf b(m1mul) breaks b/c parsing
         // rw("bindudf", "(b+ ?i ?j (udf ?o ?x ?y))", "(b+ ?i ?j (udf ?o (b- ?i ?j (b+ ?i ?j ?x)) (b- ?i ?j (b+ ?i ?j ?y))))"),
         // drw("la-bind", "(b+ ?k ?l (b- ?i ?j ?x))", LABind),
-        rw("trivial-id", "(sum ?w (* ?w (ind ?x ?w)))", "?x"),
+        rw("trivial-id", "(sum ?w (* (ind ?x (mat ?i ?w ?w ?n)) (mat ?i ?w ?w ?n)))", "?x"),
         rw("+-commutative", "(+ ?a ?b)", "(+ ?b ?a)"),
         rw("*-commutative", "(* ?a ?b)", "(* ?b ?a)"),
         rw("associate-+r+", "(+ ?a (+ ?b ?c))", "(+ (+ ?a ?b) ?c)"),

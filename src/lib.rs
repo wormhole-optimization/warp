@@ -409,7 +409,7 @@ impl egg::egraph::Metadata<Math> for Meta {
         use Math::*;
         let schema = match expr.op {
             Ind => {
-                debug_assert_eq!(expr.children.len(), 2, "wrong length in add");
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in mul");
                 let x = &expr.children[0];
                 let y = &expr.children[1];
 
@@ -417,9 +417,7 @@ impl egg::egraph::Metadata<Math> for Meta {
                 let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
                 schema.extend(y_schema);
 
-                let sparsity = x.sparsity.and_then(|x| y.sparsity.map(|y| {
-                        min(1.0.into(), x + y)
-                }));
+                let sparsity = min(x.sparsity, y.sparsity);
 
                 let nnz = sparsity.map(|sp| {
                     let vol: usize = schema.values().product();
@@ -800,8 +798,8 @@ define_term! {
         // RA
         Add = "+", Mul = "*", Agg = "sum", RMMul = "rm*",
         Lit = "lit", Var = "var", Mat = "mat",
-        Dim = "dim", Nnz = "nnz", Sub = "subst",
-        Num(Number), Str(String), Ind = "ind",
+        Dim = "dim", Nnz = "nnz", Sub = "subst", Ind = "ind",
+        Num(Number), Str(String),
         // NOTE careful here, TWrite might be parsed as Str
         TWrite(String),
     }
