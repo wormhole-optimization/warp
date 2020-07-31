@@ -408,6 +408,29 @@ impl egg::egraph::Metadata<Math> for Meta {
     fn make(expr: Expr<Math, &Self>) -> Self {
         use Math::*;
         let schema = match expr.op {
+            Ind => {
+                debug_assert_eq!(expr.children.len(), 2, "wrong length in add");
+                let x = &expr.children[0];
+                let y = &expr.children[1];
+
+                let mut schema = x.schema.as_ref().unwrap().get_schm().clone();
+                let y_schema = y.schema.as_ref().unwrap().get_schm().clone();
+                schema.extend(y_schema);
+
+                let sparsity = x.sparsity.and_then(|x| y.sparsity.map(|y| {
+                        min(1.0.into(), x + y)
+                }));
+
+                let nnz = sparsity.map(|sp| {
+                    let vol: usize = schema.values().product();
+                    let nnz = NotNan::from(vol as f64) * sp;
+                    nnz.round() as usize
+                });
+
+                let schema = Some(Schema::Schm(schema));
+
+                Meta {schema, sparsity, nnz}
+            },
             Add => {
                 debug_assert_eq!(expr.children.len(), 2, "wrong length in add");
                 let x = &expr.children[0];
@@ -778,7 +801,7 @@ define_term! {
         Add = "+", Mul = "*", Agg = "sum", RMMul = "rm*",
         Lit = "lit", Var = "var", Mat = "mat",
         Dim = "dim", Nnz = "nnz", Sub = "subst",
-        Num(Number), Str(String),
+        Num(Number), Str(String), Ind = "ind",
         // NOTE careful here, TWrite might be parsed as Str
         TWrite(String),
     }
